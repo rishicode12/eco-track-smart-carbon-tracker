@@ -1,51 +1,37 @@
-<<<<<<< HEAD
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Backend Build Output & Dependencies
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Frontend Dependencies & Build Output
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/src/environments/environment.prod.ts
 
-### IntelliJ IDEA ###
-.idea
+# Environment Files & Local Secrets
+.env
+*.env
+backend/.env
+frontend/.env
+backend/src/main/resources/application-local.properties
+
+# IDE & Editor Files
+.vscode/
+.idea/
 *.iws
 *.iml
 *.ipr
+.classpath
+.project
+.settings/
+.factorypath
+.springBeans
+.sts4-cache/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-=======
-# Compiled class file
+# General Generated Files & Logs
 *.class
-
-# Log file
 *.log
-
-# BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
@@ -53,8 +39,9 @@ build/
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
->>>>>>> e934b292286a74516a227325659f2d325698f499
+
+# System Noise
+.DS_Store
+Thumbs.db
