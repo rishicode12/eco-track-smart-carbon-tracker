@@ -1,0 +1,156 @@
+<div class="fade-in-section">
+  <div class="profile-header">
+    <h1>User Profile Management</h1>
+    <p class="subtitle text-secondary">Manage your corporate credentials, sustainability preferences, and view achieved badges.</p>
+  </div>
+
+  <div class="profile-layout-grid">
+    <!-- Left Column: User details forms -->
+    <div class="profile-main-area">
+      <div class="eco-card form-card">
+        
+        <!-- YAHAN EDIT BUTTON ADD KIYA HAI -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="margin: 0;">Account Information</h3>
+          <button type="button" class="btn btn-outline-primary" *ngIf="!isEditing" (click)="toggleEdit()">
+            <i class="bi bi-pencil"></i> Edit Profile
+          </button>
+        </div>
+
+        <form (submit)="onSaveSettings(); $event.preventDefault();" class="profile-form">
+          
+          <div class="avatar-edit-widget">
+            <img [src]="profilePicture ? profilePicture : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'" class="avatar-lg" alt="Avatar" />
+            <input type="file" #fileInput style="display: none" accept="image/*" (change)="onFileSelected($event)">
+            
+            <!-- Picture change button hamesha kaam karega -->
+            <button type="button" class="btn btn-outline-light btn-change-avatar" (click)="fileInput.click()" [disabled]="isUploading">
+              {{ isUploading ? 'Uploading...' : 'Change Picture' }}
+            </button>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-item">
+              <label for="fullname">Full Name</label>
+              <!-- Form disabled rahega jab tak Edit click na ho -->
+              <input type="text" id="fullname" [(ngModel)]="fullname" name="fullname" [disabled]="!isEditing" />
+            </div>
+            <div class="form-item">
+              <label for="email">Corporate Email</label>
+              <!-- Email hamesha ke liye disabled hai (user isey change nahi kar sakta) -->
+              <input type="email" id="email" [(ngModel)]="email" name="email" disabled style="opacity: 0.7; cursor: not-allowed;" title="Email cannot be changed" />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-item">
+              <label for="role">Corporate Role</label>
+              <input type="text" id="role" [(ngModel)]="role" name="role" [disabled]="!isEditing" />
+            </div>
+            <div class="form-item">
+              <label for="location">Location Office</label>
+              <input type="text" id="location" [(ngModel)]="location" name="location" [disabled]="!isEditing" />
+            </div>
+          </div>
+
+          <h3 style="margin-top: 30px;">Lifestyle Configuration</h3>
+          <div class="form-row-2">
+            <div class="form-item">
+              <label for="commute">Primary Commute Mode</label>
+              <select id="commute" [(ngModel)]="commuteMode" name="commuteMode" [disabled]="!isEditing">
+                <option value="sedan">Petrol Sedan / SUV</option>
+                <option value="ev">Electric Vehicle (EV)</option>
+                <option value="transit">Public Transit</option>
+              </select>
+            </div>
+            <div class="form-item">
+              <label for="diet">Diet Preference</label>
+              <select id="diet" [(ngModel)]="dietPreference" name="dietPreference" [disabled]="!isEditing">
+                <option value="meat">Meat / High-carbon</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="vegan">Vegan / Plant-based</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-item">
+              <label for="country">Country</label>
+              <select id="country" [(ngModel)]="country" name="country" [disabled]="!isEditing">
+                <option value="">-- Select Country --</option>
+                <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- BUTTONS AREA UPDATE: Cancel aur Save dono add kiye hain -->
+          <div class="form-actions" *ngIf="isEditing || message">
+            <span class="success-message-text" *ngIf="message">{{ message }}</span>
+            <button type="button" class="btn btn-secondary" *ngIf="isEditing" (click)="cancelEdit()" style="margin-right: 15px;">Cancel</button>
+            <button type="submit" class="btn btn-primary save-btn" *ngIf="isEditing">Save Changes</button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column: Preferences Checklist & Badges -->
+    <div class="profile-side-area">
+      <!-- Preferences Interests Card -->
+      <div class="eco-card side-widget-card">
+        <h3>Environmental Interests</h3>
+        <p class="font-sm text-secondary" style="margin-bottom: 16px;">Select interest categories to filter challenges and dashboard logs.</p>
+        <div class="interests-list">
+          <label class="checkbox-label" *ngFor="let item of interests">
+            <input type="checkbox" [(ngModel)]="item.selected" [disabled]="!isEditing" />
+            <span>{{ item.name }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Change Password Card -->
+      <div class="eco-card side-widget-card">
+        <h3>Change Password</h3>
+        <p class="font-sm text-secondary" style="margin-bottom: 16px;">Update your account password.</p>
+        
+        <div class="form-item" style="margin-bottom: 12px;">
+          <label for="currentPassword">Current Password</label>
+          <input type="password" id="currentPassword" [(ngModel)]="currentPassword" name="currentPassword" placeholder="Enter current password" />
+        </div>
+        
+        <div class="form-item" style="margin-bottom: 12px;">
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" [(ngModel)]="newPassword" name="newPassword" placeholder="Enter new password" />
+        </div>
+        
+        <div class="form-item" style="margin-bottom: 16px;">
+          <label for="confirmNewPassword">Confirm New Password</label>
+          <input type="password" id="confirmNewPassword" [(ngModel)]="confirmNewPassword" name="confirmNewPassword" placeholder="Confirm new password" />
+        </div>
+
+        <div class="change-password-actions">
+          <span class="success-message-text" *ngIf="changePasswordMessage" style="color: green;">{{ changePasswordMessage }}</span>
+          <span class="error-message-text" *ngIf="changePasswordError" style="color: red;">{{ changePasswordError }}</span>
+          <button type="button" class="btn btn-primary" (click)="onChangePassword()">Update Password</button>
+        </div>
+      </div>
+
+      <!-- Badges Card -->
+      <div class="eco-card side-widget-card">
+        <h3>Sustainability Badges</h3>
+        <p class="font-sm text-secondary" style="margin-bottom: 20px;">Review your gamified milestones and achievements.</p>
+        <div class="badges-list">
+          <div class="badge-row" *ngFor="let b of badges" [class.locked-badge-row]="!b.unlocked">
+            <div class="badge-icon-circle">
+              <i class="bi" [ngClass]="b.icon"></i>
+            </div>
+            <div class="badge-info-details">
+              <h4>{{ b.name }}</h4>
+              <p>{{ b.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,98 @@
+<!-- Backdrop for Mobile Drawer -->
+<div 
+  class="sidebar-backdrop" 
+  [class.show]="layoutService.mobileSidebarOpen()" 
+  (click)="layoutService.closeMobileSidebar()"
+  aria-hidden="true">
+</div>
+
+<!-- Main Sidebar Container -->
+<aside 
+  class="sidebar-container glass-panel" 
+  [class.collapsed]="layoutService.sidebarCollapsed()"
+  [class.mobile-open]="layoutService.mobileSidebarOpen()">
+  
+  <!-- Sidebar Header: Brand Name and Close Button (Mobile Only) -->
+  <div class="sidebar-header show-only-mobile">
+    <div class="brand">
+      <img src="logo.png" alt="EcoTrack Logo" aria-hidden="true" style="height: 28px; width: 28px; border-radius: 50%; border: 1px solid var(--color-border); background-color: var(--color-card);" />
+      <span class="brand-text">EcoTrack</span>
+    </div>
+    
+    <!-- Mobile Close Button -->
+    <button 
+      class="close-btn show-only-mobile focusable" 
+      (click)="layoutService.closeMobileSidebar()"
+      aria-label="Close menu"
+      title="Close menu">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      <li *ngFor="let item of navItems">
+        <a 
+          [routerLink]="item.route" 
+          routerLinkActive="active" 
+          class="nav-link focusable"
+          (click)="layoutService.closeMobileSidebar()"
+          [title]="layoutService.sidebarCollapsed() ? item.label : ''">
+          <i class="bi nav-icon" [ngClass]="item.icon"></i>
+          <span class="nav-label" *ngIf="!layoutService.sidebarCollapsed()">{{ item.label }}</span>
+          <span class="active-indicator" aria-hidden="true"></span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Sidebar Footer: Calculate Impact & User Profile (as seen in mockup) -->
+  <div class="sidebar-footer" [class.collapsed-footer]="layoutService.sidebarCollapsed()">
+    <!-- Calculate Impact Button -->
+    <a 
+      [routerLink]="['/carbon']" 
+      class="btn btn-primary calculate-impact-btn focusable" 
+      *ngIf="!layoutService.sidebarCollapsed()">
+      <i class="bi bi-calculator"></i> Calculate Impact
+    </a>
+    <a 
+      [routerLink]="['/carbon']" 
+      class="calculate-impact-icon-btn focusable" 
+      *ngIf="layoutService.sidebarCollapsed()" 
+      title="Calculate Impact">
+      <i class="bi bi-calculator"></i>
+    </a>
+
+    <!-- XP / Level Indicator (Matching Screenshot 4 sidebar) -->
+    <div class="level-indicator" *ngIf="!layoutService.sidebarCollapsed()">
+      <div class="level-header">
+        <span class="level-badge">LEVEL 12 EXPLORER</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar success-bar" style="width: 58%"></div>
+      </div>
+      <p class="level-desc">1,240 XP to next rank</p>
+    </div>
+
+    <!-- User Profile Widget -->
+    <div class="sidebar-user-widget">
+      <div class="user-avatar-wrapper">
+        <img 
+         [src]="authService.userProfile()?.profilePicture || 'assets/images/default-avatar.png'" 
+          alt="User Avatar" 
+          class="user-avatar" />
+      </div>
+      <div class="user-meta" *ngIf="!layoutService.sidebarCollapsed()">
+        <span class="user-fullname">{{ authService.userProfile()?.fullName || 'Loading...' }}</span>
+        <span class="user-title">{{ authService.userProfile()?.role || 'User' }}</span>
+      </div>
+    </div>
+
+    <!-- Quick Links (Settings / Support) -->
+    <div class="sidebar-quick-links" *ngIf="!layoutService.sidebarCollapsed()">
+      <a [routerLink]="['/profile']" class="quick-link-item"><i class="bi bi-gear"></i> Settings</a>
+      <a href="#" class="quick-link-item"><i class="bi bi-question-circle"></i> Support</a>
+    </div>
+  </div>
+</aside>

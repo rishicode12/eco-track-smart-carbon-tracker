@@ -1,0 +1,244 @@
+@import './login.component.css';
+
+.signup-box .logo-area {
+  margin-bottom: 24px;
+}
+
+.signup-box .welcome {
+  margin-bottom: 18px;
+}
+
+.signup-box .google-btn {
+  margin-bottom: 16px;
+  padding: 11px 15px;
+}
+
+.signup-box .divider {
+  margin: 18px 0;
+}
+
+.signup-form {
+  gap: 14px;
+}
+
+.signup-form .form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.signup-form .two-columns .form-group {
+  flex: 1;
+}
+
+.signup-form .form-group {
+  gap: 5px;
+}
+
+.signup-form .input-box,
+.signup-form .country-dropdown,
+.signup-form .login-btn,
+.signup-form .google-btn,
+.signup-form .country-option,
+.signup-form .country-clear {
+  transition: transform .2s ease, box-shadow .25s ease, border-color .25s ease, background-color .25s ease, color .25s ease, opacity .25s ease;
+}
+
+.signup-form .input-box {
+  position: relative;
+}
+
+.signup-form .input-box:hover {
+  transform: translateY(-1px);
+}
+
+.signup-form .input-box:focus-within {
+  transform: translateY(-1px);
+}
+
+.signup-form .input-box input,
+.signup-form select {
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+
+.signup-form .input-box input {
+  transition: inherit;
+}
+
+.signup-form .input-box input:hover,
+.signup-form select:hover {
+  border-color: var(--color-primary);
+}
+
+.signup-form .input-box input:focus,
+.signup-form select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), .15);
+}
+
+.signup-form .input-box input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.signup-form .login-btn {
+  padding: 12px 16px;
+}
+
+.signup-form .password-row {
+  align-items: flex-start;
+}
+
+.signup-form .country-field {
+  position: relative;
+}
+
+.signup-form .country-combobox {
+  padding-right: 52px;
+}
+
+.signup-form .country-icon {
+  top: 50%;
+}
+
+.signup-form .country-combobox input {
+  width: 100%;
+  padding-left: 48px;
+  padding-right: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.signup-form .country-combobox input:focus {
+  outline: none;
+}
+
+.signup-form .country-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.signup-form .country-clear:hover {
+  background: rgba(var(--color-primary-rgb), .1);
+  color: var(--color-primary);
+}
+
+.signup-form .country-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-background);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .18);
+}
+
+.signup-form .country-option {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.signup-form .country-option:hover,
+.signup-form .country-option:focus-visible {
+  background: rgba(var(--color-primary-rgb), .1);
+  color: var(--color-primary);
+  outline: none;
+}
+
+.signup-form .country-empty {
+  padding: 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.signup-form select {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  transition: .3s;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+.signup-form select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), .15);
+}
+
+.signup-form select option {
+  color: var(--color-text-primary);
+}
+
+.signup-form .optional-text {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.signup-form .terms-box {
+  align-items: center;
+  gap: 10px;
+}
+
+.signup-btn {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+}
+
+.signup-btn:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 768px) {
+  .signup-form .form-row,
+  .signup-form .two-columns {
+    flex-direction: column;
+  }
+
+  .signup-box .logo-area,
+  .signup-box .welcome,
+  .signup-box .google-btn,
+  .signup-box .divider {
+    margin-bottom: 18px;
+  }
+
+  .signup-form .country-dropdown {
+    position: static;
+    max-height: 220px;
+    margin-top: 8px;
+  }
+
+  .signup-form .country-combobox {
+    padding-right: 44px;
+  }
+}

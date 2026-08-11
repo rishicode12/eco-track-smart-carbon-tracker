@@ -1,0 +1,125 @@
+<div class="fade-in-section">
+  <!-- Search & Navigation Header -->
+  <div class="challenges-top-header">
+    <div class="title-meta">
+      <h1>Challenges & Rewards</h1>
+      <p class="subtitle text-secondary">Engage with your community and earn badges for sustainable actions.</p>
+    </div>
+    
+    <div class="header-search-bar hide-on-mobile">
+      <div class="search-input-wrapper">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search challenges or users..." aria-label="Search" />
+      </div>
+      <button class="nav-bell-btn"><i class="bi bi-bell"></i></button>
+      <button class="btn btn-primary calculate-impact-top-btn"><i class="bi bi-calculator"></i> Calculate Impact</button>
+    </div>
+  </div>
+
+  <div class="challenges-layout-grid">
+    <!-- Main Content Area: Recommended Challenges -->
+    <div class="challenges-main-area">
+      <!-- Active Challenge Banner Card -->
+      <div class="eco-card active-challenge-card">
+        <div class="card-status-badge"><span class="badge-dot"></span> ACTIVE NOW</div>
+        <div class="challenge-title-area">
+          <h2>Plastic-Free Week</h2>
+          <span class="days-left-tag">4 days left</span>
+        </div>
+        
+        <div class="progress-details">
+          <span class="progress-label">Current Progress</span>
+          <span class="progress-pct">65%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar success-bar" style="width: 65%"></div>
+        </div>
+
+        <div class="avatar-group-row">
+          <div class="avatar-group">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
+            <div class="avatar-sm-more">+42</div>
+          </div>
+          <span class="friends-participating">Friends also participating</span>
+        </div>
+      </div>
+
+      <!-- Recommended Section Header -->
+      <div class="section-header">
+        <h3>Recommended Challenges</h3>
+        <p class="font-sm text-secondary">Based on your sustainability interests and local impact.</p>
+      </div>
+
+      <!-- Recommended Grid -->
+      <div class="recommended-grid">
+        <div class="eco-card ch-card" *ngFor="let ch of recommendedChallenges">
+          <div class="ch-image-wrapper">
+            <img [src]="ch.image" [alt]="ch.title" class="ch-img" />
+            <span class="xp-badge">+{{ ch.xp }} XP</span>
+          </div>
+
+          <div class="ch-body">
+            <div class="ch-tags">
+              <span class="tag" *ngFor="let t of ch.tags">{{ t }}</span>
+            </div>
+            <h4>{{ ch.title }}</h4>
+            <p class="ch-desc">{{ ch.desc }}</p>
+          </div>
+
+          <div class="ch-footer">
+            <span class="joined-count"><i class="bi bi-people"></i> {{ ch.joinedCount }}</span>
+            <button 
+              (click)="onJoinChallenge(ch.id)" 
+              class="btn-join-link"
+              [class.joined-btn]="ch.joined">
+              {{ ch.joined ? 'Leave Challenge' : 'Join Challenge' }} &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side Widgets (Leaderboard, Badges) -->
+    <div class="challenges-side-area">
+      <!-- Leaderboard Card -->
+      <div class="eco-card side-widget-card">
+        <div class="widget-header">
+          <h3>Leaderboard</h3>
+          <i class="bi bi-trophy text-warning"></i>
+        </div>
+        <div class="leaderboard-list">
+          <div class="leader-item" *ngFor="let l of leaderboard">
+            <div class="leader-left">
+              <span class="leader-rank">{{ l.rank }}</span>
+              <div class="leader-avatar-placeholder"></div>
+              <span class="leader-name">{{ l.name }}</span>
+            </div>
+            <span class="leader-points text-success">{{ l.points }}</span>
+          </div>
+        </div>
+        <button class="btn btn-text btn-block-link">View Full Leaderboard</button>
+      </div>
+
+      <!-- Latest Badges Card -->
+      <div class="eco-card side-widget-card">
+        <div class="widget-header">
+          <h3>Latest Badges</h3>
+          <i class="bi bi-patch-check text-primary"></i>
+        </div>
+        <div class="badges-grid">
+          <div class="badge-item-box" *ngFor="let b of badges" [title]="b.desc">
+            <div class="badge-icon-box">
+              <i class="bi" [ngClass]="b.icon"></i>
+            </div>
+            <span class="badge-box-name">{{ b.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button + (Matching mockup screenshot 4) -->
+  <button class="fab-btn" title="Create a Challenge"><i class="bi bi-plus-lg"></i></button>
+</div>

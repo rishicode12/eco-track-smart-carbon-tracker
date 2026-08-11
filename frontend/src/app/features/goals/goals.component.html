@@ -1,0 +1,155 @@
+<div class="fade-in-section">
+
+  <div class="goals-header">
+    <h1>Sustainability Goal Management</h1>
+    <p class="subtitle text-secondary">
+      Set target indicators, track real-time goal progress,
+      and optimize your environmental habits.
+    </p>
+  </div>
+
+  @if (errorMessage) {
+    <p class="text-danger goals-alert">
+      {{ errorMessage }}
+    </p>
+  }
+
+  <div class="goals-layout-grid">
+
+    <!-- Form Section -->
+    <div class="eco-card form-card">
+      <h3>
+        {{ editingGoalId !== null ? 'Edit Goal' : 'Create a New Goal' }}
+      </h3>
+
+      <form [formGroup]="goalForm" (ngSubmit)="onSubmitGoal()" class="goal-form">
+        <div class="form-item">
+          <label for="goal-title">Goal Title</label>
+          <input
+            id="goal-title"
+            type="text"
+            formControlName="title"
+            placeholder="e.g. Cut transport emissions this month"
+          >
+          @if (goalForm.controls.title.touched && goalForm.controls.title.invalid) {
+            <span class="field-error">Title is required (max 150 characters).</span>
+          }
+        </div>
+
+        <div class="form-item">
+          <label for="goal-target">Target Carbon Reduction (kg CO₂e)</label>
+          <input
+            id="goal-target"
+            type="number"
+            formControlName="targetCarbonReduction"
+            min="0.1"
+            step="0.1"
+            placeholder="e.g. 50"
+          >
+          @if (goalForm.controls.targetCarbonReduction.touched && goalForm.controls.targetCarbonReduction.invalid) {
+            <span class="field-error">Enter a target greater than zero.</span>
+          }
+        </div>
+
+        <div class="form-item">
+          <label for="goal-deadline">Deadline</label>
+          <input
+            id="goal-deadline"
+            type="date"
+            formControlName="deadline"
+          >
+          @if (goalForm.controls.deadline.touched && goalForm.controls.deadline.invalid) {
+            <span class="field-error">Deadline is required.</span>
+          }
+        </div>
+
+        <button type="submit" class="btn btn-primary create-goal-btn" [disabled]="isSubmitting">
+          <i class="bi" [class.bi-bullseye]="editingGoalId === null" [class.bi-pencil]="editingGoalId !== null"></i>
+          {{ isSubmitting ? (editingGoalId !== null ? 'Updating...' : 'Creating...') : (editingGoalId !== null ? 'Update Goal' : 'Set Goal') }}
+        </button>
+
+        @if (editingGoalId !== null) {
+          <button type="button" class="btn cancel-edit-btn" [disabled]="isSubmitting" (click)="cancelEdit()">
+            Cancel Edit
+          </button>
+        }
+      </form>
+    </div>
+
+    <!-- Goals List Section -->
+    <div class="goals-list-panel">
+      <div class="panel-header">
+        <h3>Your Goals</h3>
+        <span class="badge-active">{{ goals.length }} Total</span>
+      </div>
+
+      @if (isLoading) {
+        <div class="loading-state eco-card">
+          <div class="spinner"></div>
+          <p>Loading your goals...</p>
+        </div>
+      }
+      
+      @else if (goals.length === 0) {
+        <div class="empty-goals eco-card">
+          <i class="bi bi-bullseye"></i>
+          <p>No goals yet. Create your first carbon reduction target.</p>
+        </div>
+      } @else {
+        <div class="goals-grid">
+          @for (goal of goals; track goal.id) {
+            <div class="eco-card goal-card" [class.completed-goal-card]="isCompleted(goal)">
+              
+              <div class="goal-card-header">
+                <div class="goal-icon-wrapper target-icon">
+                  <i class="bi bi-bullseye"></i>
+                </div>
+                <span class="timeframe-tag">{{ goal.deadline | date:'mediumDate' }}</span>
+              </div>
+
+              <div class="goal-info">
+                <h4>{{ goal.title }}</h4>
+                <p class="goal-details">
+                  {{ goal.currentProgress | number:'1.1-1' }} / {{ goal.targetCarbonReduction | number:'1.1-1' }} kg saved
+                </p>
+              </div>
+
+              <!-- Linear Progress Bar -->
+              <div class="linear-progress-wrapper">
+                <div class="linear-progress-track">
+                  <div class="linear-progress-fill" [style.width.%]="progressPercent(goal)"></div>
+                </div>
+                <span class="linear-progress-label">{{ progressPercent(goal) }}% of target</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="goal-actions">
+                @if (!isCompleted(goal)) {
+                  <button type="button" class="btn action-progress-btn btn-complete" (click)="onCompleteGoal(goal.id)">
+                    <i class="bi bi-check2-circle"></i> Mark Complete
+                  </button>
+                } @else {
+                  <button type="button" class="btn action-progress-btn btn-completed-disabled" disabled>
+                    <i class="bi bi-check-all"></i> Goal Met!
+                  </button>
+                }
+                
+                <div class="secondary-actions">
+                  <button type="button" class="btn action-progress-btn btn-edit" (click)="onEditGoal(goal)">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <button type="button" class="btn delete-goal-btn" (click)="onDeleteGoal(goal.id)">
+                    <i class="bi bi-trash3"></i> Delete
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+
+</div>

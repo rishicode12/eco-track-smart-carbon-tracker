@@ -1,0 +1,25 @@
+<div class="layout-shell-vertical">
+  <!-- Pinned Navbar (Full Width) -->
+  <app-navbar></app-navbar>
+
+  <div class="layout-shell">
+    <!-- Pinned Sidebar Component -->
+    <app-sidebar></app-sidebar>
+
+    <!-- Shiftable Content Block -->
+    <div 
+      class="main-content-block" 
+      [class.sidebar-collapsed-mode]="layoutService.sidebarCollapsed()">
+
+      <!-- Scrollable Main View Area -->
+      <main class="page-container">
+        <div class="page-content-wrapper fade-in-section">
+          <router-outlet></router-outlet>
+        </div>
+      </main>
+
+      <!-- Footer Component -->
+      <app-footer></app-footer>
+    </div>
+  </div>
+</div>

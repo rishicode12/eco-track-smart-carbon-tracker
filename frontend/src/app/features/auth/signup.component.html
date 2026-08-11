@@ -1,0 +1,259 @@
+<div class="login-page signup-page">
+  <section class="left-panel">
+    <div class="overlay"></div>
+    <div class="eco-pattern"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="material-symbols-outlined">eco</span>
+        <span>Start Your Sustainability Journey</span>
+      </div>
+
+      <h1>Create your EcoTrack account in minutes.</h1>
+
+      <p>
+        Join the platform for carbon intelligence, smart sustainability tracking, and actionable
+        climate insights across your organization.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="material-symbols-outlined"> check_circle </span>
+          <span>Secure Onboarding</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="material-symbols-outlined"> check_circle </span>
+          <span>Carbon Tracking</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="material-symbols-outlined"> check_circle </span>
+          <span>AI Recommendations</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="circle-design"></div>
+  </section>
+
+  <main class="right-panel">
+    <div class="login-box signup-box">
+      <div class="logo-area">
+        <div class="logo-box">
+          <img src="/logo.png" alt="EcoTrack" />
+        </div>
+
+        <span class="logo-text"> EcoTrack </span>
+      </div>
+
+      <div class="welcome">
+        <h2>Create Account</h2>
+        <p>Join EcoTrack to start managing your sustainability journey.</p>
+      </div>
+
+      <button class="google-btn" type="button" (click)="onGoogleSignup()">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
+        <span> Continue with Google </span>
+      </button>
+
+      <div class="divider">
+        <div class="line"></div>
+        <span> OR SIGN UP WITH EMAIL </span>
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-box">
+          <span class="material-symbols-outlined">error</span>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="login-form signup-form">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <div class="input-box">
+            <span class="material-symbols-outlined input-icon">person</span>
+            <input id="fullName" formControlName="fullName" type="text" placeholder="Jane Doe" />
+          </div>
+          @if (fullName?.touched && (fullName?.invalid || getFieldError('fullName'))) {
+            <div class="validation-error">{{ getFieldError('fullName') || 'Full name is required.' }}</div>
+          }
+        </div>
+
+        <div class="form-group">
+  <label for="email">Email Address</label>
+  <div class="input-box">
+    <span class="material-symbols-outlined input-icon">mail</span>
+    
+    <!-- Yahan pattern aur naya placeholder add kiya hai -->
+    <input 
+      id="email" 
+      formControlName="email" 
+      type="email" 
+      placeholder="e.g., rahul@gmail.com" 
+      pattern="^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com)$" 
+      title="Only Gmail and Outlook are supported" />
+  </div>
+  
+  <!-- Error Message Logic -->
+  @if (email?.touched && (email?.invalid || getFieldError('email'))) {
+    <div class="validation-error">
+      
+      <!-- Agar user ne dusri email daali (Pattern error) toh yeh security alert dikhega -->
+      @if (email?.errors?.['pattern']) {
+        Security Alert: Only @gmail.com or @outlook.com accounts are allowed.
+      } 
+      <!-- Agar field khali hai ya koi aur error hai, toh aapka purana message dikhega -->
+      @else {
+        {{ getFieldError('email') || 'Please enter a valid email address.' }}
+      }
+      
+    </div>
+  }
+</div>
+        
+
+
+        <div class="form-row two-columns password-row">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-box">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input id="password" formControlName="password" [type]="showPassword ? 'text' : 'password'" placeholder="Create a secure password" />
+              <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            @if (password?.touched && (password?.invalid || getFieldError('password'))) {
+              <div class="validation-error">{{ getFieldError('password') || 'Password must be at least 6 characters long.' }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-box">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input id="confirmPassword" formControlName="confirmPassword" [type]="showPassword ? 'text' : 'password'" placeholder="Repeat password" />
+            </div>
+            @if (confirmPassword?.touched && (confirmPassword?.invalid || passwordMismatch)) {
+              <div class="validation-error">Passwords do not match.</div>
+            }
+          </div>
+        </div>
+
+        <div class="form-row two-columns">
+          <div class="form-group">
+            <label for="company">Company <span class="optional-text">(Optional)</span></label>
+            <div class="input-box">
+              <span class="material-symbols-outlined input-icon">domain</span>
+              <input id="company" formControlName="company" type="text" placeholder="EcoTrack Inc." />
+            </div>
+          </div>
+
+          <div class="form-group country-group">
+            <label for="country">Country</label>
+            <div class="country-field">
+              <div class="input-box country-combobox" [class.open]="countryDropdownOpen">
+                <span class="material-symbols-outlined input-icon country-icon">public</span>
+                <input
+                  id="country"
+                  type="text"
+                  [value]="countrySearchTerm || country?.value || ''"
+                  placeholder="Select country"
+                  autocomplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  [attr.aria-expanded]="countryDropdownOpen"
+                  aria-controls="country-options"
+                  (focus)="openCountryDropdown()"
+                  (input)="onCountryInput($event)"
+                  (keydown)="onCountryKeydown($event)"
+                  (blur)="onCountryBlur()"
+                />
+                @if (country?.value) {
+                  <button
+                    type="button"
+                    class="country-clear"
+                    aria-label="Clear selected country"
+                    (click)="clearCountry($event)"
+                  >
+                    <span class="material-symbols-outlined">close</span>
+                  </button>
+                }
+              </div>
+
+              @if (countryDropdownOpen) {
+                <div id="country-options" class="country-dropdown" role="listbox">
+                  @for (countryName of filteredCountries; track trackByCountry($index, countryName)) {
+                    <button
+                      type="button"
+                      class="country-option"
+                      role="option"
+                      (mousedown)="selectCountry(countryName)"
+                    >
+                      {{ countryName }}
+                    </button>
+                  }
+
+                  @if (!filteredCountries.length) {
+                    <div class="country-empty">No countries match your search.</div>
+                  }
+                </div>
+              }
+            </div>
+            @if (country?.touched && (country?.invalid || getFieldError('country'))) {
+              <div class="validation-error">{{ getFieldError('country') || 'Country is required.' }}</div>
+            }
+          </div>
+        </div>
+
+        <div class="remember-box terms-box">
+          <input id="acceptTerms" type="checkbox" formControlName="acceptTerms" />
+          <label for="acceptTerms">I agree to the Terms & Conditions</label>
+        </div>
+        @if (acceptTerms?.touched && (acceptTerms?.invalid || getFieldError('acceptTerms'))) {
+          <div class="validation-error">{{ getFieldError('acceptTerms') || 'You must accept the terms to continue.' }}</div>
+        }
+
+        <button class="login-btn signup-btn" type="submit" [disabled]="signupForm.invalid || isLoading">
+          Create Account
+        </button>
+      </form>
+
+      <footer class="login-footer">
+        <p>
+          Already have an account?
+          <a [routerLink]="['/auth/login']"> Sign In </a>
+        </p>
+
+        <div class="footer-links">
+          <a href="#"> Privacy Policy </a>
+          <a href="#"> Terms of Service </a>
+        </div>
+
+        <div class="copyright">© 2026 EcoTrack. Carbon Footprint & Sustainability Platform.</div>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<div id="signup-feedback" class="login-overlay" [class.show]="isLoading || isSuccess">
+  <div class="overlay-card" [class.active]="isLoading || isSuccess">
+    <div class="overlay-icon">
+      @if (isSuccess) {
+        <span class="material-symbols-outlined"> check </span>
+      } @else {
+        <i class="bi bi-arrow-repeat spinner"></i>
+      }
+    </div>
+
+    <h3>
+      {{ isSuccess ? 'Account Created' : 'Creating Account' }}
+    </h3>
+
+    <p>
+      {{ isSuccess ? 'Redirecting to Dashboard...' : 'Setting up your sustainability workspace...' }}
+    </p>
+  </div>
+</div>

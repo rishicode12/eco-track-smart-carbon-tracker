@@ -1,0 +1,205 @@
+<!-- Login Page -->
+<div class="login-page">
+  <!-- Left Panel -->
+  <section class="left-panel">
+    <div class="overlay"></div>
+    <div class="eco-pattern"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="material-symbols-outlined">eco</span>
+        <span>Intelligence for a Greener Planet</span>
+      </div>
+
+      <h1>Advancing Corporate Sustainability Through Data.</h1>
+
+      <p>
+        Unlock actionable insights, measure carbon footprints in real-time, and lead your
+        organization toward a net-zero future with our AI-driven ESG analytics platform.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="material-symbols-outlined"> check_circle </span>
+          <span>Carbon Auditing</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="material-symbols-outlined"> check_circle </span>
+          <span>ESG Compliance</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="material-symbols-outlined"> check_circle </span>
+          <span>Real-time Analytics</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="circle-design"></div>
+  </section>
+
+  <!-- Right Panel -->
+  <main class="right-panel">
+    <div class="login-box">
+      <!-- Logo -->
+
+      <div class="logo-area">
+        <div class="logo-box">
+          <img src="/logo.png" alt="EcoTrack" />
+        </div>
+
+        <span class="logo-text"> EcoTrack </span>
+      </div>
+
+      <!-- Welcome -->
+
+      <div class="welcome">
+        <h2>Welcome Back</h2>
+
+        <p>Please enter your credentials to access the sustainability dashboard.</p>
+      </div>
+
+      <!-- Google Login -->
+
+      <button class="google-btn" (click)="onSSOLogin()">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
+
+        <span> Sign in with Google </span>
+      </button>
+
+      <!-- Divider -->
+
+      <div class="divider">
+        <div class="line"></div>
+
+        <span> OR LOGIN WITH EMAIL </span>
+      </div>
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+        <div class="error-box">
+          <span class="material-symbols-outlined">error</span>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Email -->
+
+        <div class="form-group">
+          <label for="email"> Email </label>
+
+          <div class="input-box">
+            <span class="material-symbols-outlined input-icon"> mail </span>
+
+            <input
+              formControlName="email"
+              id="email"
+              type="email"
+              placeholder="name@company.com"
+              required
+            />
+          </div>
+
+          @if (email?.invalid && email?.touched) {
+            <div class="validation-error">Please enter a valid corporate email.</div>
+          }
+
+          @if (email?.touched && getFieldError('email')) {
+            <div class="validation-error">{{ getFieldError('email') }}</div>
+          }
+        </div>
+
+        <!-- Password -->
+
+        <div class="form-group">
+          <div class="password-header">
+            <label for="password"> Password </label>
+
+            <a href="/auth/forgot-password"> Forgot Password? </a>
+          </div>
+
+          <div class="input-box">
+            <span class="material-symbols-outlined input-icon"> lock </span>
+
+            <input
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              placeholder="••••••••"
+              required
+            />
+
+            <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+              <span class="material-symbols-outlined">
+                {{ showPassword ? 'visibility_off' : 'visibility' }}
+              </span>
+            </button>
+          </div>
+
+          @if (password?.invalid && password?.touched) {
+            <div class="validation-error">Password must be at least 6 characters long.</div>
+          }
+
+          @if (password?.touched && getFieldError('password')) {
+            <div class="validation-error">{{ getFieldError('password') }}</div>
+          }
+        </div>
+
+        <!-- Remember -->
+
+        <div class="remember-box">
+          <input id="remember" type="checkbox" formControlName="remember" />
+
+          <label for="remember"> Remember this device for 30 days </label>
+        </div>
+
+        <!-- Login Button -->
+
+        <button class="login-btn" type="submit" [disabled]="loginForm.invalid || isLoading">
+          Access Dashboard
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <footer class="login-footer">
+        <p>
+          Don't have an account?
+          <a [routerLink]="['/auth/signup']"> Create Account </a>
+        </p>
+
+        <div class="footer-links">
+          <a href="#"> Privacy Policy </a>
+
+          <a href="#"> Terms of Service </a>
+        </div>
+
+        <div class="copyright">© 2026 EcoTrack. Carbon Footprint & Sustainability Platform.</div>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<!-- Loading / Success Overlay -->
+
+<div id="login-feedback" class="login-overlay" [class.show]="isLoading || isSuccess">
+  <div class="overlay-card" [class.active]="isLoading || isSuccess">
+    <div class="overlay-icon">
+      @if (isSuccess) {
+        <span class="material-symbols-outlined"> check </span>
+      } @else {
+        <i class="bi bi-arrow-repeat spinner"></i>
+      }
+    </div>
+
+    <h3>
+      {{ isSuccess ? 'Authenticated' : 'Authenticating' }}
+    </h3>
+
+    <p>
+      {{ isSuccess ? 'Redirecting to Dashboard...' : 'Preparing your sustainability workspace...' }}
+    </p>
+  </div>
+</div>

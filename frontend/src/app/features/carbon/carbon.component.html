@@ -1,0 +1,363 @@
+<div class="fade-in-section">
+
+  <div class="carbon-header">
+    <h1>Carbon Tracker</h1>
+    <p class="subtitle text-secondary">
+      Calculate and track your personal carbon footprint.
+    </p>
+  </div>
+
+  <div class="calculator-layout-grid">
+
+    <div class="eco-card calc-card">
+
+      <div class="calc-tabs">
+
+        <button
+          type="button"
+          [class.active]="selectedCategory === 'transport'"
+          (click)="setCategory('transport')">
+          <i class="bi bi-car-front"></i>
+          Transport
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedCategory === 'energy'"
+          (click)="setCategory('energy')">
+          <i class="bi bi-lightning-charge"></i>
+          Energy
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedCategory === 'food'"
+          (click)="setCategory('food')">
+          <i class="bi bi-egg-fried"></i>
+          Food
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedCategory === 'waste'"
+          (click)="setCategory('waste')">
+          <i class="bi bi-trash3"></i>
+          Waste
+        </button>
+
+      </div>
+
+      <div class="calc-form">
+
+        @if (selectedCategory === 'transport') {
+          <div class="form-group-wrapper">
+
+            <div class="form-item">
+              <label for="transport-type">Type of Transport</label>
+
+              <select
+                id="transport-type"
+                [(ngModel)]="transportType"
+                (change)="calculateCurrent()">
+
+                <option value="car-petrol">
+                  Petrol Sedan / SUV
+                </option>
+
+                <option value="car-ev">
+                  Electric Vehicle (EV)
+                </option>
+
+                <option value="public-bus">
+                  Public Transit (Bus)
+                </option>
+
+                <option value="public-train">
+                  Train / Metro
+                </option>
+
+              </select>
+            </div>
+
+            <div class="form-item">
+              <label for="distance">
+                Distance Traveled (miles)
+              </label>
+
+              <input
+                type="number"
+                id="distance"
+                [(ngModel)]="distance"
+                (ngModelChange)="calculateCurrent()"
+                placeholder="e.g. 15"
+                min="0">
+            </div>
+
+          </div>
+        }
+
+        @if (selectedCategory === 'energy') {
+          <div class="form-group-wrapper">
+
+            <div class="form-item">
+              <label for="electricity">
+                Electricity Usage (kWh)
+              </label>
+
+              <input
+                type="number"
+                id="electricity"
+                [(ngModel)]="electricityKwh"
+                (ngModelChange)="calculateCurrent()"
+                placeholder="e.g. 150"
+                min="0">
+            </div>
+
+            <div class="form-item">
+              <label for="heating">
+                Heating Gas / Fuel (Units)
+              </label>
+
+              <input
+                type="number"
+                id="heating"
+                [(ngModel)]="heatingGas"
+                (ngModelChange)="calculateCurrent()"
+                placeholder="e.g. 20"
+                min="0">
+            </div>
+
+          </div>
+        }
+
+        @if (selectedCategory === 'food') {
+          <div class="form-group-wrapper">
+
+            <div class="form-item">
+              <label for="diet-type">
+                Diet Type
+              </label>
+
+              <select
+                id="diet-type"
+                [(ngModel)]="dietType"
+                (change)="calculateCurrent()">
+
+                <option value="meat">
+                  Meat / High-carbon Diet
+                </option>
+
+                <option value="vegetarian">
+                  Vegetarian Diet
+                </option>
+
+                <option value="vegan">
+                  Vegan / Plant-based Diet
+                </option>
+
+              </select>
+            </div>
+
+            <div class="form-item">
+              <label for="meals">
+                Number of Meals
+              </label>
+
+              <input
+                type="number"
+                id="meals"
+                [(ngModel)]="dietMeals"
+                (ngModelChange)="calculateCurrent()"
+                placeholder="e.g. 3"
+                min="1">
+            </div>
+
+          </div>
+        }
+
+        @if (selectedCategory === 'waste') {
+          <div class="form-group-wrapper">
+
+            <div class="form-item">
+              <label for="waste-bags">
+                Garbage Generated (Bags)
+              </label>
+
+              <input
+                type="number"
+                id="waste-bags"
+                [(ngModel)]="wasteBags"
+                (ngModelChange)="calculateCurrent()"
+                placeholder="e.g. 2"
+                min="0">
+            </div>
+
+            <div class="form-item">
+              <label for="recycle-rate">
+                Recycling Rate (%)
+              </label>
+
+              <input
+                type="range"
+                id="recycle-rate"
+                [(ngModel)]="wasteRecycleRate"
+                (ngModelChange)="calculateCurrent()"
+                min="0"
+                max="100">
+
+              <span class="range-display">
+                {{ wasteRecycleRate }}% recycled
+              </span>
+            </div>
+
+          </div>
+        }
+
+      </div>
+
+      <div class="calc-result-panel">
+
+        <div class="result-details">
+          <span class="result-label">
+            Calculated Impact
+          </span>
+
+          <h2 class="result-number">
+            {{ calculatedEmissions | number:'1.2-2' }}
+            <span class="result-unit">
+              kg CO₂e
+            </span>
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          [disabled]="calculatedEmissions <= 0 || isSaving"
+          (click)="onLogActivity()"
+          class="btn btn-primary log-activity-btn">
+
+          <i class="bi bi-clipboard-plus"></i>
+
+          {{ isSaving ? 'Saving...' : 'Log Activity' }}
+
+        </button>
+
+      </div>
+
+      @if (saveError) {
+        <div class="carbon-error">
+          {{ saveError }}
+        </div>
+      }
+
+    </div>
+
+
+    <!-- Logged Activities -->
+    <div class="eco-card history-card">
+
+      <div class="history-header">
+        <h3>Logged Activities</h3>
+
+        <span class="badge-count">
+          {{ activityLogs.length }} Entries
+        </span>
+      </div>
+
+      @if (isLoading) {
+
+        <p class="text-secondary history-status">
+          Loading logs...
+        </p>
+
+      }
+      @else if (loadError) {
+
+        <p class="text-danger history-status">
+          {{ loadError }}
+        </p>
+
+      }
+      @else if (activityLogs.length > 0) {
+
+        <div class="history-list">
+
+          @for (log of activityLogs; track log.id) {
+
+            <div class="history-item">
+
+              <div class="history-left">
+
+                <div
+                  class="history-icon"
+                  [ngClass]="getCategoryClass(log)">
+
+                  <i
+                    class="bi"
+                    [ngClass]="getCategoryIcon(log)">
+                  </i>
+
+                </div>
+
+                <div class="history-details">
+
+                  <p class="history-desc-text">
+                    {{ log.description || log.activityCategory }}
+                  </p>
+
+                  <p class="history-date">
+                    {{ log.activityCategory }}
+                    ·
+                    {{ log.loggedAt | date:'medium' }}
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div class="history-right">
+
+                <span class="history-emissions">
+                  +{{ log.co2Impact | number:'1.2-2' }} kg
+                </span>
+
+                <button
+                  type="button"
+                  class="btn btn-text-link delete-log-btn"
+                  (click)="deleteLog(log.id)"
+                  aria-label="Delete carbon activity"
+                  title="Delete activity">
+
+                  <i class="bi bi-trash"></i>
+
+                </button>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      }
+      @else {
+
+        <div class="empty-history">
+
+          <i class="bi bi-calendar-x"></i>
+
+          <p>
+            No logged activities yet.
+            Calculate and log your first entry above!
+          </p>
+
+        </div>
+
+      }
+
+    </div>
+
+  </div>
+
+</div>

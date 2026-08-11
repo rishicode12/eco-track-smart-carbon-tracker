@@ -1,0 +1,71 @@
+<div class="about-container">
+  <!-- Glowing Background Spots -->
+  <div class="glow-bg-spot-1"></div>
+  <div class="glow-bg-spot-2"></div>
+
+  <!-- Landing Header Navbar -->
+  <header class="landing-header">
+    <div class="brand">
+      <img src="logo.png" alt="EcoTrack Logo" class="brand-logo" />
+      <span class="brand-name">EcoTrack</span>
+    </div>
+    
+    <nav class="landing-nav hide-on-mobile">
+      <a [routerLink]="['/']" class="nav-item">Home</a>
+      <a [routerLink]="['/about']" class="nav-item active">About Us</a>
+    </nav>
+
+    <div class="auth-buttons">
+      <a [routerLink]="['/auth/login']" class="btn btn-text">Log In</a>
+      <a [routerLink]="['/auth/login']" class="btn btn-primary">Get Started</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Empowering a <span class="text-gradient">Net-Zero Future</span> Through Intelligence.
+      </h1>
+      <p class="hero-desc">
+        At EcoTrack, we believe that tracking and reducing carbon footprint should be data-driven, 
+        gamified, and accessible to everyone. Our mission is to combine artificial intelligence 
+        with behavior science to guide individuals and corporations on their path to sustainability.
+      </p>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission-section">
+    <div class="mission-grid">
+      <div class="value-card" *ngFor="let val of coreValues">
+        <div class="value-icon-wrapper">
+          <i class="bi" [ngClass]="val.icon"></i>
+        </div>
+        <h3 class="value-title">{{ val.title }}</h3>
+        <p class="value-desc">{{ val.desc }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform Details Section -->
+  <section class="tech-section">
+    <h2 class="tech-title">Built with Advanced Sustainability Analytics</h2>
+    <p class="tech-desc">
+      EcoTrack analyzes daily activities, electricity parameters, and consumption behaviors. 
+      By using customizable target thresholds, our system computes real-time feedback and suggests 
+      personalized action steps to help offset greenhouse gas emissions effectively.
+    </p>
+    <div class="cta-box">
+      <h3>Ready to take the first step towards carbon neutrality?</h3>
+      <a [routerLink]="['/auth/login']" class="btn btn-large btn-primary shadow-glow">
+        Launch Your Dashboard Now
+      </a>
+    </div>
+  </section>
+
+  <!-- Simple Footer -->
+  <footer class="about-footer">
+    <p>&copy; 2026 EcoTrack Inc. All rights reserved.</p>
+  </footer>
+</div>

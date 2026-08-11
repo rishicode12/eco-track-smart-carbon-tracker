@@ -1,0 +1,58 @@
+.layout-shell-vertical {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.layout-shell {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  margin-top: var(--navbar-height); /* Offset by navbar height */
+}
+
+/* Main Content Area Block */
+.main-content-block {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: calc(100vh - var(--navbar-height));
+  margin-left: var(--sidebar-width-expanded);
+  transition: margin-left var(--transition-speed) var(--transition-timing);
+  position: relative;
+}
+
+/* Collapse styling for Sidebar space adjust */
+.main-content-block.sidebar-collapsed-mode {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+/* Main inner view scroll container */
+.page-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  padding: 32px;
+  transition: background-color var(--transition-speed) var(--transition-timing);
+}
+
+.page-content-wrapper {
+  flex: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Tablet & Mobile Screens layout adapts */
+@media (max-width: 768px) {
+  .main-content-block, 
+  .main-content-block.sidebar-collapsed-mode {
+    margin-left: 0 !important;
+  }
+  
+  .page-container {
+    padding: 20px 16px;
+  }
+}

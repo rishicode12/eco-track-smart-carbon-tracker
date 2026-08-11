@@ -1,0 +1,272 @@
+.navbar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--navbar-height);
+  padding: 0 24px 0 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 100;
+  border-radius: 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: background-color var(--transition-speed) var(--transition-timing),
+              border-color var(--transition-speed) var(--transition-timing);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Consolidated Shared Header Action Buttons styles */
+.nav-icon-btn.hide-on-mobile,
+.nav-icon-btn.show-only-mobile,
+.theme-btn,
+.notification-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  transition: background-color 0.3s var(--transition-timing),
+              transform 0.3s var(--transition-timing),
+              color 0.3s var(--transition-timing);
+}
+
+.nav-icon-btn.hide-on-mobile,
+.nav-icon-btn.show-only-mobile {
+  font-size: 1.35rem;
+}
+
+.theme-btn,
+.notification-btn {
+  position: relative;
+  font-size: 1.2rem;
+}
+
+/* Hover highlights for all circular buttons */
+.nav-icon-btn:hover,
+.theme-btn:hover,
+.notification-btn:hover {
+  background-color: var(--color-hover-overlay);
+  color: var(--color-primary);
+}
+
+.nav-icon-btn:hover {
+  transform: scale(1.05); /* Hamburger scale */
+}
+
+.theme-btn:hover,
+.notification-btn:hover {
+  transform: scale(1.08); /* Utility icon hover scale */
+}
+
+.nav-icon-btn:active {
+  transform: scale(0.95);
+}
+
+/* Logo brand styles */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: color 0.3s var(--transition-timing);
+}
+
+.brand:hover {
+  color: var(--color-primary);
+}
+
+.brand-logo-img {
+  height: 28px;
+  width: 28px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+  transition: transform 0.3s var(--transition-timing), border-color 0.3s var(--transition-timing);
+}
+
+.brand:hover .brand-logo-img {
+  transform: rotate(10deg) scale(1.1);
+  border-color: var(--color-primary);
+}
+
+/* Centered Search Box styles */
+.nav-center {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  max-width: 520px;
+  margin: 0 24px;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  font-size: 0.95rem;
+  transition: color 0.3s var(--transition-timing);
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px 10px 42px;
+  background-color: rgba(var(--color-background-rgb), 0.4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  transition: background-color 0.3s var(--transition-timing),
+              border-color 0.3s var(--transition-timing),
+              box-shadow 0.3s var(--transition-timing),
+              transform 0.3s var(--transition-timing);
+}
+
+.search-input:focus {
+  background-color: var(--color-card);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.15);
+  transform: scale(1.01);
+}
+
+.search-input:focus + .search-icon {
+  color: var(--color-primary);
+}
+
+/* Right Section buttons & Divider */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-btn i {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-btn:hover i {
+  transform: rotate(20deg);
+}
+
+.badge-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-success);
+  border: 2px solid var(--color-card);
+  border-radius: 50%;
+}
+
+.nav-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border);
+  margin: 0 8px;
+}
+
+/* Profile Pill details & hover transitions */
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  background-color: rgba(var(--color-card-rgb), 0.4);
+  padding: 5px 12px 5px 5px;
+  border-radius: 30px;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+  transition: background-color 0.3s var(--transition-timing),
+              border-color 0.3s var(--transition-timing),
+              transform 0.3s var(--transition-timing),
+              box-shadow 0.3s var(--transition-timing);
+}
+
+.profile-btn:hover {
+  background-color: var(--color-card);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.profile-btn:hover .avatar {
+  border-color: var(--color-primary);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.user-role {
+  font-size: 0.65rem;
+  color: var(--color-text-secondary);
+}
+
+.chevron-icon {
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+
+.profile-btn:hover .chevron-icon {
+  color: var(--color-primary);
+  transform: translateY(1px);
+}
+
+/* Responsiveness overrides */
+@media (max-width: 768px) {
+  .navbar-wrapper {
+    padding: 0 16px 0 8px;
+  }
+  .nav-center {
+    display: none;
+  }
+}

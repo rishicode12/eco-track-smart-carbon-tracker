@@ -1,0 +1,79 @@
+<header class="navbar-wrapper glass-panel">
+  <!-- Left Side: Brand Logo and Sidebar Trigger -->
+  <div class="nav-left">
+    <!-- Desktop Trigger (Icon only) -->
+    <button 
+      class="nav-icon-btn hide-on-mobile focusable" 
+      (click)="layoutService.toggleSidebar()" 
+      aria-label="Toggle Sidebar"
+      title="Toggle Sidebar">
+      <i class="bi bi-list"></i>
+    </button>
+    
+    <!-- Mobile Trigger (Hamburger) -->
+    <button 
+      class="nav-icon-btn show-only-mobile focusable" 
+      (click)="layoutService.toggleMobileSidebar()" 
+      aria-label="Open Menu"
+      title="Open Menu">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <div class="brand">
+      <img src="logo.png" alt="EcoTrack Logo" class="brand-logo-img" aria-hidden="true" />
+      <span class="brand-text">EcoTrack</span>
+    </div>
+  </div>
+
+  <!-- Center Side: Sleek Search Bar -->
+  <div class="nav-center hide-on-mobile">
+    <div class="search-box">
+      <i class="bi bi-search search-icon"></i>
+      <input 
+        type="text" 
+        placeholder="Search carbon inputs, goals, activities..." 
+        aria-label="Search"
+        class="search-input focusable">
+    </div>
+  </div>
+
+  <!-- Right Side: Quick Action Buttons, Theme Toggle, Notifications, Profile -->
+  <div class="nav-right">
+    <!-- Theme Toggle -->
+    <button 
+      class="nav-icon-btn focusable theme-btn" 
+      (click)="layoutService.toggleTheme()" 
+      [attr.aria-label]="layoutService.theme() === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'"
+      [title]="layoutService.theme() === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'">
+      <i class="bi" [ngClass]="layoutService.theme() === 'light' ? 'bi-moon-stars' : 'bi-sun'"></i>
+    </button>
+
+    <!-- Notification Bell -->
+    <button 
+      class="nav-icon-btn focusable notification-btn" 
+      aria-label="View Notifications"
+      title="View Notifications">
+      <i class="bi bi-bell"></i>
+      <span *ngIf="unreadNotificationsCount > 0" class="badge-dot" aria-hidden="true"></span>
+    </button>
+
+    <!-- Divider -->
+    <div class="nav-divider"></div>
+
+    <!-- User Profile Dropdown Toggle (YAHAN CHANGES KIYE HAIN) -->
+    <button class="profile-btn focusable" aria-label="User Account Options">
+      
+      <!-- Image ab database/cloudinary se aayegi -->
+      <img [src]="authService.userProfile()?.profilePicture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'" 
+           alt="User Profile Picture" 
+           class="avatar">
+           
+      <div class="user-details hide-on-mobile">
+        <!-- Naam ab direct database se aayega -->
+        <span class="user-name">{{ authService.userProfile()?.fullName || 'Loading...' }}</span>
+        <span class="user-role">{{ authService.userProfile()?.role || 'User' }}</span>
+      </div>
+      <i class="bi bi-chevron-down chevron-icon hide-on-mobile"></i>
+    </button>
+  </div>
+</header>

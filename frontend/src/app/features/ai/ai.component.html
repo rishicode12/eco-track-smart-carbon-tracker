@@ -1,0 +1,88 @@
+<div class="fade-in-section">
+  <div class="ai-header">
+    <h1>AI Sustainability Assistant</h1>
+    <p class="subtitle text-secondary">Get personalized AI-powered recommendations, predictions, and tips for optimizing your goals.</p>
+  </div>
+
+  <div class="ai-chat-layout-grid">
+    <!-- Chat Window Card -->
+    <div class="eco-card chat-window-card">
+      <div class="chat-messages-container">
+        <div 
+          *ngFor="let msg of messages" 
+          class="chat-bubble-wrapper"
+          [class.user-bubble-wrapper]="msg.sender === 'user'"
+          [class.ai-bubble-wrapper]="msg.sender === 'ai'">
+          
+          <div class="bubble-avatar">
+            <i class="bi" [ngClass]="msg.sender === 'ai' ? 'bi-robot text-success' : 'bi-person'"></i>
+          </div>
+
+          <div class="bubble-content-box">
+            <div class="bubble-text" [innerHTML]="msg.text.replace('\n', '<br>')"></div>
+            <span class="bubble-time">{{ msg.timestamp }}</span>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div *ngIf="isTyping" class="chat-bubble-wrapper ai-bubble-wrapper">
+          <div class="bubble-avatar"><i class="bi bi-robot text-success"></i></div>
+          <div class="bubble-content-box">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick suggestions list -->
+      <div class="chat-suggestions" *ngIf="messages.length === 1 && !isTyping">
+        <button 
+          class="suggestion-btn" 
+          *ngFor="let sug of promptSuggestions" 
+          (click)="onSendMessage(sug)">
+          {{ sug }} &rarr;
+        </button>
+      </div>
+
+      <!-- Input box area -->
+      <div class="chat-input-bar">
+        <input 
+          type="text" 
+          placeholder="Ask Eco-AI a question..." 
+          [(ngModel)]="chatInput" 
+          (keyup.enter)="onSendMessage()" 
+          aria-label="AI prompt" />
+        <button class="send-btn" (click)="onSendMessage()" [disabled]="!chatInput.trim()"><i class="bi bi-send-fill"></i></button>
+      </div>
+    </div>
+
+    <!-- Predictive Insights Card on Side -->
+    <div class="eco-card predict-insights-card">
+      <h3>AI Predictive Insights</h3>
+      <p class="font-sm text-secondary" style="margin-bottom: 20px;">Based on your activity logs and compliance history.</p>
+
+      <div class="insight-metric-item">
+        <div class="metric-meta">
+          <span>Projected CO₂ reduction (Next 30 Days)</span>
+          <span class="metric-val text-success">-42 kg</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar success-bar" style="width: 75%"></div>
+        </div>
+      </div>
+
+      <div class="insight-tip-box">
+        <div class="tip-header">
+          <i class="bi bi-shield-check text-success"></i>
+          <span>AI Compliance Optimization</span>
+        </div>
+        <p class="tip-desc">
+          Your waste recycling is currently at 50%. Setting it to 75% will save you 15kg CO₂e monthly and unlock the **Recycle Champion** badge.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

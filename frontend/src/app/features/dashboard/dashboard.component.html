@@ -1,0 +1,220 @@
+<div class="fade-in-section">
+  <div class="dashboard-view-wrapper">
+    <div class="dashboard-header">
+      <div class="header-text">
+        <h1>Individual Dashboard</h1>
+        <p class="subtitle text-secondary" *ngIf="!isLoading && authService.userProfile()">Welcome back, {{ authService.userProfile()?.fullName }}!</p>
+        <p class="subtitle text-secondary" *ngIf="isLoading">Loading...</p>
+        <p class="subtitle text-danger" *ngIf="error">{{ error }}</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline-light"><i class="bi bi-download"></i> Export Report</button>
+        <button class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Activity</button>
+      </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="eco-grid eco-grid-cols-3">
+      <!-- Today's Carbon Card -->
+      <div class="eco-card card-stat">
+        <div class="card-stat-header">
+          <div class="stat-icon-wrapper success-bg">
+            <i class="bi bi-tree"></i>
+          </div>
+          <span class="stat-badge success-badge">Daily</span>
+        </div>
+        <p class="stat-title">Today's Carbon</p>
+        <h2 class="stat-number">{{ dashboardData?.todayCarbon?.toFixed(1) || '0.0' }} <span class="stat-unit">kg CO₂e</span></h2>
+      </div>
+
+      <!-- Monthly Carbon Card -->
+      <div class="eco-card card-stat">
+        <div class="card-stat-header">
+          <div class="stat-icon-wrapper danger-bg">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+          <span class="stat-badge danger-badge">Monthly</span>
+        </div>
+        <p class="stat-title">Monthly Carbon</p>
+        <h2 class="stat-number">{{ dashboardData?.monthlyCarbon?.toFixed(1) || '0.0' }} <span class="stat-unit">kg CO₂e</span></h2>
+      </div>
+
+      <!-- Eco Score Card -->
+      <div class="eco-card card-stat">
+        <div class="card-stat-header">
+          <div class="stat-icon-wrapper info-bg">
+            <i class="bi bi-bookmark-star"></i>
+          </div>
+          <span class="stat-badge info-badge">{{ dashboardData?.badgeName || 'Bronze' }}</span>
+        </div>
+        <p class="stat-title">Eco Score</p>
+        <h2 class="stat-number">{{ dashboardData?.ecoScore || 0 }} <span class="stat-total">/ 100</span></h2>
+        <div class="progress-bar-container">
+          <div class="progress-bar info-bar" [style.width.%]="dashboardData?.ecoScore || 0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts & Analytics Grid -->
+    <div class="eco-grid eco-grid-cols-3 chart-analytics-grid">
+      <!-- Carbon Trends Line Chart -->
+      <div class="eco-card chart-card col-span-2">
+        <div class="chart-header">
+          <h3>Carbon Trends</h3>
+          <span class="text-secondary font-sm">Daily emission tracking over the last 30 days</span>
+        </div>
+        
+        <!-- SVG Line Chart representation -->
+        <div class="svg-chart-container">
+          <svg viewBox="0 0 300 120" class="svg-line-chart">
+            <!-- Grid Lines -->
+            <line x1="0" y1="20" x2="300" y2="20" stroke="var(--color-border)" stroke-dasharray="2,2" />
+            <line x1="0" y1="50" x2="300" y2="50" stroke="var(--color-border)" stroke-dasharray="2,2" />
+            <line x1="0" y1="80" x2="300" y2="80" stroke="var(--color-border)" stroke-dasharray="2,2" />
+            <line x1="0" y1="110" x2="300" y2="110" stroke="var(--color-border)" />
+
+            <!-- Curve Background Gradient Area -->
+            <path [attr.d]="getAreaPathString(chartPoints, 110)" fill="url(#indivGrad)" opacity="0.15" />
+
+            <!-- Smooth Line Path -->
+            <path [attr.d]="getPathString(chartPoints)" fill="none" stroke="var(--color-success)" stroke-width="2.5" />
+
+            <!-- Data Points & Interaction Circle -->
+            <g *ngFor="let pt of chartPoints; let i = index">
+              <!-- Point overlay for hover area -->
+              <circle 
+                [attr.cx]="pt.x" 
+                [attr.cy]="pt.y" 
+                r="6" 
+                fill="var(--color-success)" 
+                stroke="#fff" 
+                stroke-width="1.5" 
+                class="chart-point"
+                (mouseenter)="showIndivTooltip(pt, i)"
+                (mouseleave)="hideIndivTooltip()">
+              </circle>
+            </g>
+
+            <!-- Definitions -->
+            <defs>
+              <linearGradient id="indivGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="var(--color-success)" />
+                <stop offset="100%" stop-color="var(--color-success)" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <!-- Interactive Tooltip Overlay -->
+          <div 
+            *ngIf="activeIndivPoint" 
+            class="chart-tooltip" 
+            [style.left.%]="(activeIndivPoint.x / 300) * 100" 
+            [style.top.%]="(activeIndivPoint.y / 120) * 100">
+            <span class="tooltip-label">{{ activeIndivPoint.label }}</span>
+            <span class="tooltip-value">{{ activeIndivPoint.value }}</span>
+          </div>
+        </div>
+
+        <div class="chart-footer">
+          <span class="chart-label" *ngFor="let label of (dashboardData?.chartData?.labels || [])">{{ label }}</span>
+        </div>
+      </div>
+
+      <!-- Impact Breakdown Donut Chart -->
+      <div class="eco-card chart-card">
+        <h3>Impact Breakdown</h3>
+        <div class="donut-chart-container">
+          <svg viewBox="0 0 100 100" class="donut-svg">
+            <!-- Transport Segment (45%) -->
+            <circle cx="50" cy="50" r="35" fill="transparent" stroke="var(--color-primary)" stroke-width="12" stroke-dasharray="99 121" stroke-dashoffset="0" />
+            <!-- Energy Segment (30%) -->
+            <circle cx="50" cy="50" r="35" fill="transparent" stroke="var(--color-secondary)" stroke-width="12" stroke-dasharray="66 154" stroke-dashoffset="-99" />
+            <!-- Food Segment (25%) -->
+            <circle cx="50" cy="50" r="35" fill="transparent" stroke="var(--color-warning)" stroke-width="12" stroke-dasharray="55 165" stroke-dashoffset="-165" />
+            
+            <!-- Donut Text -->
+            <text x="50" y="53" class="donut-text" text-anchor="middle">100%</text>
+          </svg>
+        </div>
+        
+        <!-- Legend List -->
+        <ul class="donut-legend">
+          <li>
+            <span class="legend-dot transport-dot"></span>
+            <span class="legend-name">Transport</span>
+            <span class="legend-val">45%</span>
+          </li>
+          <li>
+            <span class="legend-dot energy-dot"></span>
+            <span class="legend-name">Energy Usage</span>
+            <span class="legend-val">30%</span>
+          </li>
+          <li>
+            <span class="legend-dot food-dot"></span>
+            <span class="legend-name">Food & Diet</span>
+            <span class="legend-val">25%</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Goal Progress (live from GoalService) -->
+    <div class="eco-card goals-dashboard-card" *ngIf="dashboardGoals.length > 0">
+      <div class="activities-header">
+        <h3>Active Sustainability Goals</h3>
+        <span class="stat-badge info-badge">{{ aggregateGoalProgress }}% avg progress</span>
+      </div>
+      <div class="dashboard-goals-list">
+        <div class="dashboard-goal-item" *ngFor="let goal of dashboardGoals">
+          <div class="dashboard-goal-top">
+            <strong>{{ goal.title }}</strong>
+            <span>{{ goal.currentProgress | number:'1.1-1' }} / {{ goal.targetCarbonReduction | number:'1.1-1' }} kg</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar info-bar" [style.width.%]="goal.progressPercent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Row: Recent Activities & Eco Insights -->
+    <div class="dashboard-bottom-grid">
+      <!-- Eco Insights Banner Card -->
+      <div class="eco-card insights-card">
+        <div class="insights-content">
+          <div class="insight-icon-wrapper">
+            <i class="bi bi-lightbulb-fill"></i>
+          </div>
+          <div class="insight-text-wrapper">
+            <h4>Eco Insights</h4>
+            <p>Your transport emissions peaked on Tuesday. Switching to public transit could save you <strong>4.5kg CO₂</strong> next week.</p>
+          </div>
+        </div>
+        <button class="btn btn-text btn-view-plan">VIEW PLAN <i class="bi bi-chevron-right"></i></button>
+      </div>
+
+      <!-- Recent Activities Log -->
+      <div class="eco-card activities-card">
+        <div class="activities-header">
+          <h3>Recent Activities</h3>
+          <button class="btn btn-text-link">View All Records</button>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item" *ngFor="let act of (dashboardData?.recentActivities || [])">
+            <div class="activity-left">
+              <div class="activity-icon"><i class="bi" [ngClass]="act.icon"></i></div>
+              <div class="activity-details">
+                <p class="act-name">{{ act.description }}</p>
+                <p class="act-time-category">{{ act.type }} &bull; {{ act.timestamp }}</p>
+              </div>
+            </div>
+            <div class="activity-right">
+              <span class="act-emissions">{{ act.impact | number:'1.1-1' }} kg</span>
+            </div>
+          </div>
+          <p class="text-secondary" *ngIf="!isLoading && !(dashboardData?.recentActivities?.length)">No recent activities found.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
