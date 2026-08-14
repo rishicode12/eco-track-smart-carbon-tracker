@@ -68,7 +68,6 @@ EcoTrack utilizes a dual-layered AI architecture to guarantee 100% uptime and dy
 
 The project follows an industry-standard Monorepo layout:
 
-
 eco-track/
 ├── backend/                # Spring Boot Java Application
 │   ├── src/main/java/      # Controllers, Services, Entities, Repositories
@@ -139,7 +138,10 @@ JWT_SECRET=your_super_secret_jwt_key_here
 OPENAI_API_KEY=sk-proj-your_openai_key
 GOOGLE_CLIENT_ID=your_google_client_id
 
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+---
+
+## 📄 License
+
+MIT License — free to use for academic and research purposes.
+
+---
