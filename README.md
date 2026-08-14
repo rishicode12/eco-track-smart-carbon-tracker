@@ -68,7 +68,7 @@ EcoTrack utilizes a dual-layered AI architecture to guarantee 100% uptime and dy
 
 The project follows an industry-standard Monorepo layout:
 
-```text
+
 eco-track/
 ├── backend/                # Spring Boot Java Application
 │   ├── src/main/java/      # Controllers, Services, Entities, Repositories
@@ -80,6 +80,8 @@ eco-track/
 ├── docker/                 # Dockerfiles and docker-compose.yml
 ├── docs/                   # API documentation and setup guides
 └── postman/                # Exported Postman API collections
+
+---
 
 ## 🔌 Key API Endpoints
 
@@ -126,7 +128,7 @@ Ensure your PostgreSQL server is running. Create a database named `ecotrack`.
 ### 2. Environment Variables
 Create or update your properties file (`backend/src/main/resources/application.properties`) with the following secrets:
 
-```properties
+
 # Database
 DB_URL=jdbc:postgresql://localhost:5432/ecotrack
 DB_USERNAME=postgres
