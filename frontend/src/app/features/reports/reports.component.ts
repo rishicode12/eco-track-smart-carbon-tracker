@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportService, ReportSummary, CategoryBreakdown, MonthlyTrend } from '../../core/services/report.service';
@@ -14,6 +14,7 @@ type SummaryKey = keyof ReportSummary;
 })
 export class ReportsComponent implements OnInit {
   private readonly reportService = inject(ReportService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   public summary: ReportSummary | null = null;
   public categories: CategoryBreakdown[] = [];
@@ -49,6 +50,8 @@ export class ReportsComponent implements OnInit {
       this.loadCategories(),
       this.loadTrends(),
     ]);
+    // Force Angular to redraw the screen once ALL promises finish!
+    this.cdr.detectChanges(); 
   }
 
   async loadSummary() {
@@ -61,6 +64,7 @@ export class ReportsComponent implements OnInit {
       this.summaryError = 'Could not load summary data.';
     } finally {
       this.isLoadingSummary = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -74,6 +78,7 @@ export class ReportsComponent implements OnInit {
       this.categoriesError = 'Could not load category data.';
     } finally {
       this.isLoadingCategories = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -87,6 +92,7 @@ export class ReportsComponent implements OnInit {
       this.trendsError = 'Could not load trend data.';
     } finally {
       this.isLoadingTrends = false;
+      this.cdr.detectChanges();
     }
   }
 

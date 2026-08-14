@@ -32,19 +32,35 @@ public class UserChallengeProgress {
     @JoinColumn(name = "challenge_id", nullable = false)
     private Challenge challenge;
 
-    @Column(nullable = false, updatable = false)
+    @Column
     private LocalDateTime completedAt;
 
-    @Column(nullable = false)
+    @Column
     private Integer rewardPointsEarned;
 
-    @Column(nullable = false)
+    @Column
     private String badgeEarned;
+
+    @Builder.Default
+    private Double currentProgress = 0.0;
+
+    @Builder.Default
+    @Column(length = 50)
+    private String status = "IN_PROGRESS";
+
+    @Column(updatable = false)
+    private LocalDateTime joinedAt;
 
     @PrePersist
     public void prePersist() {
-        if (completedAt == null) {
-            completedAt = LocalDateTime.now();
+        if (joinedAt == null) {
+            joinedAt = LocalDateTime.now();
+        }
+        if (currentProgress == null) {
+            currentProgress = 0.0;
+        }
+        if (status == null) {
+            status = "IN_PROGRESS";
         }
     }
 }

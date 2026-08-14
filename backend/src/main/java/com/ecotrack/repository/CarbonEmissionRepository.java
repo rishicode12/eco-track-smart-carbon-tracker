@@ -128,12 +128,12 @@ public interface CarbonEmissionRepository
     );
 
     @Query("""
-            SELECT FUNCTION('DATE_FORMAT', c.createdAt, '%Y-%m')
+            SELECT FUNCTION('TO_CHAR', c.createdAt, 'YYYY-MM')
             FROM CarbonEmission c
             WHERE c.user.id = :userId
               AND c.createdAt >= :startDate
-            GROUP BY FUNCTION('DATE_FORMAT', c.createdAt, '%Y-%m')
-            ORDER BY FUNCTION('DATE_FORMAT', c.createdAt, '%Y-%m') DESC
+            GROUP BY FUNCTION('TO_CHAR', c.createdAt, 'YYYY-MM')
+            ORDER BY FUNCTION('TO_CHAR', c.createdAt, 'YYYY-MM') DESC
             """)
     List<String> findDistinctMonthKeys(
             @Param("userId") Long userId,
@@ -144,7 +144,7 @@ public interface CarbonEmissionRepository
             SELECT COALESCE(SUM(c.totalEmission), 0)
             FROM CarbonEmission c
             WHERE c.user.id = :userId
-              AND FUNCTION('DATE_FORMAT', c.createdAt, '%Y-%m') = :monthKey
+              AND FUNCTION('TO_CHAR', c.createdAt, 'YYYY-MM') = :monthKey
             """)
     BigDecimal sumEmissionByMonthKey(
             @Param("userId") Long userId,

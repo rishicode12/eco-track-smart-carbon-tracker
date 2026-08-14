@@ -14,5 +14,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     List<Challenge> findByChallengeTypeAndActiveTrue(ChallengeType challengeType);
 
     Optional<Challenge> findByIdAndActiveTrue(Long id);
+
+    List<Challenge> findAllByActiveTrue();
 }
 

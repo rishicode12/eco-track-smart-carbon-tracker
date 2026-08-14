@@ -5,6 +5,7 @@ import com.ecotrack.dto.ChallengeCompletionRequest;
 import com.ecotrack.dto.ChallengeCompletionResponse;
 import com.ecotrack.dto.ChallengeResponse;
 import com.ecotrack.dto.LeaderboardResponse;
+import com.ecotrack.dto.UpdateProgressRequest;
 import com.ecotrack.service.ChallengeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +49,28 @@ public class ChallengeController {
         String authenticatedEmail = getAuthenticatedEmail();
         ChallengeCompletionResponse response = challengeService.completeChallenge(request, authenticatedEmail);
         return new ResponseEntity<>(new ApiResponse<>(true, "Challenge completed successfully", response), HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getAllActiveChallenges() {
+        String authenticatedEmail = getAuthenticatedEmail();
+        List<ChallengeResponse> challenges = challengeService.getAllActiveChallenges(authenticatedEmail);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Active challenges fetched successfully", challenges));
+    }
+
+    @PostMapping("/{id}/join")
+    public ResponseEntity<ApiResponse<ChallengeResponse>> joinChallenge(@PathVariable Long id) {
+        String authenticatedEmail = getAuthenticatedEmail();
+        ChallengeResponse response = challengeService.joinChallenge(id, authenticatedEmail);
+        return new ResponseEntity<>(new ApiResponse<>(true, "Challenge joined successfully", response), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}/progress")
+    public ResponseEntity<ApiResponse<ChallengeResponse>> updateProgress(@PathVariable Long id,
+                                                                         @Valid @RequestBody UpdateProgressRequest request) {
+        String authenticatedEmail = getAuthenticatedEmail();
+        ChallengeResponse response = challengeService.updateProgress(id, authenticatedEmail, request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Challenge progress updated successfully", response));
     }
 
     @GetMapping("/leaderboard")

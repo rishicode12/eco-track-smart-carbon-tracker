@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,6 +42,19 @@ public class Challenge {
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
+
+    private Double targetGoal;
+
+    @Column(length = 100)
+    private String metric;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
+    @Builder.Default
+    @Column(length = 50)
+    private String status = "ACTIVE";
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -45,7 +45,24 @@ public class GenerativeAIServiceImpl implements GenerativeAIService {
             return generateWithGenerativeAI(profileData, user);
         } catch (Exception ex) {
             log.warn("Generative AI failed ({}), falling back to rule-based insights", ex.getMessage());
+            return fallbackInsights(userEmail);
+        }
+    }
+
+    private AIInsightResponse fallbackInsights(String userEmail) {
+        try {
             return airRuleService.generateInsights(userEmail);
+        } catch (Exception ex) {
+            log.error("Rule-based fallback also failed ({}), returning empty insight response", ex.getMessage());
+            return new AIInsightResponse(
+                    List.of(),
+                    List.of(),
+                    List.of(),
+                    List.of(),
+                    "LOW",
+                    "Set a goal to log daily carbon activities for the next 30 days to establish consistent tracking habits",
+                    0.0
+            );
         }
     }
 

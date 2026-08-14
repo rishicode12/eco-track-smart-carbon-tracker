@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -21,5 +22,12 @@ public class ChallengeResponse {
     private String badgeName;
     private Boolean active;
     private LocalDateTime createdAt;
+    private Double targetGoal;
+    private String metric;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String status;
+    private Boolean isJoined;
+    private Double currentProgress;
 }
 

@@ -1,8 +1,5 @@
 import {
-  Component,
-  OnDestroy,
-  OnInit,
-  inject
+  Component,OnDestroy,OnInit,inject,ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -31,7 +28,10 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   private readonly goalService = inject(GoalService);
   private readonly fb = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef); 
+
   private goalsSubscription?: Subscription;
+ 
 
   public goals: GoalResponse[] = [];
   public isLoading = false;
@@ -70,12 +70,11 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   // FIXED: loadGoals method
   
-  async loadGoals() {
+ async loadGoals() {
     this.isLoading = true;
     this.errorMessage = '';
 
     try {
-      // FIX: 'getGoals()' ki jagah 'refreshGoals()' use kiya gaya hai
       this.goals = await this.goalService.refreshGoals(); 
       
     } catch (error: any) {
@@ -84,6 +83,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
       
     } finally {
       this.isLoading = false; 
+      this.cdr.detectChanges(); // <--- 3. ADD THIS LINE
     }
   }
 

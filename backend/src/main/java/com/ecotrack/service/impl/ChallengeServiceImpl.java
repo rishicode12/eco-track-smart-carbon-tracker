@@ -4,6 +4,7 @@ import com.ecotrack.dto.ChallengeCompletionRequest;
 import com.ecotrack.dto.ChallengeCompletionResponse;
 import com.ecotrack.dto.ChallengeResponse;
 import com.ecotrack.dto.LeaderboardResponse;
+import com.ecotrack.dto.UpdateProgressRequest;
 import com.ecotrack.entity.Challenge;
 import com.ecotrack.entity.ChallengeType;
 import com.ecotrack.entity.User;
@@ -17,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -102,12 +105,100 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChallengeResponse> getAllActiveChallenges(String email) {
+        User user = findUserByEmail(email);
+        return challengeRepository.findAllByActiveTrue().stream()
+                .map(challenge -> mapToResponse(challenge,
+                        userChallengeProgressRepository.findByUserIdAndChallengeId(user.getId(), challenge.getId())))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public ChallengeResponse joinChallenge(Long challengeId, String email) {
+        User user = findUserByEmail(email);
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Challenge not found"));
+
+        if (!Boolean.TRUE.equals(challenge.getActive())) {
+            throw new IllegalStateException("Challenge is not active");
+        }
+
+        if (userChallengeProgressRepository.findByUserIdAndChallengeId(user.getId(), challenge.getId()).isPresent()) {
+            throw new IllegalStateException("Challenge already joined");
+        }
+
+        UserChallengeProgress progress = UserChallengeProgress.builder()
+                .user(user)
+                .challenge(challenge)
+                .currentProgress(0.0)
+                .status("IN_PROGRESS")
+                .build();
+        userChallengeProgressRepository.save(progress);
+
+        return mapToResponse(challenge, Optional.of(progress));
+    }
+
+    @Override
+    @Transactional
+    public ChallengeResponse updateProgress(Long challengeId, String email, UpdateProgressRequest request) {
+        if (request == null || request.getProgressAdded() == null || request.getProgressAdded() <= 0) {
+            throw new IllegalArgumentException("progressAdded must be greater than zero");
+        }
+
+        User user = findUserByEmail(email);
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Challenge not found"));
+
+        UserChallengeProgress progress = userChallengeProgressRepository
+                .findByUserIdAndChallengeId(user.getId(), challenge.getId())
+                .orElseThrow(() -> new IllegalStateException("Challenge not joined"));
+
+        if ("COMPLETED".equals(progress.getStatus())) {
+            throw new IllegalStateException("Challenge already completed");
+        }
+
+        double target = challenge.getTargetGoal() != null ? challenge.getTargetGoal() : Double.MAX_VALUE;
+        double current = progress.getCurrentProgress() != null ? progress.getCurrentProgress() : 0.0;
+        double newProgress = Math.min(current + request.getProgressAdded(), target);
+
+        progress.setCurrentProgress(newProgress);
+        progress.setStatus("IN_PROGRESS");
+
+        if (newProgress >= target) {
+            progress.setStatus("COMPLETED");
+            progress.setCompletedAt(LocalDateTime.now());
+
+            int currentPoints = safePoints(user.getRewardPoints());
+            int newTotalPoints = currentPoints + challenge.getRewardPoints();
+            String badgeName = determineBadge(newTotalPoints);
+
+            user.setRewardPoints(newTotalPoints);
+            user.setBadgeName(badgeName);
+            userRepository.save(user);
+
+            progress.setRewardPointsEarned(challenge.getRewardPoints());
+            progress.setBadgeEarned(badgeName);
+        }
+
+        userChallengeProgressRepository.save(progress);
+        return mapToResponse(challenge, Optional.of(progress));
+    }
+
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private ChallengeResponse mapToResponse(Challenge challenge) {
+        return mapToResponse(challenge, Optional.empty());
+    }
+
+    private ChallengeResponse mapToResponse(Challenge challenge, Optional<UserChallengeProgress> progress) {
+        UserChallengeProgress userProgress = progress.orElse(null);
+        boolean joined = userProgress != null;
         return ChallengeResponse.builder()
                 .id(challenge.getId())
                 .title(challenge.getTitle())
@@ -117,6 +208,13 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .badgeName(challenge.getBadgeName())
                 .active(challenge.getActive())
                 .createdAt(challenge.getCreatedAt())
+                .targetGoal(challenge.getTargetGoal())
+                .metric(challenge.getMetric())
+                .startDate(challenge.getStartDate())
+                .endDate(challenge.getEndDate())
+                .status(challenge.getStatus())
+                .isJoined(joined)
+                .currentProgress(joined && userProgress.getCurrentProgress() != null ? userProgress.getCurrentProgress() : 0.0)
                 .build();
     }
 

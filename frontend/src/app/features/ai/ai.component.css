@@ -6,7 +6,7 @@
 
 .ai-chat-layout-grid {
   display: grid;
-  grid-template-cols: 2.2fr 1fr;
+  grid-template-columns: 2.2fr 1fr;
   gap: 24px;
 }
 
@@ -203,10 +203,45 @@
   flex-direction: column;
 }
 
+.insights-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.risk-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.risk-low {
+  background: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+}
+
+.risk-medium {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.risk-high {
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+
+.insights-loading, .empty-insights {
+  text-align: center;
+  padding: 24px 0;
+}
+
 .insight-metric-item {
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .metric-meta {
@@ -242,11 +277,38 @@
   font-size: 0.8rem;
   line-height: 1.5;
   color: var(--color-text-secondary);
+  margin-bottom: 0;
+}
+
+.insights-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.insight-list {
+  padding-left: 18px;
+  margin-bottom: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.insight-list li {
+  margin-bottom: 4px;
 }
 
 /* Responsive overrides */
 @media (max-width: 992px) {
   .ai-chat-layout-grid {
-    grid-template-cols: 1fr;
+    grid-template-columns: 1fr;
   }
 }
