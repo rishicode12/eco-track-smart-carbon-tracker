@@ -62,9 +62,12 @@ EcoTrack utilizes a dual-layered AI architecture to guarantee 100% uptime and dy
 | **PostgreSQL (Neon Cloud DB)**| - | Primary relational database |
 | **Cloudinary** | - | Cloud storage for user profile pictures |
 | **Google OAuth2** | - | Alternative social login flow |
+
 ---
 
 ## 📁 Folder Structure
+
+```
 
 The project follows an industry-standard Monorepo layout:
 
@@ -79,6 +82,7 @@ eco-track/
 ├── docker/                 # Dockerfiles and docker-compose.yml
 ├── docs/                   # API documentation and setup guides
 └── postman/                # Exported Postman API collections
+```
 
 ---
 
@@ -122,21 +126,26 @@ eco-track/
 * PostgreSQL (Local or Neon DB)
 
 ### 1. Database Setup
+```bash
 Ensure your PostgreSQL server is running. Create a database named `ecotrack`.
 
 ### 2. Environment Variables
+```bash
 Create or update your properties file (`backend/src/main/resources/application.properties`) with the following secrets:
 
 
-# Database
+### Database
+```bash
 DB_URL=jdbc:postgresql://localhost:5432/ecotrack
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
 
-# JWT & APIs
+### JWT & APIs
+```bash
 JWT_SECRET=your_super_secret_jwt_key_here
 OPENAI_API_KEY=sk-proj-your_openai_key
 GOOGLE_CLIENT_ID=your_google_client_id
+---
 
 ---
 
