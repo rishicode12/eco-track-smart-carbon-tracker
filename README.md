@@ -38,22 +38,30 @@ EcoTrack utilizes a dual-layered AI architecture to guarantee 100% uptime and dy
 ## 🛠️ Tech Stack & Libraries
 
 ### **Backend**
-* **Java 17 & Spring Boot:** Core REST API framework.
-* **Spring Security & JWT:** Stateless authentication and role-based access.
-* **Spring AI:** Seamless LLM integration and structured prompt engineering.
-* **Hibernate / Spring Data JPA:** ORM and database management.
+
+| Library | Version | Why Used |
+| :--- | :--- | :--- |
+| **Java & Spring Boot** | 17 | Core REST API framework |
+| **Spring Security & JWT** | - | Stateless authentication and role-based access |
+| **Spring AI** | - | Seamless LLM integration and structured prompt engineering |
+| **Hibernate / Spring Data JPA** | - | ORM and database management |
 
 ### **Frontend**
-* **Angular 16+ & TypeScript:** Component-based SPA architecture.
-* **JavaScript (ES6+) & RxJS:** Reactive programming for state and API handling.
-* **Chart.js:** Rendering dynamic emission breakdown charts.
-* **Bootstrap & Custom CSS:** Responsive, dark-mode compatible UI (Eco-Cards).
+
+| Library | Version | Why Used |
+| :--- | :--- | :--- |
+| **Angular & TypeScript** | 16+ | Component-based SPA architecture |
+| **JavaScript & RxJS** | ES6+ | Reactive programming for state and API handling |
+| **Chart.js** | - | Rendering dynamic emission breakdown charts |
+| **Bootstrap & Custom CSS**| - | Responsive, dark-mode compatible UI (Eco-Cards) |
 
 ### **Database & Infrastructure**
-* **PostgreSQL (Neon Cloud DB):** Primary relational database.
-* **Cloudinary:** Cloud storage for user profile pictures.
-* **Google OAuth2:** Alternative social login flow.
 
+| Library | Version | Why Used |
+| :--- | :--- | :--- |
+| **PostgreSQL (Neon Cloud DB)**| - | Primary relational database |
+| **Cloudinary** | - | Cloud storage for user profile pictures |
+| **Google OAuth2** | - | Alternative social login flow |
 ---
 
 ## 📁 Folder Structure
