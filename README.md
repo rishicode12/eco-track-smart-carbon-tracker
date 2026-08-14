@@ -80,3 +80,64 @@ eco-track/
 ├── docker/                 # Dockerfiles and docker-compose.yml
 ├── docs/                   # API documentation and setup guides
 └── postman/                # Exported Postman API collections
+
+## 🔌 Key API Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/api/auth/register` | Register a new user | ❌ |
+| `POST` | `/api/carbon` | Log a new carbon emission | ✅ |
+| `GET` | `/api/ai/insights` | Fetch generative AI recommendations | ✅ |
+| `GET` | `/api/reports/trends` | Fetch MoM emission trends | ✅ |
+| `POST` | `/api/challenges/{id}/join` | Join a community challenge | ✅ |
+
+---
+
+## 🔄 User Journey Flow
+
+1. **Onboarding:** User registers and sets up their lifestyle profile (Diet: Vegan, Commute: EV).
+2. **Tracking:** User logs daily activities (e.g., 10 miles driven, 5 kWh electricity used).
+3. **Analysis:** The dashboard dynamically updates charts and calculates current risk levels.
+4. **AI Intervention:** User opens the AI Assistant to receive a projected 30-day emission forecast and custom tips to lower their footprint.
+5. **Action:** User joins a "Plastic-Free Week" challenge based on the AI's suggestion.
+
+---
+
+## 🗄️ Database Schema (Key Entities)
+
+* **`users`:** Stores auth credentials, profile picture URLs, and lifestyle preferences.
+* **`carbon_emissions`:** Tracks historical logs including category, `emissionValue`, and date.
+* **`goals`:** Stores user-defined reduction targets and current progress.
+* **`challenges`:** Global community challenges (`targetGoal`, `startDate`, `endDate`).
+* **`user_challenge_progress`:** Mapping table tracking individual user progress toward active challenges.
+
+---
+
+## 🚀 Running Locally
+
+### Prerequisites
+* Java 17+
+* Node.js v18+ & Angular CLI
+* PostgreSQL (Local or Neon DB)
+
+### 1. Database Setup
+Ensure your PostgreSQL server is running. Create a database named `ecotrack`.
+
+### 2. Environment Variables
+Create or update your properties file (`backend/src/main/resources/application.properties`) with the following secrets:
+
+```properties
+# Database
+DB_URL=jdbc:postgresql://localhost:5432/ecotrack
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+
+# JWT & APIs
+JWT_SECRET=your_super_secret_jwt_key_here
+OPENAI_API_KEY=sk-proj-your_openai_key
+GOOGLE_CLIENT_ID=your_google_client_id
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
