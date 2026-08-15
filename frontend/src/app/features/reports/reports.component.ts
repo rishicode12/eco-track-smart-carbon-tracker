@@ -1,6 +1,8 @@
-import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { ReportService, ReportSummary, CategoryBreakdown, MonthlyTrend } from '../../core/services/report.service';
 
 type SummaryKey = keyof ReportSummary;
@@ -152,13 +154,17 @@ export class ReportsComponent implements OnInit {
 
   public onGenerateReport() {
     this.isGenerating = true;
-    this.message = '';
     this.downloadLink = '';
+    this.message = '';
+    // Force the button loader to render immediately so it never gets stuck.
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.isGenerating = false;
-      this.downloadLink = 'prepared';
+      this.downloadLink = 'ready';
       this.message = `Report data ready for ${this.getReportLabel(this.reportType)}! Click Export to download.`;
+      // Prevent the button from staying stuck on "Preparing...".
+      this.cdr.detectChanges();
     }, 1500);
   }
 
@@ -174,70 +180,237 @@ export class ReportsComponent implements OnInit {
 
   public exportCsv() {
     if (!this.summary && !this.categories.length && !this.trends.length) {
-      alert('No data available to export.');
+      this.message = 'No data available to export yet.';
+      this.downloadLink = '';
+      this.cdr.detectChanges();
       return;
     }
 
-    const rows: string[] = [];
+    const lines: string[] = [];
 
-    rows.push('EcoTrack Report Export');
-    rows.push(`Generated,${new Date().toISOString()}`);
-    rows.push('');
+    lines.push(this.csvLine('EcoTrack Report Export'));
+    lines.push(this.csvLine('Report Type', this.getReportLabel(this.reportType)));
+    lines.push(this.csvLine('Date Range', this.getDateRangeLabel(this.dateRange)));
+    lines.push(this.csvLine('Generated', new Date().toLocaleString()));
+    lines.push('');
 
-    rows.push('=== CARBON SUMMARY ===');
+    lines.push('=== CARBON SUMMARY ===');
     if (this.summary) {
-      rows.push(`Metric,Value,Unit`);
-      rows.push(`Today's Carbon,${this.summary.todayCarbon},kg CO₂e`);
-      rows.push(`Weekly Carbon,${this.summary.weeklyCarbon},kg CO₂e`);
-      rows.push(`Monthly Carbon,${this.summary.monthlyCarbon},kg CO₂e`);
-      rows.push(`Yearly Carbon,${this.summary.yearlyCarbon},kg CO₂e`);
-      rows.push(`Avg Daily Emission,${this.summary.avgDailyEmission},kg CO₂e`);
-      rows.push(`MoM Reduction,${this.summary.momReductionPercent},%`);
+      lines.push(this.csvLine('Metric', 'Value', 'Unit'));
+      lines.push(this.csvLine('Today\'s Carbon', this.summary.todayCarbon, 'kg CO2e'));
+      lines.push(this.csvLine('Weekly Carbon', this.summary.weeklyCarbon, 'kg CO2e'));
+      lines.push(this.csvLine('Monthly Carbon', this.summary.monthlyCarbon, 'kg CO2e'));
+      lines.push(this.csvLine('Yearly Carbon', this.summary.yearlyCarbon, 'kg CO2e'));
+      lines.push(this.csvLine('Daily Average', this.summary.avgDailyEmission, 'kg CO2e'));
+      lines.push(this.csvLine('MoM Reduction', this.summary.momReductionPercent, '%'));
     } else {
-      rows.push('No data available');
+      lines.push(this.csvLine('No summary data available'));
     }
 
-    rows.push('');
-    rows.push('=== CATEGORY BREAKDOWN (This Month) ===');
+    lines.push('');
+    lines.push('=== CATEGORY BREAKDOWN (This Month) ===');
     if (this.categories.length) {
-      rows.push(`Category,CO₂ Impact (kg),Percentage (%)`);
+      lines.push(this.csvLine('Category', 'CO2 Impact (kg)', 'Percentage (%)'));
       for (const c of this.categories) {
-        rows.push(`${c.category},${c.co2Impact},${c.percentage}`);
+        lines.push(this.csvLine(c.category, c.co2Impact, c.percentage));
       }
     } else {
-      rows.push('No data available');
+      lines.push(this.csvLine('No category data available'));
     }
 
-    rows.push('');
-    rows.push('=== MONTHLY TRENDS ===');
+    lines.push('');
+    lines.push('=== MONTHLY TRENDS ===');
     if (this.trends.length) {
-      rows.push(`Month,CO₂ Impact (kg CO₂e)`);
+      lines.push(this.csvLine('Month', 'CO2 Impact (kg)'));
       for (const t of this.trends) {
-        rows.push(`${t.month},${t.co2Impact}`);
+        lines.push(this.csvLine(t.month, t.co2Impact));
       }
     } else {
-      rows.push('No data available');
+      lines.push(this.csvLine('No trend data available'));
     }
 
-    const csvContent = rows.map((r) => `"${r}"`).join('\n');
+    // BOM helps Excel detect UTF-8.
+    const csvContent = '\uFEFF' + lines.join('\r\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `ecotrack-report-${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const fileName = `ecotrack-report-${new Date().toISOString().split('T')[0]}.csv`;
+    this.downloadBlob(blob, fileName);
 
     this.message = 'Report exported as CSV! Check your downloads.';
     this.downloadLink = '';
+    this.cdr.detectChanges();
+  }
+
+  /** Quote/escape a single CSV field; returns a plain value when safe. */
+  private csvValue(value: string | number | null | undefined): string {
+    const str = value === null || value === undefined ? '' : String(value);
+    const escaped = str.replace(/"/g, '""');
+    return /[",\n\r]/.test(str) ? `"${escaped}"` : escaped;
+  }
+
+  /** Build one comma-separated CSV line with each field sanitized. */
+  private csvLine(...fields: Array<string | number | null | undefined>): string {
+    return fields.map((f) => this.csvValue(f)).join(',');
+  }
+
+  /** Trigger a blob download via a temporary anchor, cleaning up even on failure. */
+  private downloadBlob(blob: Blob, fileName: string) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    try {
+      document.body.appendChild(link);
+      link.click();
+    } finally {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  public getDateRangeLabel(range: string): string {
+    switch (range) {
+      case 'last-7': return 'Last 7 Days';
+      case 'last-30': return 'Last 30 Days';
+      case 'last-12m': return 'Last 12 Months';
+      case 'ytd': return 'Year-to-date (YTD)';
+      default: return 'Custom Range';
+    }
+  }
+
+  public exportPdf() {
+    if (!this.summary && !this.categories.length && !this.trends.length) {
+      this.message = 'No data available to export yet.';
+      this.downloadLink = '';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+    const now = new Date();
+
+    // EcoTrack header banner.
+    doc.setFillColor(16, 185, 129);
+    doc.rect(0, 0, pageWidth, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('EcoTrack Report', margin, 10);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(
+      `Generated: ${now.toLocaleString()}  |  Report Type: ${this.getReportLabel(this.reportType)}  |  Date Range: ${this.getDateRangeLabel(this.dateRange)}`,
+      margin,
+      16
+    );
+
+    let y = 28;
+
+    // Carbon Footprint Summary.
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Carbon Footprint Summary', margin, y);
+    y += 4;
+
+    if (this.summary) {
+      const summaryBody = this.summaryKeys.map((key) => [
+        this.getSummaryLabel(key),
+        this.formatNumber(this.summary?.[key]),
+        key === 'momReductionPercent' ? '%' : 'kg CO2e',
+      ]);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [['Metric', 'Value', 'Unit']],
+        body: summaryBody,
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        alternateRowStyles: { fillColor: [236, 253, 245] },
+        styles: { fontSize: 9, cellPadding: 3, textColor: [30, 41, 59] },
+        columnStyles: { 0: { fontStyle: 'bold' } },
+      });
+      y = ((doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? y) + 10;
+    } else {
+      this.addPdfEmptyNote(doc, y, 'No summary data available.');
+      y += 14;
+    }
+
+    // Category Breakdown.
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Category Breakdown (This Month)', margin, y);
+    y += 4;
+
+    if (this.categories.length) {
+      const categoryBody = this.categories.map((c) => [
+        c.category,
+        this.formatNumber(c.co2Impact),
+        `${c.percentage}`,
+      ]);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [['Category', 'CO2 Impact (kg)', 'Percentage (%)']],
+        body: categoryBody,
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        alternateRowStyles: { fillColor: [236, 253, 245] },
+        styles: { fontSize: 9, cellPadding: 3, textColor: [30, 41, 59] },
+        columnStyles: { 0: { fontStyle: 'bold' } },
+      });
+      y = ((doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? y) + 10;
+    } else {
+      this.addPdfEmptyNote(doc, y, 'No category data available.');
+      y += 14;
+    }
+
+    // Monthly Trends.
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Monthly Trends', margin, y);
+    y += 4;
+
+    if (this.trends.length) {
+      const trendBody = this.trends.map((t) => [t.month, this.formatNumber(t.co2Impact)]);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [['Month', 'CO2 Impact (kg)']],
+        body: trendBody,
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        alternateRowStyles: { fillColor: [236, 253, 245] },
+        styles: { fontSize: 9, cellPadding: 3, textColor: [30, 41, 59] },
+        columnStyles: { 0: { fontStyle: 'bold' } },
+      });
+    } else {
+      this.addPdfEmptyNote(doc, y, 'No trend data available.');
+    }
+
+    doc.save(`ecotrack-report-${now.toISOString().split('T')[0]}.pdf`);
+
+    this.message = 'Report exported as PDF! Check your downloads.';
+    this.downloadLink = '';
+    this.cdr.detectChanges();
+  }
+
+  private addPdfEmptyNote(doc: jsPDF, y: number, text: string) {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(10);
+    doc.setTextColor(107, 114, 128);
+    doc.text(text, 14, y);
   }
 
   public triggerDownload() {
-    this.exportCsv();
-    this.message = '';
-    this.downloadLink = '';
+    if (this.format === 'pdf') {
+      this.exportPdf();
+    } else {
+      this.exportCsv();
+    }
   }
 
   public formatNumber(n: number | undefined | null): string {

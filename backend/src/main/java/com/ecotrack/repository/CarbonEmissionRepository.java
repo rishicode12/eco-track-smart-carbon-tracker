@@ -150,4 +150,15 @@ public interface CarbonEmissionRepository
             @Param("userId") Long userId,
             @Param("monthKey") String monthKey
     );
+
+    @Query("""
+            SELECT COUNT(c)
+            FROM CarbonEmission c
+            WHERE c.user.id = :userId
+              AND LOWER(c.activityCategory) = 'transport'
+              AND c.transportationEmission = 0
+            """)
+    long countZeroEmissionTransportActivities(
+            @Param("userId") Long userId
+    );
 }

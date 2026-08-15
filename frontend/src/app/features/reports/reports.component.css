@@ -250,6 +250,13 @@
 }
 
 /* --- Config Card --- */
+.config-card,
+.status-card,
+.chart-card {
+  background-color: var(--color-card, #1e293b);
+  color: var(--color-text-primary, #f8fafc);
+}
+
 .config-card {
   padding: 32px;
   display: flex;
@@ -277,24 +284,58 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
 }
 
-.form-item select {
+.form-item select,
+.form-item input[type='date'],
+.form-item input[type='text'],
+.form-item input[type='number'] {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: var(--color-background);
-  color: var(--color-text-primary);
+  background-color: var(--color-card, #1e293b);
+  color: var(--color-text-primary, #f8fafc);
   font-weight: 600;
   font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-item select:focus {
+.form-item select:hover,
+.form-item input[type='date']:hover {
+  border-color: var(--color-border-hover);
+}
+
+.form-item select:focus,
+.form-item input[type='date']:focus {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+}
+
+.form-item select option {
+  background-color: var(--color-card, #1e293b);
+  color: var(--color-text-primary, #f8fafc);
+}
+
+/* Native date-picker indicator follows the text color in dark mode */
+.form-item input[type='date']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.7);
+}
+
+/* High-contrast helper text */
+.font-sm {
+  font-size: 0.85rem;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.me-2 {
+  margin-right: 8px;
 }
 
 .radio-group {
@@ -321,22 +362,134 @@
   accent-color: var(--color-primary);
 }
 
+/* --- Form Controls & Buttons --- */
 .form-actions-row {
   display: flex;
   gap: 12px;
   margin-top: 10px;
+  flex-wrap: wrap;
 }
 
 .form-actions-row .btn {
   flex: 1;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+.btn-primary:hover {
+  background: #235e26;
+  border-color: #235e26;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.35);
+}
+
 .generate-btn {
   box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+/* --- Export Buttons: Emerald (CSV) & Coral (PDF) glass accents --- */
+.btn-export-csv {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(6, 182, 212, 0.85));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.55);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.btn-export-csv:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  border-color: var(--color-success);
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.5);
+}
+
+.btn-export-csv:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.btn-export-csv:focus-visible {
+  outline: 2px solid var(--color-success);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25);
+}
+
+.btn-export-pdf {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.9), rgba(239, 68, 68, 0.85));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(244, 63, 94, 0.55);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
+}
+
+.btn-export-pdf:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  border-color: var(--color-danger);
+  box-shadow: 0 8px 22px rgba(244, 63, 94, 0.5);
+}
+
+.btn-export-pdf:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.35);
+}
+
+.btn-export-pdf:focus-visible {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.25);
+}
+
+/* --- High-visibility loading spinner (light + dark) --- */
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  vertical-align: middle;
+}
+
+.spinner-border-sm {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-width: 2px;
 }
 
 /* --- Status / Preview Card --- */

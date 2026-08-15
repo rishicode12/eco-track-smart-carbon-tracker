@@ -9,19 +9,26 @@
     <div class="header-search-bar hide-on-mobile">
       <div class="search-input-wrapper">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search challenges or users..." aria-label="Search" />
+        <input
+          type="text"
+          placeholder="Search challenges or categories..."
+          aria-label="Search challenges or categories"
+          [(ngModel)]="searchQuery"
+        />
       </div>
       <button class="nav-bell-btn"><i class="bi bi-bell"></i></button>
-      <button class="btn btn-primary calculate-impact-top-btn"><i class="bi bi-calculator"></i> Calculate Impact</button>
+      <button class="calculate-impact-glass-btn" (click)="navigateToCalculator()">
+        <i class="bi bi-calculator"></i> Calculate Impact
+      </button>
     </div>
   </div>
 
   <div class="challenges-layout-grid">
     <!-- Main Content Area: Recommended Challenges -->
     <div class="challenges-main-area">
-      <!-- Active Challenge Banner Card -->
-      <div class="eco-card active-challenge-card">
-        <div class="card-status-badge"><span class="badge-dot"></span> ACTIVE NOW</div>
+      <!-- Active Challenge Banner Card (Glassmorphism) -->
+      <div class="active-challenge-card glass-card">
+        <div class="card-status-badge"><span class="pulse-active"></span> ACTIVE NOW</div>
         <div class="challenge-title-area">
           <h2>Plastic-Free Week</h2>
           <span class="days-left-tag">4 days left</span>
@@ -31,8 +38,8 @@
           <span class="progress-label">Current Progress</span>
           <span class="progress-pct">65%</span>
         </div>
-        <div class="progress-bar-container">
-          <div class="progress-bar success-bar" style="width: 65%"></div>
+        <div class="progress-track">
+          <div #progressFill class="progress-fill" data-progress="65"></div>
         </div>
 
         <div class="avatar-group-row">
@@ -53,8 +60,8 @@
       </div>
 
       <!-- Recommended Grid -->
-      <div class="recommended-grid">
-        <div class="eco-card ch-card" *ngFor="let ch of recommendedChallenges">
+      <div class="recommended-grid stagger-item">
+        <div class="eco-card ch-card ch-card-hover" *ngFor="let ch of filteredChallenges">
           <div class="ch-image-wrapper">
             <img [src]="ch.image" [alt]="ch.title" class="ch-img" />
             <span class="xp-badge">+{{ ch.xp }} XP</span>
@@ -79,47 +86,69 @@
           </div>
         </div>
       </div>
+
+      <!-- Search Empty State -->
+      <div class="search-empty" *ngIf="filteredChallenges.length === 0">
+        <i class="bi bi-search"></i>
+        <p>No challenges match "{{ searchQuery }}". Try a different keyword.</p>
+      </div>
     </div>
 
     <!-- Side Widgets (Leaderboard, Badges) -->
     <div class="challenges-side-area">
-      <!-- Leaderboard Card -->
+      <!-- Gaming Leaderboard Card -->
       <div class="eco-card side-widget-card">
         <div class="widget-header">
           <h3>Leaderboard</h3>
           <i class="bi bi-trophy text-warning"></i>
         </div>
-        <div class="leaderboard-list">
-          <div class="leader-item" *ngFor="let l of leaderboard">
+        <div class="leaderboard-list stagger-item">
+          <div class="leader-item" [class]="'leader-item rank-' + (i + 1)" *ngFor="let user of leaderboard; let i = index">
             <div class="leader-left">
-              <span class="leader-rank">{{ l.rank }}</span>
+              <span class="leader-rank">
+                <i class="bi" [ngClass]="getRankIcon(i + 1)"></i>
+              </span>
               <div class="leader-avatar-placeholder"></div>
-              <span class="leader-name">{{ l.name }}</span>
+              <span class="leader-name">{{ user.username }}</span>
             </div>
-            <span class="leader-points text-success">{{ l.points }}</span>
+            <span class="leader-points">{{ user.totalXp }} pts</span>
           </div>
+          <p class="leaderboard-empty" *ngIf="leaderboard.length === 0">
+            No ranked explorers yet. Log your carbon activities to claim rank #1!
+          </p>
         </div>
-        <button class="btn btn-text btn-block-link">View Full Leaderboard</button>
+        <button class="btn btn-text leaderboard-ghost-btn">
+          <i class="bi bi-people"></i> View Full Leaderboard
+        </button>
       </div>
 
-      <!-- Latest Badges Card -->
+      <!-- Badges Showcase -->
       <div class="eco-card side-widget-card">
         <div class="widget-header">
           <h3>Latest Badges</h3>
           <i class="bi bi-patch-check text-primary"></i>
         </div>
-        <div class="badges-grid">
-          <div class="badge-item-box" *ngFor="let b of badges" [title]="b.desc">
-            <div class="badge-icon-box">
-              <i class="bi" [ngClass]="b.icon"></i>
-            </div>
-            <span class="badge-box-name">{{ b.name }}</span>
+        <div class="badge-grid badge-showcase-grid">
+          <div
+            class="badge-card"
+            *ngFor="let badge of allBadges"
+            [class.badge-unlocked]="isBadgeUnlocked(badge.code)"
+            [class.badge-locked]="!isBadgeUnlocked(badge.code)"
+            [title]="badge.condition">
+            <span class="badge-lock-icon" *ngIf="!isBadgeUnlocked(badge.code)">
+              <i class="bi bi-lock-fill"></i>
+            </span>
+            <span class="badge-status-tag" *ngIf="isBadgeUnlocked(badge.code)">
+              <i class="bi bi-check2"></i> Unlocked
+            </span>
+            <i class="bi" [ngClass]="badge.icon" style="font-size: 1.75rem;"></i>
+            <span class="mt-2 font-sm fw-bold badge-name">{{ badge.name }}</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Floating Action Button + (Matching mockup screenshot 4) -->
-  <button class="fab-btn" title="Create a Challenge"><i class="bi bi-plus-lg"></i></button>
+  <!-- Floating Action Button -->
+  <button class="fab-btn" title="Log Carbon Activity" (click)="onFabClick()"><i class="bi bi-plus-lg"></i></button>
 </div>

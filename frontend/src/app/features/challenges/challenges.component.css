@@ -1,4 +1,4 @@
-/* Challenges & Rewards CSS */
+﻿/* Challenges & Rewards CSS */
 
 .challenges-top-header {
   display: flex;
@@ -66,16 +66,32 @@
   background: var(--color-hover-overlay);
 }
 
-.calculate-impact-top-btn {
-  border-radius: 20px !important;
-  font-size: 0.85rem !important;
-  padding: 8px 16px !important;
+/* Emerald glass pill button */
+.calculate-impact-glass-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  background: linear-gradient(135deg, #10B981, #06B6D4);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.calculate-impact-glass-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.4);
 }
 
 /* Grid Layout */
 .challenges-layout-grid {
   display: grid;
-  grid-template-cols: 2fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 24px;
 }
 
@@ -85,14 +101,23 @@
   gap: 24px;
 }
 
-/* Active challenge banner */
+/* ===== Active Challenge Banner ===== */
 .active-challenge-card {
-  background: linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(16, 185, 129, 0.05) 100%);
-  border: 1px solid rgba(46, 125, 50, 0.2);
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  position: relative;
+}
+
+.active-challenge-card::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -20%;
+  width: 60%;
+  height: 220%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .card-status-badge {
@@ -103,20 +128,6 @@
   align-items: center;
   gap: 6px;
   letter-spacing: 0.05em;
-}
-
-.card-status-badge .badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-success);
-  animation: pulse-dot 1.5s infinite;
-}
-
-@keyframes pulse-dot {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0.8; }
 }
 
 .challenge-title-area {
@@ -153,6 +164,47 @@
 
 .progress-pct {
   color: var(--color-text-primary);
+}
+
+/* ===== Glassmorphism Active Card ===== */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  padding: 24px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-shadow-hover), 0 0 0 1px rgba(16, 185, 129, 0.15);
+}
+
+/* ===== Gaming Progress Bar ===== */
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background-color: rgba(148, 163, 184, 0.18);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10B981 0%, #34D399 50%, #06B6D4 100%);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  width: 0%; /* GSAP animates this */
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.55);
+  will-change: width;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .avatar-group-row {
@@ -198,8 +250,33 @@
 /* Recommended Grid */
 .recommended-grid {
   display: grid;
-  grid-template-cols: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+/* Search empty state */
+.search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--color-card);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.search-empty i {
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+}
+
+.search-empty p {
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .ch-card {
@@ -208,37 +285,46 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: all 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
 }
 
-.ch-card:hover {
-  transform: translateY(-4px);
+.ch-card-hover:hover {
+  transform: translateY(-6px);
   box-shadow: var(--card-shadow-hover);
+  border-color: rgba(16, 185, 129, 0.35);
 }
 
 .ch-image-wrapper {
   position: relative;
   height: 120px;
   width: 100%;
+  overflow: hidden;
 }
 
 .ch-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ch-card-hover:hover .ch-img {
+  transform: scale(1.07);
 }
 
 .xp-badge {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   color: #ffffff;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.2);
+  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.25);
 }
 
 .ch-body {
@@ -294,18 +380,20 @@
 .btn-join-link {
   background: transparent;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-success);
   font-weight: 700;
   font-size: 0.8rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, color 0.2s ease, letter-spacing 0.2s ease;
 }
 
 .btn-join-link:hover {
   color: var(--color-secondary);
+  transform: translateX(3px);
+  letter-spacing: 0.03em;
 }
 
 .joined-btn {
@@ -340,6 +428,23 @@
   margin: 0;
 }
 
+/* Floating pulse animation for active trophies */
+.widget-header .bi-trophy {
+  animation: trophy-float-pulse 3s ease-in-out infinite;
+}
+
+@keyframes trophy-float-pulse {
+  0%, 100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.35));
+  }
+  50% {
+    transform: translateY(-4px);
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.75));
+  }
+}
+
+/* ===== Gaming Leaderboard ===== */
 .leaderboard-list {
   display: flex;
   flex-direction: column;
@@ -355,6 +460,28 @@
   background: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.leader-item:hover {
+  transform: translateX(4px);
+  box-shadow: var(--card-shadow);
+}
+
+/* Top 3 podium highlights */
+.leader-item.rank-1 {
+  background: linear-gradient(90deg, rgba(255, 200, 60, 0.16), rgba(255, 200, 60, 0.04));
+  border: 1px solid rgba(212, 175, 55, 0.5);
+}
+
+.leader-item.rank-2 {
+  background: linear-gradient(90deg, rgba(176, 196, 222, 0.16), rgba(176, 196, 222, 0.04));
+  border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+.leader-item.rank-3 {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.16), rgba(205, 127, 50, 0.04));
+  border: 1px solid rgba(180, 110, 40, 0.45);
 }
 
 .leader-left {
@@ -364,10 +491,15 @@
 }
 
 .leader-rank {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-weight: 800;
+  width: 22px;
+  text-align: center;
 }
+
+.leader-item.rank-1 .leader-rank { color: #D4AF37; }
+.leader-item.rank-2 .leader-rank { color: #A8B9CC; }
+.leader-item.rank-3 .leader-rank { color: #CD7F32; }
 
 .leader-avatar-placeholder {
   width: 24px;
@@ -376,68 +508,258 @@
   background: var(--color-border);
 }
 
+.leader-item.rank-1 .leader-avatar-placeholder {
+  background: linear-gradient(135deg, #F6D365, #D4AF37);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
+}
+
+.leader-item.rank-2 .leader-avatar-placeholder {
+  background: linear-gradient(135deg, #E2E8F0, #94A3B8);
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.3);
+}
+
+.leader-item.rank-3 .leader-avatar-placeholder {
+  background: linear-gradient(135deg, #D7A977, #A05A2C);
+  box-shadow: 0 0 0 2px rgba(205, 127, 50, 0.3);
+}
+
 .leader-name {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
+.leader-item.rank-1 .leader-name {
+  font-weight: 800;
+}
+
 .leader-points {
   font-size: 0.85rem;
   font-weight: 800;
+  color: var(--color-success);
 }
+
+.leader-item.rank-1 .leader-points { color: #D4AF37; }
+.leader-item.rank-2 .leader-points { color: #94A3B8; }
+.leader-item.rank-3 .leader-points { color: #CD7F32; }
 
 .btn-block-link {
   width: 100%;
   justify-content: center;
   border: 1px solid var(--color-border);
-  color: var(--color-primary);
+  color: var(--color-success);
 }
 
 .btn-block-link:hover {
   background: var(--color-hover-overlay);
 }
 
-/* Badges Grid */
-.badges-grid {
-  display: grid;
-  grid-template-cols: repeat(4, 1fr);
-  gap: 12px;
+/* Leaderboard empty state */
+.leaderboard-empty {
+  margin: 0;
+  padding: 24px 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1.5;
 }
 
-.badge-item-box {
+/* Dark-mode compatible ghost/glass button */
+.leaderboard-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.leaderboard-ghost-btn:hover {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--color-hover-overlay);
+}
+
+/* ===== Badge Showcase (Gaming Grid) ===== */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  padding: 15px;
+}
+
+.badge-showcase-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ===== Winner Badge Card (3D + Glassmorphism) ===== */
+.badge-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: 6px;
+  padding: 18px 10px 16px;
+  border-radius: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease,
+              filter 0.3s ease,
+              opacity 0.3s ease;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
-.badge-item-box:hover {
-  transform: scale(1.08);
+.badge-card:hover {
+  transform: perspective(600px) translateY(-4px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: var(--card-shadow-hover);
 }
 
-.badge-icon-box {
-  width: 44px;
-  height: 44px;
+.badge-name {
+  color: var(--color-text-primary);
+}
+
+/* ===== Unlocked Badge (Golden/emerald gradient border + shimmer) ===== */
+.badge-card.badge-unlocked {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--glass-bg), var(--glass-bg)) padding-box,
+    linear-gradient(135deg, #F6D365 0%, #10B981 55%, #06B6D4 100%) border-box;
+  color: var(--color-success);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), var(--card-shadow);
+}
+
+.badge-card.badge-unlocked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  background-size: 250% 100%;
+  animation: shimmer 3s linear infinite;
+  pointer-events: none;
+}
+
+.badge-card.badge-unlocked:hover {
+  transform: perspective(600px) translateY(-6px) rotateX(3deg) scale(1.05);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.45),
+              0 0 24px rgba(16, 185, 129, 0.4),
+              var(--card-shadow-hover);
+}
+
+.badge-card.badge-unlocked .badge-name {
+  color: var(--color-success);
+}
+
+/* Unlocked status tag */
+.badge-status-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: var(--color-success);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ===== Locked Badge (Subdued + lock) ===== */
+.badge-card.badge-locked {
+  background: var(--glass-bg);
+  border: 1px solid var(--color-border);
+  filter: grayscale(0.9);
+  opacity: 0.55;
+  color: var(--color-text-muted);
+}
+
+.badge-card.badge-locked:hover {
+  filter: grayscale(0.4);
+  opacity: 0.85;
+  transform: translateY(-3px);
+}
+
+.badge-card.badge-locked .badge-name {
+  color: var(--color-text-secondary);
+}
+
+/* Lock badge */
+.badge-lock-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--color-background);
   border: 1px solid var(--color-border);
-  color: var(--color-primary);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  font-size: 0.7rem;
 }
 
-.badge-box-name {
-  font-size: 0.65rem;
+/* Local utility helpers matching the mockup (Bootstrap CSS is not loaded) */
+.mt-2 {
+  margin-top: 8px;
+}
+
+.font-sm {
+  font-size: 0.75rem;
+}
+
+.fw-bold {
   font-weight: 700;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
+}
+
+/* Active Pulse Animation */
+.pulse-active {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #10B981;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 /* Floating Action Button */
@@ -448,7 +770,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   color: #ffffff;
   border: none;
   font-size: 1.5rem;
@@ -457,30 +779,70 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(46, 125, 50, 0.4);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fab-bounce 2.6s ease-in-out infinite;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.25s ease;
   z-index: 99;
 }
 
 .fab-btn:hover {
   background: #235e26;
-  transform: scale(1.08);
+  animation-play-state: paused;
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 14px 30px rgba(46, 125, 50, 0.5),
+              0 0 24px rgba(16, 185, 129, 0.55);
+}
+
+@keyframes fab-bounce {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 24px rgba(46, 125, 50, 0.4);
+  }
+  50% {
+    transform: translateY(-7px);
+    box-shadow: 0 16px 32px rgba(46, 125, 50, 0.55),
+                0 0 22px rgba(16, 185, 129, 0.45);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill,
+  .pulse-active,
+  .ch-img,
+  .ch-card-hover,
+  .badge-card,
+  .badge-card.badge-unlocked::before,
+  .leader-item,
+  .btn-join-link,
+  .glass-card,
+  .fab-btn,
+  .widget-header .bi-trophy {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 /* Responsive Overrides */
 @media (max-width: 1200px) {
   .recommended-grid {
-    grid-template-cols: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 992px) {
   .challenges-layout-grid {
-    grid-template-cols: 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 576px) {
   .recommended-grid {
-    grid-template-cols: 1fr;
+    grid-template-columns: 1fr;
+  }
+
+  .badge-showcase-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

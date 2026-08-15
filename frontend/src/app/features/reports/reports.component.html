@@ -158,12 +158,16 @@
         </div>
 
         <div class="form-actions-row">
-          <button type="button" class="btn btn-outline-primary" (click)="exportCsv()" [disabled]="!hasAnyData || isGenerating">
-            <i class="bi bi-download"></i> Export CSV
+          <button type="button" class="btn btn-export-csv" (click)="exportCsv()" [disabled]="!hasAnyData || isGenerating">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export CSV
+          </button>
+          <button type="button" class="btn btn-export-pdf" (click)="exportPdf()" [disabled]="!hasAnyData || isGenerating">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
           </button>
           <button type="submit" class="btn btn-primary generate-btn" [disabled]="isGenerating">
-            <i class="bi" [ngClass]="isGenerating ? 'bi-arrow-repeat animate-spin' : 'bi-file-earmark-arrow-down'"></i>
-            {{ isGenerating ? 'Preparing...' : 'Generate' }}
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="isGenerating" role="status" aria-hidden="true"></span>
+            <i class="bi bi-file-earmark-arrow-down" *ngIf="!isGenerating"></i>
+            {{ isGenerating ? 'Preparing Report...' : 'Generate Report' }}
           </button>
         </div>
       </form>

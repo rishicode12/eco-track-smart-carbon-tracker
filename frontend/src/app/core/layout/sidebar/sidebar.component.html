@@ -67,12 +67,12 @@
     <!-- XP / Level Indicator (Matching Screenshot 4 sidebar) -->
     <div class="level-indicator" *ngIf="!layoutService.sidebarCollapsed()">
       <div class="level-header">
-        <span class="level-badge">LEVEL 12 EXPLORER</span>
+        <span class="level-badge">LEVEL {{ ecoProfile?.currentLevel ?? 1 }} EXPLORER</span>
       </div>
       <div class="progress-bar-container">
-        <div class="progress-bar success-bar" style="width: 58%"></div>
+        <div class="progress-bar success-bar" [style.width.%]="xpProgress()"></div>
       </div>
-      <p class="level-desc">1,240 XP to next rank</p>
+      <p class="level-desc">{{ xpToNextRank() }} XP to next rank</p>
     </div>
 
     <!-- User Profile Widget -->
