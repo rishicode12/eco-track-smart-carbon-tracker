@@ -1,13 +1,15 @@
 {
   "name": "eco-track-app",
   "version": "0.0.0",
+  
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "mkdir -p src/environments && echo \"export const environment = { production: true, apiUrl: '${API_URL}', googleClientId: '${GOOGLE_CLIENT_ID}' };\" > src/environments/environment.prod.ts && ng build",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test"
+},
+
   "private": true,
   "packageManager": "npm@11.11.0",
   "dependencies": {
