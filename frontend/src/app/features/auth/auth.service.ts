@@ -119,7 +119,7 @@ export class AuthService {
     
     try {
       const response: any = await firstValueFrom(
-        this.http.get('http://localhost:8080/api/users/profile', { headers })
+        this.http.get(`${environment.apiUrl}/api/users/profile`, { headers })
       );
       
       const data = response.data || response;

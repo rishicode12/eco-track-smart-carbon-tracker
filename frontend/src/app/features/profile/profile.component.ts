@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service'; 
 import { COUNTRIES } from '../auth/countries'; 
+import { environment } from '../../../environments/environment';
 
 interface Interest {
   id: string;
@@ -124,7 +125,7 @@ export class ProfileComponent implements OnInit {
     const token = localStorage.getItem('ecotrack_token'); 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.put('http://localhost:8080/api/users/update-profile', updatedData, { headers })
+    this.http.put(`${environment.apiUrl}/api/users/update-profile`, updatedData, { headers })
       .subscribe({
         next: async (response: any) => {
           this.message = 'Profile permanently saved to database!';
