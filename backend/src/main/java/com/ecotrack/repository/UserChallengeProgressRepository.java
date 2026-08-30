@@ -15,5 +15,11 @@ public interface UserChallengeProgressRepository extends JpaRepository<UserChall
     Optional<UserChallengeProgress> findByUserIdAndChallengeId(Long userId, Long challengeId);
 
     List<UserChallengeProgress> findByUserIdOrderByCompletedAtDesc(Long userId);
+
+    List<UserChallengeProgress> findByUserIdAndStatus(Long userId, String status);
+
+    long countByUserIdAndStatus(Long userId, String status);
+
+    void deleteByChallengeId(Long challengeId);
 }
 

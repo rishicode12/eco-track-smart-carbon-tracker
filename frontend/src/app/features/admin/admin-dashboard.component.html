@@ -1,0 +1,189 @@
+<div class="fade-in-section">
+  <div class="admin-header">
+    <h1>Admin Control Panel</h1>
+    <p class="subtitle text-secondary">Manage registered users and community challenges.</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs glass-panel">
+    <button
+      type="button"
+      class="admin-tab"
+      [class.active]="activeTab === 'users'"
+      (click)="activeTab = 'users'">
+      <i class="bi bi-people"></i> User Management
+    </button>
+    <button
+      type="button"
+      class="admin-tab"
+      [class.active]="activeTab === 'challenges'"
+      (click)="activeTab = 'challenges'">
+      <i class="bi bi-trophy"></i> Community Challenges
+    </button>
+  </div>
+
+  <!-- User Management -->
+  <div class="admin-panel" *ngIf="activeTab === 'users'">
+    <div class="eco-card admin-card">
+      <div class="admin-card-header">
+        <h3>Registered Users</h3>
+        <button type="button" class="btn btn-outline-light btn-sm" (click)="loadUsers()" [disabled]="isLoadingUsers">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+
+      <div *ngIf="isLoadingUsers" class="admin-loading">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+      </div>
+
+      <div *ngIf="!isLoadingUsers && usersError" class="admin-alert admin-alert-error">
+        <i class="bi bi-exclamation-triangle"></i> {{ usersError }}
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoadingUsers && !usersError">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.id }}</td>
+              <td>{{ user.fullName }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span class="role-badge" [class.role-admin]="user.role === 'ADMIN'">{{ user.role || 'USER' }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="!users.length">
+              <td colspan="4" class="table-empty">No registered users yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Community Challenges -->
+  <div class="admin-panel" *ngIf="activeTab === 'challenges'">
+    <div class="admin-layout-grid">
+      <!-- Create Challenge -->
+      <div class="eco-card admin-card">
+        <h3>Create Challenge</h3>
+        <p class="font-sm text-secondary" style="margin-bottom: 16px;">Publish a new community challenge for all users.</p>
+
+        <div class="admin-form">
+          <div class="form-item">
+            <label for="ad-title">Title</label>
+            <input id="ad-title" type="text" [(ngModel)]="form.title" name="title" placeholder="e.g. Bike to Work Week" />
+          </div>
+
+          <div class="form-item">
+            <label for="ad-category">Category</label>
+            <select id="ad-category" [(ngModel)]="form.category" name="category">
+              <option value="Transport">Transport</option>
+              <option value="Energy">Energy</option>
+              <option value="Food">Food</option>
+              <option value="Waste">Waste</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-item">
+              <label for="ad-goal">Target Goal</label>
+              <input id="ad-goal" type="number" min="0" [(ngModel)]="form.targetGoal" name="targetGoal" placeholder="kg CO2e" />
+            </div>
+            <div class="form-item">
+              <label for="ad-xp">XP Reward</label>
+              <input id="ad-xp" type="number" min="0" [(ngModel)]="form.rewardPoints" name="rewardPoints" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-item">
+              <label for="ad-duration">Duration (days)</label>
+              <input id="ad-duration" type="number" min="1" [(ngModel)]="form.durationDays" name="durationDays" />
+            </div>
+            <div class="form-item">
+              <label for="ad-type">Type</label>
+              <select id="ad-type" [(ngModel)]="form.challengeType" name="challengeType">
+                <option value="DAILY">Daily</option>
+                <option value="WEEKLY">Weekly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-item">
+            <label for="ad-badge">Badge Name</label>
+            <input id="ad-badge" type="text" [(ngModel)]="form.badgeName" name="badgeName" placeholder="e.g. Green Hero" />
+          </div>
+
+          <div class="form-item">
+            <label for="ad-desc">Description</label>
+            <textarea id="ad-desc" [(ngModel)]="form.description" name="description" rows="2" placeholder="Describe the challenge..."></textarea>
+          </div>
+
+          <div *ngIf="createError" class="admin-alert admin-alert-error">
+            <i class="bi bi-exclamation-triangle"></i> {{ createError }}
+          </div>
+          <div *ngIf="createMessage" class="admin-alert admin-alert-success">
+            <i class="bi bi-check-circle"></i> {{ createMessage }}
+          </div>
+
+          <button type="button" class="btn btn-primary admin-submit-btn" (click)="onCreateChallenge()" [disabled]="isCreating">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="isCreating" role="status" aria-hidden="true"></span>
+            <i class="bi bi-plus-lg" *ngIf="!isCreating"></i>
+            {{ isCreating ? 'Creating...' : 'Create Challenge' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Existing Challenges -->
+      <div class="eco-card admin-card">
+        <div class="admin-card-header">
+          <h3>Existing Challenges</h3>
+          <button type="button" class="btn btn-outline-light btn-sm" (click)="loadChallenges()" [disabled]="isLoadingChallenges">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+
+        <div *ngIf="isLoadingChallenges" class="admin-loading">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line"></div>
+        </div>
+
+        <div *ngIf="!isLoadingChallenges && challengesError" class="admin-alert admin-alert-error">
+          <i class="bi bi-exclamation-triangle"></i> {{ challengesError }}
+        </div>
+
+        <div class="challenge-list" *ngIf="!isLoadingChallenges && !challengesError">
+          <div class="challenge-list-item" *ngFor="let ch of challenges">
+            <div class="challenge-list-info">
+              <span class="challenge-list-title">{{ ch.title }}</span>
+              <span class="challenge-list-meta">
+                <span class="ch-tag">{{ ch.category || 'General' }}</span>
+                <span class="ch-tag">{{ ch.challengeType }}</span>
+                <span *ngIf="ch.targetGoal">Goal: {{ ch.targetGoal }} {{ ch.metric || '' }}</span>
+                <span>+{{ ch.rewardPoints }} XP</span>
+              </span>
+            </div>
+            <button type="button" class="btn btn-danger btn-delete" (click)="onDeleteChallenge(ch.id)" title="Delete challenge">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+
+          <div class="table-empty" *ngIf="!challenges.length">
+            No challenges created yet.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

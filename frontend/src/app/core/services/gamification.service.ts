@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, from } from 'rxjs';
 import { ApiService } from './api.service';
 import { ApiResponse } from '../models/api-response.model';
 
@@ -32,13 +32,28 @@ export class GamificationService {
   private readonly api = inject(ApiService);
   private readonly basePath = '/api/gamification';
 
+  private readonly profileSubject =
+    new BehaviorSubject<EcoProfileResponse | null>(null);
+
+  readonly profile$ = this.profileSubject.asObservable();
+
   async getProfile(): Promise<EcoProfileResponse> {
     const response = await firstValueFrom(
       this.api.get<ApiResponse<EcoProfileResponse>>(
         `${this.basePath}/profile`
       )
     );
+    this.profileSubject.next(response.data);
     return response.data;
+  }
+
+  /** Fire-and-forget refresh that pushes the latest profile into profile$. */
+  refreshProfile(): void {
+    from(this.getProfile()).subscribe({
+      next: () => {},
+      error: (error) =>
+        console.error('Failed to refresh gamification profile', error),
+    });
   }
 
   async getLeaderboard(): Promise<EcoLeaderboardResponse[]> {

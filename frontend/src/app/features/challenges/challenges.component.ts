@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { GamificationService, EcoLeaderboardResponse, EcoProfileResponse } from '../../core/services/gamification.service';
+import { ChallengeService, ActiveChallenge } from '../../core/services/challenge.service';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,12 +38,15 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
   @ViewChild('progressFill', { static: false }) private progressFillRef!: ElementRef<HTMLElement>;
 
   private readonly gamificationService = inject(GamificationService);
+  private readonly challengeService = inject(ChallengeService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
 
   public ecoProfile: EcoProfileResponse | null = null;
   public leaderboard: EcoLeaderboardResponse[] = [];
   public searchQuery: string = '';
+  public activeChallenges: ActiveChallenge[] = [];
+  public activeProgressPercent = 0;
 
   public allBadges: BadgePreset[] = [
     { code: 'GREEN_HERO', name: 'Green Hero', icon: 'bi-gem', condition: 'Complete your first challenge' },
@@ -88,6 +92,14 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
 
   public ngOnInit(): void {
     this.loadData();
+
+    this.gamificationService.profile$.subscribe((profile) => {
+      if (!profile) {
+        return;
+      }
+      this.ecoProfile = profile;
+      this.cdr.detectChanges();
+    });
   }
 
   public ngAfterViewInit(): void {
@@ -98,17 +110,40 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
 
   public async loadData(): Promise<void> {
     try {
-      const [profile, leaderboard] = await Promise.all([
+      const [profile, leaderboard, challenges] = await Promise.all([
         this.gamificationService.getProfile(),
-        this.gamificationService.getLeaderboard()
+        this.gamificationService.getLeaderboard(),
+        this.challengeService.getActiveChallenges()
       ]);
       this.ecoProfile = profile;
       this.leaderboard = leaderboard;
+      this.activeChallenges = challenges;
+      this.computeActiveProgressPercent();
     } catch (error) {
       console.error('Failed to load gamification data', error);
     } finally {
       this.cdr.detectChanges();
+      this.animateProgressBar();
     }
+  }
+
+  private computeActiveProgressPercent(): void {
+    const target = (c: ActiveChallenge) => c.targetGoal ?? 0;
+    const progress = (c: ActiveChallenge) => c.currentProgress ?? 0;
+
+    const joinedInProgress = this.activeChallenges.find(
+      (c) => c.isJoined && target(c) > 0 && progress(c) < target(c)
+    );
+    const fallback = this.activeChallenges.find((c) => target(c) > 0);
+    const active = joinedInProgress ?? fallback;
+
+    if (!active || target(active) <= 0) {
+      this.activeProgressPercent = 0;
+      return;
+    }
+
+    const raw = (progress(active) / target(active)) * 100;
+    this.activeProgressPercent = Math.round(Math.min(100, Math.max(0, raw)));
   }
 
   private animateEntrance(): void {
@@ -123,8 +158,11 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
   }
 
   private animateProgressBar(): void {
-    const fill = this.progressFillRef.nativeElement;
-    const target = Number(fill.dataset['progress'] ?? 0);
+    const fill = this.progressFillRef?.nativeElement;
+    if (!fill) {
+      return;
+    }
+    const target = Math.min(100, Math.max(0, this.activeProgressPercent));
     gsap.fromTo(
       fill,
       { width: '0%' },

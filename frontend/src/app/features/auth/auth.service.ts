@@ -189,6 +189,15 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  /**
+   * True when the current user holds an administrator role.
+   * Accepts both "ADMIN" and the Spring convention "ROLE_ADMIN".
+   */
+  public isAdmin(): boolean {
+    const role = this.userProfile()?.role;
+    return role === 'ADMIN' || role === 'ROLE_ADMIN';
+  }
+
   public logout() {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);

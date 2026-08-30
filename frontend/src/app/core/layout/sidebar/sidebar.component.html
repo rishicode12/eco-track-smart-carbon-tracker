@@ -67,16 +67,16 @@
     <!-- XP / Level Indicator (Matching Screenshot 4 sidebar) -->
     <div class="level-indicator" *ngIf="!layoutService.sidebarCollapsed()">
       <div class="level-header">
-        <span class="level-badge">LEVEL {{ ecoProfile?.currentLevel ?? 1 }} EXPLORER</span>
+        <span class="level-badge">{{ rankTitle }}</span>
       </div>
       <div class="progress-bar-container">
-        <div class="progress-bar success-bar" [style.width.%]="xpProgress()"></div>
+        <div class="progress-bar success-bar" [style.width.%]="xpProgressPercent"></div>
       </div>
-      <p class="level-desc">{{ xpToNextRank() }} XP to next rank</p>
+      <p class="level-desc">{{ xpToNextRank }} XP to next rank</p>
     </div>
 
-    <!-- User Profile Widget -->
-    <div class="sidebar-user-widget">
+    <!-- User Profile Widget (clickable -> /profile) -->
+    <a [routerLink]="['/profile']" class="sidebar-user-link sidebar-user-widget" (click)="layoutService.closeMobileSidebar()" title="Go to Profile">
       <div class="user-avatar-wrapper">
         <img 
          [src]="authService.userProfile()?.profilePicture || 'assets/images/default-avatar.png'" 
@@ -87,7 +87,8 @@
         <span class="user-fullname">{{ authService.userProfile()?.fullName || 'Loading...' }}</span>
         <span class="user-title">{{ authService.userProfile()?.role || 'User' }}</span>
       </div>
-    </div>
+      <i class="bi bi-chevron-right user-link-chevron" *ngIf="!layoutService.sidebarCollapsed()" aria-hidden="true"></i>
+    </a>
 
     <!-- Quick Links (Settings / Support) -->
     <div class="sidebar-quick-links" *ngIf="!layoutService.sidebarCollapsed()">

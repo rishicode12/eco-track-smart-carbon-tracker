@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
+import { AdminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   // Public Routes (No Layout)
@@ -51,6 +52,11 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'admin',
+        canActivate: [AdminGuard],
+        loadComponent: () => import('./features/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent)
       }
     ]
   },

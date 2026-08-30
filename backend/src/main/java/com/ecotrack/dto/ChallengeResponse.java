@@ -20,6 +20,7 @@ public class ChallengeResponse {
     private ChallengeType challengeType;
     private Integer rewardPoints;
     private String badgeName;
+    private String category;
     private Boolean active;
     private LocalDateTime createdAt;
     private Double targetGoal;

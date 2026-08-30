@@ -3,11 +3,16 @@ package com.ecotrack.service.impl;
 import com.ecotrack.dto.CarbonEmissionRequest;
 import com.ecotrack.dto.CarbonEmissionResponse;
 import com.ecotrack.entity.CarbonEmission;
+import com.ecotrack.entity.Challenge;
 import com.ecotrack.entity.User;
+import com.ecotrack.entity.UserChallengeProgress;
 import com.ecotrack.exception.ResourceNotFoundException;
 import com.ecotrack.repository.CarbonEmissionRepository;
+import com.ecotrack.repository.ChallengeRepository;
+import com.ecotrack.repository.UserChallengeProgressRepository;
 import com.ecotrack.repository.UserRepository;
 import com.ecotrack.service.CarbonEmissionService;
+import com.ecotrack.service.EcoScoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +25,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CarbonEmissionServiceImpl implements CarbonEmissionService {
 
+    private static final int LOW_CARBON_XP = 50;
+    private static final int STANDARD_XP = 20;
+    private static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
+    private static final String COMPLETED_STATUS = "COMPLETED";
+
     private final CarbonEmissionRepository carbonEmissionRepository;
     private final UserRepository userRepository;
+    private final EcoScoreService ecoScoreService;
+    private final UserChallengeProgressRepository userChallengeProgressRepository;
+    private final ChallengeRepository challengeRepository;
 
     @Override
     @Transactional
@@ -54,6 +67,17 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
         emission.calculateTotalEmission();
 
         CarbonEmission saved = carbonEmissionRepository.save(emission);
+
+        // 6. Gamification: award XP for the logged activity.
+        int baseXp = isLowCarbonAction(saved, normalizedCategory) ? LOW_CARBON_XP : STANDARD_XP;
+        ecoScoreService.awardXp(user.getId(), baseXp);
+
+        // 7. Re-evaluate badge unlocks now that this emission is on record.
+        ecoScoreService.evaluateAndUnlockBadges(user.getId());
+
+        // 8. Auto-sync active challenges whose category matches this activity.
+        syncChallengeProgress(user, normalizedCategory, saved.getTotalEmission());
+
         return mapToResponse(saved);
     }
 
@@ -164,6 +188,80 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
         }
 
         return "Transport"; // Default fallback if nothing matches
+    }
+
+    /**
+     * A "reduction / low-carbon action" is a zero-emission log (e.g. walking,
+     * biking, energy saved) or one explicitly describing such an action.
+     */
+    private boolean isLowCarbonAction(CarbonEmission emission, String category) {
+        BigDecimal categoryImpact = switch (category) {
+            case "Transport" -> emission.getTransportationEmission();
+            case "Energy" -> emission.getElectricityEmission();
+            case "Food" -> emission.getFoodEmission();
+            case "Waste" -> emission.getWasteEmission();
+            default -> emission.getTotalEmission();
+        };
+
+        if (categoryImpact != null && categoryImpact.signum() == 0) {
+            return true;
+        }
+
+        String description = emission.getDescription() == null
+                ? ""
+                : emission.getDescription().toLowerCase();
+        return description.contains("walk")
+                || description.contains("bike")
+                || description.contains("cycl")
+                || description.contains("recycl")
+                || description.contains("compost")
+                || description.contains("saved")
+                || description.contains("saving")
+                || description.contains("solar")
+                || description.contains("public transport");
+    }
+
+    /**
+     * Advances all IN_PROGRESS challenges for the user whose category matches the
+     * logged activity. Challenges that reach their target are completed and their
+     * bonus reward points are granted as XP.
+     */
+    private void syncChallengeProgress(User user, String activityCategory, BigDecimal co2Impact) {
+        if (co2Impact == null || co2Impact.signum() == 0) {
+            return;
+        }
+
+        double increment = co2Impact.doubleValue();
+        List<UserChallengeProgress> inProgress =
+                userChallengeProgressRepository.findByUserIdAndStatus(user.getId(), IN_PROGRESS_STATUS);
+
+        for (UserChallengeProgress progress : inProgress) {
+            Challenge challenge = progress.getChallenge();
+            if (challenge == null || challenge.getCategory() == null) {
+                continue;
+            }
+
+            if (!challenge.getCategory().equalsIgnoreCase(activityCategory)) {
+                continue;
+            }
+
+            double target = challenge.getTargetGoal() != null ? challenge.getTargetGoal() : Double.MAX_VALUE;
+            double current = progress.getCurrentProgress() != null ? progress.getCurrentProgress() : 0.0;
+            double newProgress = Math.min(current + increment, target);
+
+            progress.setCurrentProgress(newProgress);
+
+            if (newProgress >= target && target != Double.MAX_VALUE) {
+                progress.setStatus(COMPLETED_STATUS);
+                progress.setCompletedAt(LocalDateTime.now());
+
+                if (challenge.getRewardPoints() != null) {
+                    ecoScoreService.awardXp(user.getId(), challenge.getRewardPoints());
+                }
+            }
+
+            userChallengeProgressRepository.save(progress);
+        }
     }
 
     private CarbonEmissionResponse mapToResponse(CarbonEmission emission) {

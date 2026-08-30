@@ -7,6 +7,7 @@ import com.ecotrack.entity.User;
 import com.ecotrack.exception.ResourceNotFoundException;
 import com.ecotrack.repository.CarbonEmissionRepository;
 import com.ecotrack.repository.EcoProfileRepository;
+import com.ecotrack.repository.UserChallengeProgressRepository;
 import com.ecotrack.repository.UserRepository;
 import com.ecotrack.service.EcoScoreService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class EcoScoreServiceImpl implements EcoScoreService {
 
+    private static final String GREEN_HERO_BADGE = "GREEN_HERO";
+    private static final String ENERGY_SAVER_BADGE = "ENERGY_SAVER";
     private static final String ECO_WARRIOR_BADGE = "ECO_WARRIOR";
+    private static final String ZERO_WASTE_BADGE = "ZERO_WASTE";
+    private static final String TREE_MASTER_BADGE = "TREE_MASTER";
+
+    private static final long GREEN_HERO_XP_THRESHOLD = 1000;
+    private static final long ENERGY_SAVER_THRESHOLD = 3;
     private static final long ZERO_EMISSION_TRANSPORT_THRESHOLD = 5;
+    private static final long ZERO_WASTE_THRESHOLD = 5;
+    private static final long TREE_MASTER_THRESHOLD = 2;
+    private static final String COMPLETED_STATUS = "COMPLETED";
 
     private static final int LEVEL_2_XP = 1000;
     private static final int LEVEL_3_XP = 2500;
@@ -31,6 +42,7 @@ public class EcoScoreServiceImpl implements EcoScoreService {
     private final EcoProfileRepository ecoProfileRepository;
     private final UserRepository userRepository;
     private final CarbonEmissionRepository carbonEmissionRepository;
+    private final UserChallengeProgressRepository userChallengeProgressRepository;
 
     @Override
     @Transactional
@@ -61,12 +73,40 @@ public class EcoScoreServiceImpl implements EcoScoreService {
 
         long zeroEmissionTransportCount = carbonEmissionRepository
                 .countZeroEmissionTransportActivities(userId);
+        long zeroEmissionEnergyCount = carbonEmissionRepository
+                .countZeroEmissionEnergyActivities(userId);
+        long wasteActivityCount = carbonEmissionRepository
+                .countWasteActivities(userId);
+        long completedChallengeCount = userChallengeProgressRepository
+                .countByUserIdAndStatus(userId, COMPLETED_STATUS);
+
+        if (profile.getTotalXp() >= GREEN_HERO_XP_THRESHOLD) {
+            unlockBadge(profile, GREEN_HERO_BADGE);
+        }
+
+        if (zeroEmissionEnergyCount >= ENERGY_SAVER_THRESHOLD) {
+            unlockBadge(profile, ENERGY_SAVER_BADGE);
+        }
 
         if (zeroEmissionTransportCount > ZERO_EMISSION_TRANSPORT_THRESHOLD) {
-            profile.getUnlockedBadges().add(ECO_WARRIOR_BADGE);
+            unlockBadge(profile, ECO_WARRIOR_BADGE);
+        }
+
+        if (wasteActivityCount >= ZERO_WASTE_THRESHOLD) {
+            unlockBadge(profile, ZERO_WASTE_BADGE);
+        }
+
+        if (completedChallengeCount >= TREE_MASTER_THRESHOLD) {
+            unlockBadge(profile, TREE_MASTER_BADGE);
         }
 
         return ecoProfileRepository.save(profile);
+    }
+
+    private void unlockBadge(EcoProfile profile, String badge) {
+        if (!profile.getUnlockedBadges().contains(badge)) {
+            profile.getUnlockedBadges().add(badge);
+        }
     }
 
     @Override

@@ -39,6 +39,9 @@ public class Challenge {
     @Column(nullable = false)
     private String badgeName;
 
+    @Column(length = 50)
+    private String category;
+
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;

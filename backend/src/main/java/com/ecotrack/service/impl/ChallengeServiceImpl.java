@@ -2,6 +2,7 @@ package com.ecotrack.service.impl;
 
 import com.ecotrack.dto.ChallengeCompletionRequest;
 import com.ecotrack.dto.ChallengeCompletionResponse;
+import com.ecotrack.dto.ChallengeCreateRequest;
 import com.ecotrack.dto.ChallengeResponse;
 import com.ecotrack.dto.LeaderboardResponse;
 import com.ecotrack.dto.UpdateProgressRequest;
@@ -187,6 +188,45 @@ public class ChallengeServiceImpl implements ChallengeService {
         return mapToResponse(challenge, Optional.of(progress));
     }
 
+    @Override
+    @Transactional
+    public ChallengeResponse createChallenge(ChallengeCreateRequest request) {
+        Challenge challenge = Challenge.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .challengeType(request.getChallengeType())
+                .rewardPoints(request.getRewardPoints())
+                .badgeName(request.getBadgeName())
+                .category(request.getCategory())
+                .targetGoal(request.getTargetGoal())
+                .metric(request.getMetric())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .status(request.getStatus() != null ? request.getStatus() : "ACTIVE")
+                .build();
+
+        return mapToResponse(challengeRepository.save(challenge));
+    }
+
+    @Override
+    @Transactional
+    public void deleteChallenge(Long challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Challenge not found"));
+
+        // Remove related user progress first to avoid FK constraint violations.
+        userChallengeProgressRepository.deleteByChallengeId(challengeId);
+        challengeRepository.delete(challenge);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChallengeResponse> getAllChallenges() {
+        return challengeRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -206,6 +246,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .challengeType(challenge.getChallengeType())
                 .rewardPoints(challenge.getRewardPoints())
                 .badgeName(challenge.getBadgeName())
+                .category(challenge.getCategory())
                 .active(challenge.getActive())
                 .createdAt(challenge.getCreatedAt())
                 .targetGoal(challenge.getTargetGoal())

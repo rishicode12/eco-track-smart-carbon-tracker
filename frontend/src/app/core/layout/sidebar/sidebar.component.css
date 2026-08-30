@@ -239,12 +239,43 @@
   color: var(--color-text-secondary);
 }
 
-/* User Widget */
+/* User Widget (clickable -> /profile) */
 .sidebar-user-widget {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 8px 4px;
+}
+
+.sidebar-user-link {
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease,
+              box-shadow 0.2s ease,
+              transform 0.2s var(--transition-timing);
+}
+
+.sidebar-user-link:hover {
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.sidebar-user-link:hover .user-avatar {
+  border-color: var(--color-primary);
+}
+
+.user-link-chevron {
+  margin-left: auto;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-user-link:hover .user-link-chevron {
+  color: var(--color-primary);
+  transform: translateX(2px);
 }
 
 .user-avatar-wrapper {

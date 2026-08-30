@@ -12,8 +12,8 @@
         <!-- YAHAN EDIT BUTTON ADD KIYA HAI -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <h3 style="margin: 0;">Account Information</h3>
-          <button type="button" class="btn btn-outline-primary" *ngIf="!isEditing" (click)="toggleEdit()">
-            <i class="bi bi-pencil"></i> Edit Profile
+          <button type="button" class="btn-eco-outline" *ngIf="!isEditing" (click)="toggleEdit()">
+            <i class="bi bi-pencil-square"></i> Edit Profile
           </button>
         </div>
 
@@ -24,8 +24,8 @@
             <input type="file" #fileInput style="display: none" accept="image/*" (change)="onFileSelected($event)">
             
             <!-- Picture change button hamesha kaam karega -->
-            <button type="button" class="btn btn-outline-light btn-change-avatar" (click)="fileInput.click()" [disabled]="isUploading">
-              {{ isUploading ? 'Uploading...' : 'Change Picture' }}
+            <button type="button" class="btn-eco-outline btn-sm mt-2" (click)="fileInput.click()" [disabled]="isUploading">
+              <i class="bi bi-camera"></i> {{ isUploading ? 'Uploading...' : 'Change Picture' }}
             </button>
           </div>
 
@@ -86,8 +86,8 @@
           <!-- BUTTONS AREA UPDATE: Cancel aur Save dono add kiye hain -->
           <div class="form-actions" *ngIf="isEditing || message">
             <span class="success-message-text" *ngIf="message">{{ message }}</span>
-            <button type="button" class="btn btn-secondary" *ngIf="isEditing" (click)="cancelEdit()" style="margin-right: 15px;">Cancel</button>
-            <button type="submit" class="btn btn-primary save-btn" *ngIf="isEditing">Save Changes</button>
+            <button type="button" class="btn-eco-outline" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+            <button type="submit" class="btn-eco-primary" *ngIf="isEditing"><i class="bi bi-check-lg"></i> Save Changes</button>
           </div>
           
         </form>
@@ -131,7 +131,7 @@
         <div class="change-password-actions">
           <span class="success-message-text" *ngIf="changePasswordMessage" style="color: green;">{{ changePasswordMessage }}</span>
           <span class="error-message-text" *ngIf="changePasswordError" style="color: red;">{{ changePasswordError }}</span>
-          <button type="button" class="btn btn-primary" (click)="onChangePassword()">Update Password</button>
+          <button type="button" class="btn-eco-primary w-100 mt-3" (click)="onChangePassword()"><i class="bi bi-shield-lock"></i> Update Password</button>
         </div>
       </div>
 

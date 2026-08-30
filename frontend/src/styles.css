@@ -12,6 +12,8 @@
   /* Status Colors */
   --color-error: #EF4444;
   --color-error-rgb: 239, 68, 68;
+  --color-danger: #EF4444;
+  --color-danger-rgb: 239, 68, 68;
   --color-warning: #F59E0B;
   --color-warning-rgb: 245, 158, 11;
   --color-success: #10B981;

@@ -60,20 +60,68 @@
     <!-- Divider -->
     <div class="nav-divider"></div>
 
-    <!-- User Profile Dropdown Toggle (YAHAN CHANGES KIYE HAIN) -->
-    <button class="profile-btn focusable" aria-label="User Account Options">
-      
-      <!-- Image ab database/cloudinary se aayegi -->
-      <img [src]="authService.userProfile()?.profilePicture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'" 
-           alt="User Profile Picture" 
-           class="avatar">
-           
-      <div class="user-details hide-on-mobile">
-        <!-- Naam ab direct database se aayega -->
-        <span class="user-name">{{ authService.userProfile()?.fullName || 'Loading...' }}</span>
-        <span class="user-role">{{ authService.userProfile()?.role || 'User' }}</span>
+    <!-- User Profile Dropdown Toggle -->
+    <div class="user-menu-wrap">
+      <button
+        class="profile-btn focusable"
+        aria-label="User Account Options"
+        [attr.aria-expanded]="isDropdownOpen"
+        (click)="toggleDropdown($event)">
+
+        <!-- Image ab database/cloudinary se aayegi -->
+        <img [src]="authService.userProfile()?.profilePicture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'" 
+             alt="User Profile Picture" 
+             class="avatar">
+             
+        <div class="user-details hide-on-mobile">
+          <!-- Naam ab direct database se aayega -->
+          <span class="user-name">{{ authService.userProfile()?.fullName || 'Loading...' }}</span>
+          <span class="user-role">{{ authService.userProfile()?.role || 'User' }}</span>
+        </div>
+        <i class="bi bi-chevron-down chevron-icon hide-on-mobile"></i>
+      </button>
+
+      <!-- Modern Dropdown Panel -->
+      <div class="modern-user-dropdown" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
+        <!-- Header: Avatar + Identity -->
+        <div class="dropdown-header">
+          <img [src]="authService.userProfile()?.profilePicture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'"
+               alt="User Avatar" class="dropdown-avatar" />
+          <div class="dropdown-identity">
+            <span class="dropdown-fullname">{{ authService.userProfile()?.fullName || 'Loading...' }}</span>
+            <span class="dropdown-subtitle">{{ authService.userProfile()?.role || 'User' }}</span>
+          </div>
+        </div>
+
+        <hr class="dropdown-divider" />
+
+        <!-- Gamification Stats -->
+        <div class="dropdown-stats">
+          <div class="stats-row">
+            <span class="stats-level">Level {{ ecoProfile?.currentLevel || level || 1 }}</span>
+            <span class="stats-xp">{{ ecoProfile?.totalXp || 0 }} XP</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar success-bar" [style.width.%]="xpProgressPercent"></div>
+          </div>
+          <span class="stats-desc">{{ xpToNextRank }} XP to next rank</span>
+        </div>
+
+        <hr class="dropdown-divider" />
+
+        <!-- Action Menu -->
+        <div class="dropdown-menu-list">
+          <a routerLink="/profile" class="dropdown-item" (click)="isDropdownOpen = false">
+            <i class="bi bi-person"></i> My Profile
+          </a>
+          <a routerLink="/settings" class="dropdown-item" (click)="isDropdownOpen = false">
+            <i class="bi bi-gear"></i> Settings
+          </a>
+          <a (click)="logout()" class="dropdown-item text-danger">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+        </div>
       </div>
-      <i class="bi bi-chevron-down chevron-icon hide-on-mobile"></i>
-    </button>
+    </div>
   </div>
 </header>

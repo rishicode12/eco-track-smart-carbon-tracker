@@ -2,6 +2,7 @@ package com.ecotrack.service;
 
 import com.ecotrack.dto.ChallengeCompletionRequest;
 import com.ecotrack.dto.ChallengeCompletionResponse;
+import com.ecotrack.dto.ChallengeCreateRequest;
 import com.ecotrack.dto.ChallengeResponse;
 import com.ecotrack.dto.LeaderboardResponse;
 import com.ecotrack.dto.UpdateProgressRequest;
@@ -23,5 +24,11 @@ public interface ChallengeService {
     ChallengeResponse joinChallenge(Long challengeId, String email);
 
     ChallengeResponse updateProgress(Long challengeId, String email, UpdateProgressRequest request);
+
+    ChallengeResponse createChallenge(ChallengeCreateRequest request);
+
+    void deleteChallenge(Long challengeId);
+
+    List<ChallengeResponse> getAllChallenges();
 }
 

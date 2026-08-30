@@ -3,6 +3,8 @@ package com.ecotrack.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -70,4 +72,14 @@ public class User {
     @Builder.Default
     @Column(nullable = false)
     private String badgeName = "Bronze";
+
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }

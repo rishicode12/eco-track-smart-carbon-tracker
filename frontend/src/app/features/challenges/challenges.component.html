@@ -36,10 +36,10 @@
         
         <div class="progress-details">
           <span class="progress-label">Current Progress</span>
-          <span class="progress-pct">65%</span>
+          <span class="progress-pct">{{ activeProgressPercent | number:'1.0-0' }}%</span>
         </div>
         <div class="progress-track">
-          <div #progressFill class="progress-fill" data-progress="65"></div>
+          <div #progressFill class="progress-fill" [style.width.%]="activeProgressPercent"></div>
         </div>
 
         <div class="avatar-group-row">

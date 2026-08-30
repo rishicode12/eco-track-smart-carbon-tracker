@@ -161,4 +161,25 @@ public interface CarbonEmissionRepository
     long countZeroEmissionTransportActivities(
             @Param("userId") Long userId
     );
+
+    @Query("""
+            SELECT COUNT(c)
+            FROM CarbonEmission c
+            WHERE c.user.id = :userId
+              AND LOWER(c.activityCategory) = 'energy'
+              AND c.electricityEmission = 0
+            """)
+    long countZeroEmissionEnergyActivities(
+            @Param("userId") Long userId
+    );
+
+    @Query("""
+            SELECT COUNT(c)
+            FROM CarbonEmission c
+            WHERE c.user.id = :userId
+              AND LOWER(c.activityCategory) = 'waste'
+            """)
+    long countWasteActivities(
+            @Param("userId") Long userId
+    );
 }

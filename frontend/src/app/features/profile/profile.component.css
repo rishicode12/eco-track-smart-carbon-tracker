@@ -15,6 +15,88 @@
   flex-direction: column;
 }
 
+/* Primary Action Button (Update Password, Save Profile) */
+.btn-eco-primary {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #ffffff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-eco-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* Secondary Outline Button (Edit Profile, Change Picture) */
+.btn-eco-outline {
+  background: transparent;
+  color: #10B981 !important;
+  border: 2px solid #10B981;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.btn-eco-outline:hover {
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+/* Ensure icons inside buttons are spaced correctly */
+.btn-eco-primary i, .btn-eco-outline i {
+  margin-right: 8px;
+}
+
+.btn-eco-primary:disabled, .btn-eco-outline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Bootstrap utility classes (Bootstrap CSS is not loaded) */
+.btn-sm {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+.w-100 {
+  width: 100%;
+}
+.mt-2 {
+  margin-top: 8px;
+}
+.mt-3 {
+  margin-top: 16px;
+}
+
+/* Dark-mode high-contrast inputs */
+.form-control {
+  background-color: var(--color-card, var(--card-bg, #1e293b));
+  color: var(--color-text-primary, var(--text-color, #f8fafc));
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--color-primary);
+}
+
 /* Form Styles */
 .form-card {
   padding: 32px;
@@ -51,12 +133,6 @@
   object-fit: cover;
   border: 3px solid var(--color-primary);
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.btn-change-avatar {
-  border-radius: 20px !important;
-  font-size: 0.85rem !important;
-  padding: 8px 16px !important;
 }
 
 .form-row-2 {
@@ -108,12 +184,6 @@
   font-size: 0.9rem;
   color: var(--color-success);
   font-weight: 700;
-}
-
-.save-btn {
-  padding: 12px 28px !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
 }
 
 /* Sidebar Preferences & Badges */
