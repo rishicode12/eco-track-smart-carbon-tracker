@@ -18,12 +18,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class CarbonEmissionServiceImpl implements CarbonEmissionService {
+
+    private static final Logger log = LogManager.getLogger(CarbonEmissionServiceImpl.class);
 
     private static final int LOW_CARBON_XP = 50;
     private static final int STANDARD_XP = 20;
@@ -60,25 +65,51 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
         // 3. Ensure variables are strictly ZERO before adding
         resetCategoryValues(emission);
 
-        // 4. Apply the impact to the specific bucket (So Dashboard icons work)
+        // 4. Calculate water emission if category is Water
+        if ("Water".equals(normalizedCategory)) {
+            BigDecimal waterConsumed = request.getWaterConsumed();
+            String waterUnit = request.getWaterUnit();
+            if (waterConsumed != null) {
+                BigDecimal waterFactor = BigDecimal.valueOf(0.000344).setScale(4, RoundingMode.HALF_UP);
+                BigDecimal consumed = waterConsumed;
+                if ("Gallons".equalsIgnoreCase(waterUnit)) {
+                    consumed = consumed.multiply(BigDecimal.valueOf(3.785)).setScale(4, RoundingMode.HALF_UP);
+                }
+                BigDecimal waterEmission = consumed.multiply(waterFactor).setScale(4, RoundingMode.HALF_UP);
+                emission.setWaterEmission(waterEmission);
+            }
+        }
+
+        // 5. Apply the impact to the specific bucket (So Dashboard icons work)
         applyCategoryEmission(emission, normalizedCategory, request.getCo2Impact());
 
         // 5. Calculate total
         emission.calculateTotalEmission();
 
-        CarbonEmission saved = carbonEmissionRepository.save(emission);
+        // Safety check: ensure tiny non-zero values don't trigger DB constraint violations
+        if (emission.getTotalEmission().compareTo(BigDecimal.ZERO) > 0
+                && emission.getTotalEmission().compareTo(new BigDecimal("0.0001")) < 0) {
+            emission.setTotalEmission(new BigDecimal("0.0001"));
+        }
 
-        // 6. Gamification: award XP for the logged activity.
-        int baseXp = isLowCarbonAction(saved, normalizedCategory) ? LOW_CARBON_XP : STANDARD_XP;
-        ecoScoreService.awardXp(user.getId(), baseXp);
+        try {
+            CarbonEmission saved = carbonEmissionRepository.save(emission);
 
-        // 7. Re-evaluate badge unlocks now that this emission is on record.
-        ecoScoreService.evaluateAndUnlockBadges(user.getId());
+            // 6. Gamification: award XP for the logged activity.
+            int baseXp = isLowCarbonAction(saved, normalizedCategory) ? LOW_CARBON_XP : STANDARD_XP;
+            ecoScoreService.awardXp(user.getId(), baseXp);
 
-        // 8. Auto-sync active challenges whose category matches this activity.
-        syncChallengeProgress(user, normalizedCategory, saved.getTotalEmission());
+            // 7. Re-evaluate badge unlocks now that this emission is on record.
+            ecoScoreService.evaluateAndUnlockBadges(user.getId());
 
-        return mapToResponse(saved);
+            // 8. Auto-sync active challenges whose category matches this activity.
+            syncChallengeProgress(user, normalizedCategory, saved.getTotalEmission());
+
+            return mapToResponse(saved);
+        } catch (Exception e) {
+            log.error("Error saving carbon emission: {}", e.getMessage());
+            throw new ResourceNotFoundException("Unable to save carbon activity: " + e.getMessage());
+        }
     }
 
     @Override
@@ -117,6 +148,22 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
 
         // Reset specific categories before recalculating
         resetCategoryValues(emission);
+
+        // Calculate water emission if category is Water
+        if ("Water".equals(normalizedCategory)) {
+            BigDecimal waterConsumed = request.getWaterConsumed();
+            String waterUnit = request.getWaterUnit();
+            if (waterConsumed != null) {
+                BigDecimal waterFactor = BigDecimal.valueOf(0.000344).setScale(4, RoundingMode.HALF_UP);
+                BigDecimal consumed = waterConsumed;
+                if ("Gallons".equalsIgnoreCase(waterUnit)) {
+                    consumed = consumed.multiply(BigDecimal.valueOf(3.785)).setScale(4, RoundingMode.HALF_UP);
+                }
+                BigDecimal waterEmission = consumed.multiply(waterFactor).setScale(4, RoundingMode.HALF_UP);
+                emission.setWaterEmission(waterEmission);
+            }
+        }
+
         applyCategoryEmission(emission, normalizedCategory, request.getCo2Impact());
         emission.calculateTotalEmission();
 
@@ -145,6 +192,7 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
         emission.setElectricityEmission(BigDecimal.ZERO);
         emission.setFoodEmission(BigDecimal.ZERO);
         emission.setWasteEmission(BigDecimal.ZERO);
+        emission.setWaterEmission(BigDecimal.ZERO);
     }
 
     private void applyCategoryEmission(CarbonEmission emission, String category, BigDecimal impact) {
@@ -185,6 +233,8 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
             return "Food";
         } else if (text.contains("waste") || text.contains("garbage") || text.contains("trash") || text.contains("recycle")) {
             return "Waste";
+        } else if (text.contains("water") || text.contains("liters") || text.contains("gallons") || text.contains("consumed")) {
+            return "Water";
         }
 
         return "Transport"; // Default fallback if nothing matches

@@ -39,7 +39,11 @@ public class CarbonEmission {
     @Builder.Default
     private BigDecimal wasteEmission = BigDecimal.ZERO;
 
-    @Column(name = "total_emission", nullable = false)
+    @Column(name = "water_emission", nullable = false, precision = 19, scale = 4)
+    @Builder.Default
+    private BigDecimal waterEmission = BigDecimal.ZERO;
+
+    @Column(name = "total_emission", nullable = false, precision = 19, scale = 4)
     @Builder.Default
     private BigDecimal totalEmission = BigDecimal.ZERO;
 
@@ -84,6 +88,10 @@ public class CarbonEmission {
         if (wasteEmission == null) {
             wasteEmission = BigDecimal.ZERO;
         }
+
+        if (waterEmission == null) {
+            waterEmission = BigDecimal.ZERO;
+        }
     }
 
     public void calculateTotalEmission() {
@@ -92,6 +100,7 @@ public class CarbonEmission {
         totalEmission = transportationEmission
                 .add(electricityEmission)
                 .add(foodEmission)
-                .add(wasteEmission);
+                .add(wasteEmission)
+                .add(waterEmission);
     }
 }

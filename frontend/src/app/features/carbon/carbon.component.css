@@ -162,17 +162,33 @@
 }
 
 .log-activity-btn {
-  padding: 14px 28px !important;
-  border-radius: 14px !important;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
-  cursor: pointer; /* <-- Yeh line mouse ko 'hand' banayegi */
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-/* Optional: Disabled hone par wapas default arrow dikhane ke liye */
+.log-activity-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
+}
+
 .log-activity-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed; /* <-- Disabled button par block ka icon dikhayega */
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
 /* History Card */

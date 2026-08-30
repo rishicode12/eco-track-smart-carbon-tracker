@@ -10,6 +10,8 @@ export interface CarbonLogRequest {
   co2Impact: number;
   description?: string;
   loggedAt?: string;
+  waterConsumed?: number;
+  waterUnit?: string;
 }
 
 export interface CarbonLogResponse {

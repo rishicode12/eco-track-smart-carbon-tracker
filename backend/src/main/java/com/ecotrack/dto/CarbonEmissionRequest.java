@@ -16,11 +16,15 @@ public class CarbonEmissionRequest {
     private String activityCategory;
 
     @NotNull(message = "CO2 impact is required")
-    @DecimalMin(value = "0.01", message = "CO2 impact must be greater than 0")
+    @DecimalMin(value = "0.00001", inclusive = true, message = "CO2 impact must be greater than or equal to 0.00001")
     private BigDecimal co2Impact;
 
     @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
+
+    private BigDecimal waterConsumed;
+
+    private String waterUnit; // "Liters" or "Gallons"
 
     private LocalDateTime loggedAt;
 }

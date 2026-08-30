@@ -43,6 +43,9 @@ export class CarbonComponent implements OnInit {
   public wasteBags = 0;
   public wasteRecycleRate = 50;
 
+  public waterConsumed = 0;
+  public waterUnit = 'Liters';
+
   public calculatedEmissions = 0;
 
   public activityLogs: CarbonLogResponse[] = [];
@@ -108,13 +111,14 @@ export class CarbonComponent implements OnInit {
           mealFactor = 0.3;
           break;
       }
-      result = this.dietMeals * mealFactor;
-    } else if (this.selectedCategory === 'waste') {
-      const baseEmissions = this.wasteBags * 2.1;
-      result = baseEmissions * (1 - this.wasteRecycleRate / 100);
+     } else if (this.selectedCategory === 'waste') {
+      result = this.wasteBags * 2.5 * (1 - this.wasteRecycleRate / 100);
+    } else if (this.selectedCategory === 'water') {
+      const factor = this.waterUnit === 'Gallons' ? 0.000344 * 3.785 : 0.000344;
+      result = this.waterConsumed * factor;
     }
 
-    this.calculatedEmissions = Number(result.toFixed(2));
+    this.calculatedEmissions = Number(result.toFixed(4));
   }
 
   public async onLogActivity(): Promise<void> {
@@ -128,7 +132,9 @@ export class CarbonComponent implements OnInit {
     const request: CarbonLogRequest = {
       activityCategory: this.getCategoryLabel(this.selectedCategory),
       co2Impact: this.calculatedEmissions,
-      description: this.buildDescription()
+      description: this.buildDescription(),
+      waterConsumed: this.selectedCategory === 'water' ? this.waterConsumed : undefined,
+      waterUnit: this.selectedCategory === 'water' ? this.waterUnit : undefined
     };
 
     try {
@@ -142,6 +148,8 @@ export class CarbonComponent implements OnInit {
     } catch (error) {
       console.error('Error saving carbon activity:', error);
       this.saveError = 'Unable to save the activity. Please try again.';
+      this.cdr.detectChanges();
+
     } finally {
       this.isSaving = false;
       this.cdr.detectChanges();
@@ -178,6 +186,8 @@ export class CarbonComponent implements OnInit {
         return 'Food';
       case 'waste':
         return 'Waste';
+      case 'water':
+        return 'Water';
       default:
         return 'Other';
     }
@@ -193,6 +203,8 @@ export class CarbonComponent implements OnInit {
         return `${this.dietType} diet - ${this.dietMeals} meal(s)`;
       case 'waste':
         return `Household waste (${this.wasteBags} bags, ${this.wasteRecycleRate}% recycled)`;
+      case 'water':
+        return `${this.waterConsumed} ${this.waterUnit} consumed`;
       default:
         return 'Carbon activity';
     }
@@ -203,8 +215,11 @@ export class CarbonComponent implements OnInit {
     this.electricityKwh = 0;
     this.heatingGas = 0;
     this.dietMeals = 1;
+    this.dietType = 'meat';
     this.wasteBags = 0;
     this.wasteRecycleRate = 50;
+    this.waterConsumed = 0;
+    this.waterUnit = 'Liters';
     this.calculatedEmissions = 0;
   }
 
@@ -222,6 +237,9 @@ export class CarbonComponent implements OnInit {
     }
     if (text.includes('waste')) {
       return 'bi-trash3';
+    }
+    if (text.includes('water') || text.includes('liters') || text.includes('gallons')) {
+      return 'bi-droplet-fill';
     }
 
     return 'bi-activity';
@@ -241,6 +259,9 @@ export class CarbonComponent implements OnInit {
     }
     if (text.includes('waste')) {
       return 'waste-icon';
+    }
+    if (text.includes('water') || text.includes('liters') || text.includes('gallons')) {
+      return 'water-icon';
     }
 
     return 'transport-icon';

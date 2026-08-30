@@ -45,6 +45,14 @@
           Waste
         </button>
 
+        <button
+          type="button"
+          [class.active]="selectedCategory === 'water'"
+          (click)="setCategory('water')">
+          <i class="bi bi-droplet-fill"></i>
+          Water
+        </button>
+
       </div>
 
       <div class="calc-form">
@@ -213,6 +221,40 @@
           </div>
         }
 
+        @if (selectedCategory === 'water') {
+          <div class="form-group-wrapper">
+
+            <div class="form-item">
+              <label for="water-consumed">
+                Amount Consumed
+              </label>
+
+              <input
+                type="number"
+                id="water-consumed"
+                [(ngModel)]="waterConsumed"
+                (ngModelChange)="calculateCurrent()"
+                placeholder="e.g. 100"
+                min="0">
+            </div>
+
+            <div class="form-item">
+              <label for="water-unit">
+                Unit
+              </label>
+
+              <select
+                id="water-unit"
+                [(ngModel)]="waterUnit"
+                (ngModelChange)="calculateCurrent()">
+                <option value="Liters">Liters</option>
+                <option value="Gallons">Gallons</option>
+              </select>
+            </div>
+
+          </div>
+        }
+
       </div>
 
       <div class="calc-result-panel">
@@ -223,7 +265,7 @@
           </span>
 
           <h2 class="result-number">
-            {{ calculatedEmissions | number:'1.2-2' }}
+            {{ calculatedEmissions | number:'1.2-4' }}
             <span class="result-unit">
               kg CO₂e
             </span>
