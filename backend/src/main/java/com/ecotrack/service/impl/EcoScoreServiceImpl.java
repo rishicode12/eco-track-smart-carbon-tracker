@@ -3,13 +3,15 @@ package com.ecotrack.service.impl;
 import com.ecotrack.dto.EcoLeaderboardResponse;
 import com.ecotrack.dto.EcoProfileResponse;
 import com.ecotrack.entity.EcoProfile;
+import com.ecotrack.entity.Notification;
 import com.ecotrack.entity.User;
 import com.ecotrack.exception.ResourceNotFoundException;
-import com.ecotrack.repository.CarbonEmissionRepository;
 import com.ecotrack.repository.EcoProfileRepository;
-import com.ecotrack.repository.UserChallengeProgressRepository;
 import com.ecotrack.repository.UserRepository;
+import com.ecotrack.service.NotificationService;
 import com.ecotrack.service.EcoScoreService;
+import com.ecotrack.repository.CarbonEmissionRepository;
+import com.ecotrack.repository.UserChallengeProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,7 @@ public class EcoScoreServiceImpl implements EcoScoreService {
     private final UserRepository userRepository;
     private final CarbonEmissionRepository carbonEmissionRepository;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -59,6 +62,10 @@ public class EcoScoreServiceImpl implements EcoScoreService {
 
         int newLevel = computeLevel(newTotalXp);
         if (newLevel > profile.getCurrentLevel()) {
+            // Level up - send notification
+            String levelUpTitle = "Level Up!";
+            String levelUpMessage = "Congratulations! You reached level " + newLevel;
+            notificationService.createNotification(user, levelUpTitle, levelUpMessage, "LEVEL_UP");
             profile.setCurrentLevel(newLevel);
         }
 
@@ -82,22 +89,28 @@ public class EcoScoreServiceImpl implements EcoScoreService {
 
         if (profile.getTotalXp() >= GREEN_HERO_XP_THRESHOLD) {
             unlockBadge(profile, GREEN_HERO_BADGE);
+            // Badge unlock - send notification
+            notificationService.createNotification(user, "Badge Unlocked!", "You earned the GREEN_HERO badge", "BADGE_UNLOCK");
         }
 
         if (zeroEmissionEnergyCount >= ENERGY_SAVER_THRESHOLD) {
             unlockBadge(profile, ENERGY_SAVER_BADGE);
+            notificationService.createNotification(user, "Badge Unlocked!", "You earned the ENERGY_SAVER badge", "BADGE_UNLOCK");
         }
 
         if (zeroEmissionTransportCount > ZERO_EMISSION_TRANSPORT_THRESHOLD) {
             unlockBadge(profile, ECO_WARRIOR_BADGE);
+            notificationService.createNotification(user, "Badge Unlocked!", "You earned the ECO_WARRIOR badge", "BADGE_UNLOCK");
         }
 
         if (wasteActivityCount >= ZERO_WASTE_THRESHOLD) {
             unlockBadge(profile, ZERO_WASTE_BADGE);
+            notificationService.createNotification(user, "Badge Unlocked!", "You earned the ZERO_WASTE badge", "BADGE_UNLOCK");
         }
 
         if (completedChallengeCount >= TREE_MASTER_THRESHOLD) {
             unlockBadge(profile, TREE_MASTER_BADGE);
+            notificationService.createNotification(user, "Badge Unlocked!", "You earned the TREE_MASTER badge", "BADGE_UNLOCK");
         }
 
         return ecoProfileRepository.save(profile);

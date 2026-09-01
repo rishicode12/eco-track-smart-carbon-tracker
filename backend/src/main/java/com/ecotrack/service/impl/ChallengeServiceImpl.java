@@ -5,9 +5,11 @@ import com.ecotrack.dto.ChallengeCompletionResponse;
 import com.ecotrack.dto.ChallengeCreateRequest;
 import com.ecotrack.dto.ChallengeResponse;
 import com.ecotrack.dto.LeaderboardResponse;
+import com.ecotrack.dto.NotificationResponse;
 import com.ecotrack.dto.UpdateProgressRequest;
 import com.ecotrack.entity.Challenge;
 import com.ecotrack.entity.ChallengeType;
+import com.ecotrack.entity.Notification;
 import com.ecotrack.entity.User;
 import com.ecotrack.entity.UserChallengeProgress;
 import com.ecotrack.exception.ResourceNotFoundException;
@@ -15,14 +17,17 @@ import com.ecotrack.repository.ChallengeRepository;
 import com.ecotrack.repository.UserChallengeProgressRepository;
 import com.ecotrack.repository.UserRepository;
 import com.ecotrack.service.ChallengeService;
+import com.ecotrack.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +41,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -79,6 +85,9 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .badgeEarned(badgeName)
                 .build();
         userChallengeProgressRepository.save(progress);
+
+        // Send notification for challenge completion
+        notificationService.createNotification(user, "Challenge Completed!", "You completed the challenge: " + challenge.getTitle(), "CHALLENGE_COMPLETED");
 
         return ChallengeCompletionResponse.builder()
                 .challengeId(challenge.getId())
@@ -182,6 +191,9 @@ public class ChallengeServiceImpl implements ChallengeService {
 
             progress.setRewardPointsEarned(challenge.getRewardPoints());
             progress.setBadgeEarned(badgeName);
+
+            // Send notification for challenge completion via progress
+            notificationService.createNotification(user, "Challenge Completed!", "You completed the challenge: " + challenge.getTitle(), "CHALLENGE_COMPLETED");
         }
 
         userChallengeProgressRepository.save(progress);
@@ -275,5 +287,36 @@ public class ChallengeServiceImpl implements ChallengeService {
         }
         return "Bronze";
     }
-}
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChallengeResponse> searchChallenges(String query, String authenticatedEmail) {
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+
+        List<Challenge> results = challengeRepository.findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(
+                query.trim(), query.trim());
+
+        return results.stream()
+                .map(challenge -> ChallengeResponse.builder()
+                        .id(challenge.getId())
+                        .title(challenge.getTitle())
+                        .description(challenge.getDescription())
+                        .challengeType(challenge.getChallengeType())
+                        .rewardPoints(challenge.getRewardPoints())
+                        .badgeName(challenge.getBadgeName())
+                        .category(challenge.getCategory())
+                        .active(challenge.getActive())
+                        .createdAt(challenge.getCreatedAt())
+                        .targetGoal(challenge.getTargetGoal())
+                        .metric(challenge.getMetric())
+                        .startDate(challenge.getStartDate())
+                        .endDate(challenge.getEndDate())
+                        .status(challenge.getStatus())
+                        .isJoined(false)
+                        .currentProgress(0.0)
+                        .build())
+                .toList();
+    }
+}

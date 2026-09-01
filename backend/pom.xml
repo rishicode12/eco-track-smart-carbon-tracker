@@ -147,10 +147,10 @@
 		</dependency>
 
 	<!-- Spring Boot Mail for Forgot Password -->
-	 <!--<dependency>
+	<dependency>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-mail</artifactId>
-	</dependency>-->
+	</dependency>
 
 	<!-- Spring AI OpenAI -->
 	<dependency>

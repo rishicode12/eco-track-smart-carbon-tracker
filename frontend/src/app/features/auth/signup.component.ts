@@ -104,23 +104,8 @@ export class SignupComponent {
       });
   }
 
-  public async onGoogleSignup(): Promise<void> {
-    this.errorMessage = '';
-
-    try {
-      await this.authService.loginWithGoogle(() => {
-        this.isLoading = true;
-      });
-      this.isSuccess = true;
-
-      setTimeout(() => {
-        this.router.navigate(['/dashboard']);
-      }, 1500);
-    } catch (error: unknown) {
-      this.applyAuthError(error, 'Google sign-up failed. Please try again.');
-    } finally {
-      this.isLoading = false;
-    }
+  public onGoogleSignup(): void {
+    window.location.href = `${this.authService.getApiUrl()}/oauth2/authorization/google`;
   }
 
   public openCountryDropdown(): void {

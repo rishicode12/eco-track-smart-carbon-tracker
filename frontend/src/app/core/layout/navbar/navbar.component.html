@@ -27,13 +27,30 @@
 
   <!-- Center Side: Sleek Search Bar -->
   <div class="nav-center hide-on-mobile">
-    <div class="search-box">
-      <i class="bi bi-search search-icon"></i>
-      <input 
-        type="text" 
-        placeholder="Search carbon inputs, goals, activities..." 
-        aria-label="Search"
-        class="search-input focusable">
+    <div class="search-box-wrapper position-relative">
+      <div class="search-input-group">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          [formControl]="searchControl" 
+          placeholder="Search challenges..." 
+          class="form-control nav-search-input"
+        />
+      </div>
+
+      <!-- Search Results Dropdown -->
+      <div *ngIf="isSearchDropdownOpen && searchResults.length > 0" class="search-results-dropdown">
+        <div *ngFor="let challenge of searchResults" class="search-result-item">
+          <div class="search-result-info">
+            <span class="search-result-title">{{ challenge.title }}</span>
+            <span class="search-result-badge" [ngClass]="getCategoryClass(challenge.category)">{{ challenge.category }}</span>
+          </div>
+          <span class="search-result-xp">+{{ challenge.rewardPoints || challenge.xpReward || 0 }} XP</span>
+        </div>
+      </div>
+      <div *ngIf="searchResults.length === 0" class="search-no-results">
+        No challenges found matching "{{ searchControl.value }}"
+      </div>
     </div>
   </div>
 
@@ -49,13 +66,41 @@
     </button>
 
     <!-- Notification Bell -->
-    <button 
-      class="nav-icon-btn focusable notification-btn" 
-      aria-label="View Notifications"
-      title="View Notifications">
-      <i class="bi bi-bell"></i>
-      <span *ngIf="unreadNotificationsCount > 0" class="badge-dot" aria-hidden="true"></span>
-    </button>
+    <div class="notification-wrapper" (click)="$event.stopPropagation()">
+      <button 
+        class="nav-icon-btn focusable notification-btn" 
+        aria-label="View Notifications"
+        title="View Notifications">
+        <i class="bi bi-bell"></i>
+        <!-- Unread badge -->
+        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+
+      <!-- Notification Panel -->
+      <div *ngIf="isNotificationsOpen" class="notification-panel">
+        <div class="notification-header">
+          <span>Notifications</span>
+          <button class="mark-all-read-btn" (click)="markAllAsRead()">Mark all as read</button>
+        </div>
+
+        <div *ngIf="notifications.length > 0" class="notification-list">
+          <div *ngFor="let notification of notifications" class="notification-item" (click)="markAsRead(notification)">
+            <span class="notification-icon">
+              <i [ngClass]="getNotificationIcon(notification.type)"></i>
+            </span>
+            <div class="notification-content">
+              <span class="notification-title">{{ notification.title }}</span>
+              <span class="notification-message">{{ notification.message }}</span>
+              <span class="notification-time">{{ notification.createdAt | date:'shortTime' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="notifications.length === 0" class="notification-empty">
+          No new notifications
+        </div>
+      </div>
+    </div>
 
     <!-- Divider -->
     <div class="nav-divider"></div>

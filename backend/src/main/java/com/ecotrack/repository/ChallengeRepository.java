@@ -16,5 +16,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     Optional<Challenge> findByIdAndActiveTrue(Long id);
 
     List<Challenge> findAllByActiveTrue();
+
+    List<Challenge> findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(String title, String category);
 }
 

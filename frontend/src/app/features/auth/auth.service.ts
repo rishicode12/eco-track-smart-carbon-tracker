@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http'; // Naya Import
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 import { environment } from '../../../environments/environment';
@@ -17,57 +17,6 @@ interface LoginResponse {
   email: string;
 }
 
-interface GoogleLoginResponse {
-  token: string;
-  message: string;
-  email: string;
-  fullName: string;
-  provider: string;
-  providerId: string;
-  profilePicture: string | null;
-  emailVerified: boolean;
-}
-
-interface GoogleLoginApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-interface GoogleCredentialResponse {
-  credential?: string;
-  select_by?: string;
-}
-
-type GoogleCredentialCallback = (response: GoogleCredentialResponse) => void;
-
-interface GoogleTokenClient {
-  requestAccessToken?: () => void;
-  requestIdToken?: (options?: { nonce?: string }) => void;
-  callback?: GoogleCredentialCallback;
-}
-
-interface GoogleAccountsId {
-  initialize: (config: {
-    client_id: string;
-    callback: GoogleCredentialCallback;
-    auto_select?: boolean;
-    cancel_on_tap_outside?: boolean;
-    use_fedcm_for_prompt?: boolean;
-  }) => GoogleTokenClient;
-  prompt: (listener?: (notification: { isNotDisplayed?: () => boolean; isSkippedMoment?: () => boolean; isDismissedMoment?: () => boolean; getNotDisplayedReason?: () => string; getSkippedReason?: () => string; getDismissedReason?: () => string }) => void) => void;
-}
-
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        id?: GoogleAccountsId;
-      };
-    };
-  }
-}
-
 interface UserSession {
   email: string;
 }
@@ -78,12 +27,10 @@ interface UserSession {
 export class AuthService {
   private router = inject(Router);
   private apiService = inject(ApiService);
-  private http = inject(HttpClient); // Injecting HttpClient for profile fetching
+  private http = inject(HttpClient);
 
   private readonly tokenKey = 'ecotrack_token';
   private readonly userKey = 'ecotrack_user';
-  private readonly googleClientId = environment.googleClientId;
-  private googleScriptPromise: Promise<void> | null = null;
 
   public isAuthenticated = signal(false);
   public currentUser = signal<UserSession | null>(null);
@@ -106,22 +53,22 @@ export class AuthService {
   }
 
   // ==========================================
-  // GET USER PROFILE (Sidebar, Navbar, Profile ke liye)
+  // GET USER PROFILE
   // ==========================================
   public async getUserProfile(): Promise<any> {
     const token = this.getToken();
-    
+
     if (!token) {
       throw new Error("No token found");
     }
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    
+
     try {
       const response: any = await firstValueFrom(
         this.http.get(`${environment.apiUrl}/api/users/profile`, { headers })
       );
-      
+
       const data = response.data || response;
       this.userProfile.set(data);
       return data;
@@ -156,29 +103,10 @@ export class AuthService {
   }
 
   // ==========================================
-  // GOOGLE LOGIN (Added callback parameter)
+  // TOKEN
   // ==========================================
-  public async loginWithGoogle(callback?: () => void): Promise<GoogleLoginResponse> {
-    const idToken = await this.requestGoogleIdToken();
-
-    const response = await firstValueFrom(
-      this.apiService.post<GoogleLoginApiResponse<GoogleLoginResponse>>('/api/auth/google', {
-        idToken,
-      })
-    );
-
-    if (!response.success || !response.data?.token) {
-      throw new Error(response.message || 'Google authentication failed.');
-    }
-
-    this.setSession(response.data.token, response.data.email);
-    
-    // Execute the callback if it was provided by the component
-    if (callback) {
-      callback();
-    }
-
-    return response.data;
+  public getApiUrl(): string {
+    return environment.apiUrl;
   }
 
   public getToken(): string | null {
@@ -198,6 +126,37 @@ export class AuthService {
     return role === 'ADMIN' || role === 'ROLE_ADMIN';
   }
 
+  // ==========================================
+  // FORGOT PASSWORD
+  // ==========================================
+  public async forgotPassword(email: string): Promise<void> {
+    await firstValueFrom(
+      this.apiService.post('/api/auth/forgot-password', { email })
+    );
+  }
+
+  // ==========================================
+  // OAUTH2 TOKEN CAPTURE (from backend redirect)
+  // ==========================================
+  public handleOAuthCallback(token: string): void {
+    const payload = this.decodeJwtPayload(token);
+    if (payload?.email) {
+      this.setSession(token, payload.email);
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
+  private decodeJwtPayload(token: string): { email: string } | null {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = JSON.parse(atob(base64));
+      return { email: decoded.sub };
+    } catch {
+      return null;
+    }
+  }
+
   public logout() {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
@@ -213,84 +172,6 @@ export class AuthService {
     localStorage.setItem(this.userKey, JSON.stringify(session));
     this.isAuthenticated.set(true);
     this.currentUser.set(session);
-  }
-
-  private async requestGoogleIdToken(): Promise<string> {
-    await this.loadGoogleIdentityScript();
-
-    const googleAccounts = window.google?.accounts?.id;
-    if (!googleAccounts) {
-      throw new Error('Google sign-in is unavailable right now.');
-    }
-
-    if (!this.googleClientId) {
-      throw new Error('Google client ID is not configured.');
-    }
-
-    return await new Promise<string>((resolve, reject) => {
-      const client = googleAccounts.initialize({
-        client_id: this.googleClientId,
-        callback: (response) => {
-          if (!response.credential) {
-            reject(new Error('Google sign-in was cancelled.'));
-            return;
-          }
-
-          resolve(response.credential);
-        },
-        auto_select: false,
-        cancel_on_tap_outside: true,
-        use_fedcm_for_prompt: true,
-      });
-
-      client.callback = (response) => {
-        if (!response.credential) {
-          reject(new Error('Google sign-in was cancelled.'));
-          return;
-        }
-
-        resolve(response.credential);
-      };
-
-      googleAccounts.prompt((notification) => {
-        if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.() || notification.isDismissedMoment?.()) {
-          const reason = notification.getNotDisplayedReason?.() || notification.getSkippedReason?.() || notification.getDismissedReason?.() || 'cancelled';
-          reject(new Error(`Google sign-in was not completed (${reason}).`));
-        }
-      });
-    });
-  }
-
-  private async loadGoogleIdentityScript(): Promise<void> {
-    if (typeof window === 'undefined') {
-      throw new Error('Google sign-in is only available in the browser.');
-    }
-
-    if (window.google?.accounts?.id) {
-      return;
-    }
-
-    if (!this.googleScriptPromise) {
-      this.googleScriptPromise = new Promise<void>((resolve, reject) => {
-        const existingScript = document.querySelector('script[data-ecotrack-google-gis="true"]');
-        if (existingScript) {
-          existingScript.addEventListener('load', () => resolve(), { once: true });
-          existingScript.addEventListener('error', () => reject(new Error('Failed to load Google Identity Services.')), { once: true });
-          return;
-        }
-
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.setAttribute('data-ecotrack-google-gis', 'true');
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load Google Identity Services.'));
-        document.head.appendChild(script);
-      });
-    }
-
-    await this.googleScriptPromise;
   }
 
   private processAuthResponse(response: ApiResponse<LoginResponse>, fallbackMessage: string): LoginResponse {

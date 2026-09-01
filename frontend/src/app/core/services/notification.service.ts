@@ -1,0 +1,79 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+export interface NotificationItem {
+  id: number;
+  title: string;
+  message: string;
+  type: string; // LEVEL_UP, BADGE_UNLOCK, CHALLENGE_COMPLETED
+  isRead: boolean;
+  createdAt: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class NotificationService {
+  private readonly basePath = '/api/notifications';
+  private unreadCountSubject = new BehaviorSubject<number>(0);
+  public unreadCount$ = this.unreadCountSubject.asObservable();
+
+  constructor() {}
+
+  getNotifications(): Promise<{ notifications: NotificationItem[], unreadCount: number }> {
+    return fetch(`${this.basePath}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to fetch notifications');
+        return response.json();
+      })
+      .then((data) => {
+        this.unreadCountSubject.next(data.unreadCount);
+        return data;
+      })
+      .catch((error) => {
+        console.error('Error fetching notifications:', error);
+        return { notifications: [], unreadCount: 0 };
+      });
+  }
+
+  markAsRead(id: number): Promise<void> {
+    return fetch(`${this.basePath}/${id}/read`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to mark as read');
+        return response.json();
+      })
+      .then(() => {
+        this.unreadCountSubject.next(Math.max(this.unreadCountSubject.value - 1, 0));
+      })
+      .catch((error) => {
+        console.error('Error marking notification as read:', error);
+      });
+  }
+
+  markAllAsRead(): Promise<void> {
+    return fetch(`${this.basePath}/read-all`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to mark all as read');
+        return response.json();
+      })
+      .then(() => {
+        this.unreadCountSubject.next(0);
+      })
+      .catch((error) => {
+        console.error('Error marking all as read:', error);
+      });
+  }
+}

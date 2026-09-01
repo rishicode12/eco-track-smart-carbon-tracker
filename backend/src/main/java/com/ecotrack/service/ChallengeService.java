@@ -30,5 +30,7 @@ public interface ChallengeService {
     void deleteChallenge(Long challengeId);
 
     List<ChallengeResponse> getAllChallenges();
+
+    List<ChallengeResponse> searchChallenges(String query, String authenticatedEmail);
 }
 

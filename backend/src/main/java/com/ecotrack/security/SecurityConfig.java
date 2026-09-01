@@ -15,9 +15,12 @@ import org.springframework.security.config.Customizer;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
     }
 
     @Bean
@@ -40,14 +43,22 @@ public class SecurityConfig {
                 "/api/users/register",
                 "/api/users/login",
                 "/api/auth/google",
+                "/api/auth/forgot-password",
+                "/api/auth/reset-password",
+                "/oauth2/authorization/**",
+                "/login/oauth2/code/**",
+                "/error",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html"
             ).permitAll()
             .anyRequest().authenticated()
 )
-
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .permitAll()
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

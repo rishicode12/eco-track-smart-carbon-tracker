@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from './auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -38,23 +39,8 @@ export class LoginComponent {
     this.showPassword = !this.showPassword;
   }
 
-  public async onSSOLogin(): Promise<void> {
-    this.errorMessage = '';
-
-    try {
-      await this.authService.loginWithGoogle(() => {
-        this.isLoading = true;
-      });
-      this.isSuccess = true;
-
-      setTimeout(() => {
-        this.router.navigate(['/dashboard']);
-      }, 1500);
-    } catch (error: unknown) {
-      this.applyAuthError(error, 'Google sign-in failed. Please try again.');
-    } finally {
-      this.isLoading = false;
-    }
+  public onSSOLogin(): void {
+    window.location.href = `${environment.apiUrl.replace('/api', '')}/oauth2/authorization/google`;
   }
 
   public onSubmit() {
