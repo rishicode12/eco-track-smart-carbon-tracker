@@ -151,6 +151,16 @@
           </div>
         </div>
       </div>
+
+      <!-- Danger Zone Card -->
+      <div class="eco-card side-widget-card" style="border-color: #ef4444;">
+        <h3 style="color: #ef4444; border-bottom-color: #fecaca;">Danger Zone</h3>
+        <p class="font-sm text-secondary" style="margin-bottom: 16px;">Permanently deactivate your account. This action cannot be undone.</p>
+        <span class="error-message-text" *ngIf="deleteError" style="color: red; display: block; margin-bottom: 12px;">{{ deleteError }}</span>
+        <button type="button" class="btn-danger" (click)="onDeleteAccount()">
+          <i class="bi bi-trash"></i> Delete Account
+        </button>
+      </div>
     </div>
   </div>
 </div>

@@ -1,11 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, from } from 'rxjs';
+import { BehaviorSubject, Subject, firstValueFrom, from } from 'rxjs';
 import { ApiService } from './api.service';
 import { ApiResponse } from '../models/api-response.model';
 
 export interface EcoProfileResponse {
   totalXp: number;
   currentLevel: number;
+  levelName: string;
+  xpToNextLevel: number;
+  progressPercentage: number;
   unlockedBadges: string[];
 }
 
@@ -37,6 +40,9 @@ export class GamificationService {
 
   readonly profile$ = this.profileSubject.asObservable();
 
+  /** Emits whenever XP/level changes so other components can re-fetch. */
+  readonly profileUpdated$ = new Subject<void>();
+
   async getProfile(): Promise<EcoProfileResponse> {
     const response = await firstValueFrom(
       this.api.get<ApiResponse<EcoProfileResponse>>(
@@ -54,6 +60,11 @@ export class GamificationService {
       error: (error) =>
         console.error('Failed to refresh gamification profile', error),
     });
+  }
+
+  /** Call after any XP-awarding action to notify components to refresh. */
+  notifyProfileUpdated(): void {
+    this.profileUpdated$.next();
   }
 
   async getLeaderboard(): Promise<EcoLeaderboardResponse[]> {

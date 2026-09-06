@@ -21,8 +21,6 @@ import { NotificationItem } from '../../services/notification.service';
 })
 export class NavbarComponent implements OnInit {
 
-  private static readonly LEVEL_XP = [0, 1000, 2500, 5000, 10000];
-
   public layoutService = inject(LayoutService);
   public authService = inject(AuthService);
   public gamificationService = inject(GamificationService);
@@ -63,6 +61,10 @@ export class NavbarComponent implements OnInit {
         this.applyLevelMath(profile);
         this.cdr.detectChanges();
       });
+
+    this.gamificationService.profileUpdated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.gamificationService.refreshProfile());
 
     this.gamificationService.refreshProfile();
 
@@ -136,7 +138,7 @@ export class NavbarComponent implements OnInit {
     try {
       const results = await this.challengeService.searchChallenges(query);
       this.searchResults = results;
-      this.isSearchDropdownOpen = results.length > 0;
+      this.isSearchDropdownOpen = true;
       this.cdr.detectChanges();
     } catch (error) {
       console.error('Error searching challenges:', error);
@@ -167,29 +169,8 @@ export class NavbarComponent implements OnInit {
   }
 
   private applyLevelMath(profile: EcoProfileResponse | null): void {
-    const totalXp = profile?.totalXp ?? 0;
-    const level = profile?.currentLevel ?? 1;
-
-    this.level = level;
-
-    if (totalXp <= 0) {
-      this.xpProgressPercent = 0;
-      this.xpToNextRank = NavbarComponent.LEVEL_XP[1];
-      return;
-    }
-
-    if (level >= NavbarComponent.LEVEL_XP.length) {
-      this.xpProgressPercent = 100;
-      this.xpToNextRank = 0;
-      return;
-    }
-
-    const currentLevelBaseXp = NavbarComponent.LEVEL_XP[level - 1];
-    const nextLevelTargetXp = NavbarComponent.LEVEL_XP[level];
-    const levelSpanXp = nextLevelTargetXp - currentLevelBaseXp;
-
-    const rawPercent = ((totalXp - currentLevelBaseXp) / levelSpanXp) * 100;
-    this.xpProgressPercent = Math.round(Math.min(100, Math.max(0, rawPercent)));
-    this.xpToNextRank = Math.max(0, nextLevelTargetXp - totalXp);
+    this.level = profile?.currentLevel ?? 1;
+    this.xpProgressPercent = profile?.progressPercentage ?? 0;
+    this.xpToNextRank = profile?.xpToNextLevel ?? 0;
   }
 }

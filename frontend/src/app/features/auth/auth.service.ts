@@ -165,6 +165,23 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
+  public async deleteMyAccount(): Promise<void> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('No token found');
+    }
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    await firstValueFrom(
+      this.http.delete<ApiResponse<void>>(`${environment.apiUrl}/api/users/me`, { headers })
+    );
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userKey);
+    this.isAuthenticated.set(false);
+    this.currentUser.set(null);
+    this.userProfile.set(null);
+    this.router.navigate(['/auth/login']);
+  }
+
   private setSession(token: string, email: string): void {
     const session: UserSession = { email };
 

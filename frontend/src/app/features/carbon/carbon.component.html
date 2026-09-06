@@ -269,6 +269,9 @@
             <span class="result-unit">
               kg CO₂e
             </span>
+            <div class="xp-preview-badge" *ngIf="predictedXp > 0">
+              +{{ predictedXp }} XP
+            </div>
           </h2>
         </div>
 
@@ -350,7 +353,7 @@
                   <p class="history-date">
                     {{ log.activityCategory }}
                     ·
-                    {{ log.loggedAt | date:'medium' }}
+                    {{ log.loggedAt | date:'medium':'+0530' }}
                   </p>
 
                 </div>
@@ -361,6 +364,10 @@
 
                 <span class="history-emissions">
                   +{{ log.co2Impact | number:'1.2-2' }} kg
+                </span>
+
+                <span class="xp-badge-mini" *ngIf="getActivityXp(log) > 0">
+                  +{{ getActivityXp(log) }} XP
                 </span>
 
                 <button

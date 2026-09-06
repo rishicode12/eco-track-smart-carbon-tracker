@@ -40,9 +40,16 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String googleId = oidcUser.getSubject();
         String profilePicture = oidcUser.getPicture() != null ? oidcUser.getPicture() : null;
 
-        User user = userRepository.findByEmailIgnoreCase(email)
-                .map(existingUser -> refreshGoogleProfile(existingUser, fullName, googleId, profilePicture))
-                .orElseGet(() -> createGoogleUser(fullName, email, googleId, profilePicture));
+        User existingUser = userRepository.findByEmailIgnoreCase(email).orElse(null);
+
+        if (existingUser != null && Boolean.FALSE.equals(existingUser.getIsActive())) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "This account has been deactivated. Please contact support.");
+            return;
+        }
+
+        User user = existingUser != null
+                ? refreshGoogleProfile(existingUser, fullName, googleId, profilePicture)
+                : createGoogleUser(fullName, email, googleId, profilePicture);
 
         String jwt = jwtUtil.generateToken(user.getEmail());
 

@@ -10,4 +10,8 @@ import java.util.List;
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     List<Goal> findByUserEmailOrderByDeadlineAsc(String userEmail);
+
+    List<Goal> findByUserEmailAndIsCompletedFalse(String userEmail);
+
+    List<Goal> findByUserEmailIgnoreCaseAndIsCompletedFalse(String userEmail);
 }

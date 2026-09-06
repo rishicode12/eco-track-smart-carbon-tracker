@@ -48,7 +48,7 @@
           <span class="search-result-xp">+{{ challenge.rewardPoints || challenge.xpReward || 0 }} XP</span>
         </div>
       </div>
-      <div *ngIf="searchResults.length === 0" class="search-no-results">
+      <div *ngIf="isSearchDropdownOpen && searchResults.length === 0" class="search-no-results">
         No challenges found matching "{{ searchControl.value }}"
       </div>
     </div>
@@ -113,21 +113,21 @@
         [attr.aria-expanded]="isDropdownOpen"
         (click)="toggleDropdown($event)">
 
-        <!-- Image ab database/cloudinary se aayegi -->
+        <!-- Image sourced dynamically -->
         <img [src]="authService.userProfile()?.profilePicture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'" 
              alt="User Profile Picture" 
              class="avatar">
              
         <div class="user-details hide-on-mobile">
-          <!-- Naam ab direct database se aayega -->
           <span class="user-name">{{ authService.userProfile()?.fullName || 'Loading...' }}</span>
           <span class="user-role">{{ authService.userProfile()?.role || 'User' }}</span>
         </div>
         <i class="bi bi-chevron-down chevron-icon hide-on-mobile"></i>
       </button>
 
-      <!-- Modern Dropdown Panel -->
+      <!-- Modern Dropdown Panel (Restored) -->
       <div class="modern-user-dropdown" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
+        
         <!-- Header: Avatar + Identity -->
         <div class="dropdown-header">
           <img [src]="authService.userProfile()?.profilePicture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'"
@@ -140,7 +140,7 @@
 
         <hr class="dropdown-divider" />
 
-        <!-- Gamification Stats -->
+        <!-- Gamification Stats with Progress Bar -->
         <div class="dropdown-stats">
           <div class="stats-row">
             <span class="stats-level">Level {{ ecoProfile?.currentLevel || level || 1 }}</span>
@@ -149,7 +149,7 @@
           <div class="progress-bar-container">
             <div class="progress-bar success-bar" [style.width.%]="xpProgressPercent"></div>
           </div>
-          <span class="stats-desc">{{ xpToNextRank }} XP to next rank</span>
+          <span class="stats-desc">{{ ecoProfile?.xpToNextLevel }} XP to next rank</span>
         </div>
 
         <hr class="dropdown-divider" />
@@ -162,7 +162,8 @@
           <a routerLink="/settings" class="dropdown-item" (click)="isDropdownOpen = false">
             <i class="bi bi-gear"></i> Settings
           </a>
-          <a (click)="logout()" class="dropdown-item text-danger">
+          <!-- Added cursor-pointer so the logout button behaves like a link -->
+          <a (click)="logout()" class="dropdown-item text-danger cursor-pointer" style="cursor: pointer;">
             <i class="bi bi-box-arrow-right"></i> Logout
           </a>
         </div>

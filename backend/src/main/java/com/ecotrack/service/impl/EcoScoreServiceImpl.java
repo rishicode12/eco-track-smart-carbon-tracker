@@ -130,10 +130,26 @@ public class EcoScoreServiceImpl implements EcoScoreService {
 
         EcoProfile profile = getOrCreateProfile(user);
 
+        int totalXp = profile.getTotalXp();
+        int currentLevel = profile.getCurrentLevel();
+        int nextLevelThreshold = getThresholdForLevel(currentLevel + 1);
+        int currentLevelBaseXp = getThresholdForLevel(currentLevel);
+
+        int xpToNextLevel = Math.max(0, nextLevelThreshold - totalXp);
+        double progressPercentage = 0.0;
+        if (nextLevelThreshold > currentLevelBaseXp) {
+            int levelSpanXp = nextLevelThreshold - currentLevelBaseXp;
+            progressPercentage = Math.min(100.0,
+                    ((double) (totalXp - currentLevelBaseXp) / levelSpanXp) * 100);
+        }
+
         return EcoProfileResponse.builder()
                 .userId(user.getId())
-                .totalXp(profile.getTotalXp())
-                .currentLevel(profile.getCurrentLevel())
+                .totalXp(totalXp)
+                .currentLevel(currentLevel)
+                .levelName(getLevelName(currentLevel))
+                .xpToNextLevel(xpToNextLevel)
+                .progressPercentage(Math.round(progressPercentage * 10.0) / 10.0)
                 .unlockedBadges(profile.getUnlockedBadges())
                 .build();
     }
@@ -178,5 +194,26 @@ public class EcoScoreServiceImpl implements EcoScoreService {
             return 2;
         }
         return 1;
+    }
+
+    private int getThresholdForLevel(int level) {
+        return switch (level) {
+            case 2 -> LEVEL_2_XP;
+            case 3 -> LEVEL_3_XP;
+            case 4 -> LEVEL_4_XP;
+            case 5 -> LEVEL_5_XP;
+            default -> 0;
+        };
+    }
+
+    private String getLevelName(int level) {
+        return switch (level) {
+            case 1 -> "Explorer";
+            case 2 -> "Advocate";
+            case 3 -> "Champion";
+            case 4 -> "Guardian";
+            case 5 -> "Planet Hero";
+            default -> "Explorer";
+        };
     }
 }

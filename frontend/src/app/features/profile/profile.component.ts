@@ -174,6 +174,7 @@ export class ProfileComponent implements OnInit {
   public confirmNewPassword = '';
   public changePasswordMessage = '';
   public changePasswordError = '';
+  public deleteError = '';
 
   public onChangePassword() {
     this.changePasswordError = '';
@@ -221,5 +222,20 @@ export class ProfileComponent implements OnInit {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  public async onDeleteAccount(): Promise<void> {
+    const confirmed = window.confirm(
+      'Are you sure you want to permanently delete your account? This action cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    this.deleteError = '';
+    try {
+      await this.authService.deleteMyAccount();
+    } catch (err: any) {
+      this.deleteError = err?.error?.message || 'Failed to delete account. Please try again.';
+      this.cdr.detectChanges();
+    }
   }
 }

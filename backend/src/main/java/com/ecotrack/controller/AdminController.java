@@ -8,6 +8,7 @@ import com.ecotrack.entity.Role;
 import com.ecotrack.entity.User;
 import com.ecotrack.repository.UserRepository;
 import com.ecotrack.service.ChallengeService;
+import com.ecotrack.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final ChallengeService challengeService;
+    private final UserService userService;
 
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<AdminUserResponse>>> getAllUsers() {
@@ -65,6 +67,14 @@ public class AdminController {
         challengeService.deleteChallenge(id);
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Challenge deleted successfully", null)
+        );
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
+        userService.deactivateUser(userId);
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "User deactivated successfully", null)
         );
     }
 

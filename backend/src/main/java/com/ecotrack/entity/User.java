@@ -63,7 +63,12 @@ public class User {
     private String profilePicture;
 
     @Builder.Default
+    @Column(nullable = false)
     private Boolean emailVerified = false;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean isActive = true;
 
     @Builder.Default
     @Column(nullable = false)
@@ -83,3 +88,4 @@ public class User {
         }
     }
 }
+

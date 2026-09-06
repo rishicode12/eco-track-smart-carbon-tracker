@@ -2,6 +2,8 @@ package com.ecotrack.service.impl;
 
 import com.ecotrack.dto.CarbonEmissionRequest;
 import com.ecotrack.dto.CarbonEmissionResponse;
+import com.ecotrack.entity.Goal;
+import com.ecotrack.repository.GoalRepository;
 import com.ecotrack.entity.CarbonEmission;
 import com.ecotrack.entity.Challenge;
 import com.ecotrack.entity.User;
@@ -9,6 +11,7 @@ import com.ecotrack.entity.UserChallengeProgress;
 import com.ecotrack.exception.ResourceNotFoundException;
 import com.ecotrack.repository.CarbonEmissionRepository;
 import com.ecotrack.repository.ChallengeRepository;
+import com.ecotrack.repository.GoalRepository;
 import com.ecotrack.repository.UserChallengeProgressRepository;
 import com.ecotrack.repository.UserRepository;
 import com.ecotrack.service.CarbonEmissionService;
@@ -40,6 +43,7 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
     private final EcoScoreService ecoScoreService;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
     private final ChallengeRepository challengeRepository;
+    private final GoalRepository goalRepository;
 
     @Override
     @Transactional
@@ -104,6 +108,9 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
 
             // 8. Auto-sync active challenges whose category matches this activity.
             syncChallengeProgress(user, normalizedCategory, saved.getTotalEmission());
+
+            // 9. Auto-sync active goals whose intent matches this activity.
+            syncGoalProgress(email, normalizedCategory, saved);
 
             return mapToResponse(saved);
         } catch (Exception e) {
@@ -312,6 +319,99 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
 
             userChallengeProgressRepository.save(progress);
         }
+    }
+
+    /**
+     * Advances all incomplete goals for the user whose intent matches the logged activity.
+     * Goals that reach their target carbon reduction are marked as completed.
+     * Uses case-insensitive email lookup and persists all changes to the database.
+     */
+    private void syncGoalProgress(String email, String activityCategory, CarbonEmission emission) {
+        // Step 1: Fetch active goals using case-insensitive email lookup
+        List<Goal> activeGoals = goalRepository.findByUserEmailIgnoreCaseAndIsCompletedFalse(email);
+        
+        // Step 2: Log how many active goals were found
+        log.info("Found {} active goals for user email: {}", activeGoals.size(), email);
+        
+        if (activeGoals.isEmpty()) {
+            log.debug("No active goals found for user: {}", email);
+            return;
+        }
+
+        // Step 3: Iterate through active goals and check if they match
+        for (Goal goal : activeGoals) {
+            if (!matchesGoalIntent(goal.getTitle(), activityCategory)) {
+                log.debug("Goal '{}' does not match activity category: {}", goal.getTitle(), activityCategory);
+                continue;
+            }
+
+            // Step 4: Calculate the increment
+            double increment;
+            if (emission.getTotalEmission() != null && emission.getTotalEmission().compareTo(BigDecimal.ZERO) > 0) {
+                increment = emission.getTotalEmission().doubleValue();
+            } else {
+                increment = 1.0; // Standard fallback increment
+            }
+            
+            log.debug("Calculated increment for goal '{}': {}", goal.getTitle(), increment);
+
+            // Step 5: Add increment to current progress, handling null safely
+            Double currentProgress = goal.getCurrentProgress();
+            double current = (currentProgress != null && currentProgress > 0) ? currentProgress : 0.0;
+            
+            Double targetReduction = goal.getTargetCarbonReduction();
+            double target = (targetReduction != null && targetReduction > 0) ? targetReduction : 0.0;
+            
+            double updatedProgress = Math.min(current + increment, target);
+            goal.setCurrentProgress(updatedProgress);
+            
+            log.debug("Goal '{}' progress updated: {} -> {}", goal.getTitle(), current, updatedProgress);
+
+            // Step 6: Check if goal is completed
+            if (target > 0 && updatedProgress >= target) {
+                goal.setIsCompleted(true);
+                log.info("Goal '{}' has been completed! Progress: {}/{}", goal.getTitle(), updatedProgress, target);
+            }
+
+            // Step 7: CRITICAL - Persist the change to the database
+            goalRepository.save(goal);
+            log.info("Goal '{}' has been updated and saved to database. Progress: {}/{}", 
+                    goal.getTitle(), updatedProgress, target);
+        }
+    }
+
+    private boolean matchesGoalIntent(String goalTitle, String category) {
+    if (goalTitle == null || category == null) return false;
+    String title = goalTitle.toLowerCase();
+
+    return switch (category.toLowerCase()) {
+        case "waste" -> title.contains("waste") || title.contains("garbage") 
+                     || title.contains("plastic") || title.contains("recycl");
+        case "transport" -> title.contains("transport") || title.contains("commute") 
+                         || title.contains("car") || title.contains("cycle") || title.contains("train");
+        case "energy" -> title.contains("energy") || title.contains("electric") || title.contains("power");
+        case "water" -> title.contains("water") || title.contains("saving");
+        case "food" -> title.contains("food") || title.contains("meat") || title.contains("diet");
+        default -> false;
+    };
+}
+    private double calculateGoalIncrement(CarbonEmission emission, String activityCategory, boolean isLowCarbon) {
+        BigDecimal categoryImpact = switch (activityCategory) {
+            case "Transport" -> emission.getTransportationEmission();
+            case "Energy" -> emission.getElectricityEmission();
+            case "Food" -> emission.getFoodEmission();
+            case "Waste" -> emission.getWasteEmission();
+            case "Water" -> emission.getWaterEmission();
+            default -> emission.getTotalEmission();
+        };
+
+        double impact = categoryImpact != null ? categoryImpact.doubleValue() : 0.0;
+
+        if (isLowCarbon && impact == 0.0) {
+            return 1.0;
+        }
+
+        return Math.max(impact, 0.1);
     }
 
     private CarbonEmissionResponse mapToResponse(CarbonEmission emission) {

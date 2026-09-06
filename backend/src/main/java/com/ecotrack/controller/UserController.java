@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -134,5 +135,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(false, e.getMessage(), null));
         }
+    }
+
+    @DeleteMapping("/me")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<Void>> deleteMyAccount(Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        userService.deactivateUser(user.getId());
+        return ResponseEntity.ok(new ApiResponse<>(true, "Account deactivated successfully", null));
     }
 }

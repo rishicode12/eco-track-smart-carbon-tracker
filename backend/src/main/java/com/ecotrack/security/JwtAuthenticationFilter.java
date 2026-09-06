@@ -55,13 +55,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = jwtUtil.extractEmail(token);
 
                 List<GrantedAuthority> authorities = new ArrayList<>();
-                userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
+                userRepository.findByEmailIgnoreCaseAndIsActiveTrue(email).ifPresent(user -> {
                     if (Role.fromString(user.getRole()) == Role.ADMIN) {
                         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                     } else {
                         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
                     }
                 });
+
+                if (authorities.isEmpty()) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Account has been deactivated.");
+                    return;
+                }
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(email, null, authorities);

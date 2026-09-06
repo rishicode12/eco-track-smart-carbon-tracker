@@ -66,6 +66,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmailIgnoreCase(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        if (Boolean.FALSE.equals(user.getIsActive())) {
+            throw new RuntimeException("This account has been deactivated. Please contact support.");
+        }
+
         if ("GOOGLE".equalsIgnoreCase(user.getProvider())) {
             throw new RuntimeException("This account uses Google sign-in. Please continue with Google.");
         }
@@ -124,6 +128,14 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deactivateUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setIsActive(false);
         userRepository.save(user);
     }
 }

@@ -15,5 +15,8 @@ public class EcoProfileResponse {
     private Long userId;
     private Integer totalXp;
     private Integer currentLevel;
+    private String levelName;
+    private Integer xpToNextLevel;
+    private Double progressPercentage;
     private Set<String> unlockedBadges;
 }

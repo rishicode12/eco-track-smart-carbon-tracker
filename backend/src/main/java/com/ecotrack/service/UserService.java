@@ -16,4 +16,6 @@ public interface UserService {
 
     void changePassword(String email, ChangePasswordRequest request);
 
+    void deactivateUser(Long userId);
+
 }

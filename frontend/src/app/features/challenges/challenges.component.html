@@ -126,7 +126,14 @@
       <div class="eco-card side-widget-card">
         <div class="widget-header">
           <h3>Latest Badges</h3>
-          <i class="bi bi-patch-check text-primary"></i>
+          <button
+            type="button"
+            (click)="isBadgeModalOpen = true"
+            class="badge-rules-btn"
+            title="View Badge Rules & Tiers">
+            <i class="bi bi-info-circle"></i>
+            <span>Rules</span>
+          </button>
         </div>
         <div class="badge-grid badge-showcase-grid">
           <div
@@ -151,4 +158,61 @@
 
   <!-- Floating Action Button -->
   <button class="fab-btn" title="Log Carbon Activity" (click)="onFabClick()"><i class="bi bi-plus-lg"></i></button>
+
+  <!-- Badge Progression Modal -->
+  <div class="modal-overlay" *ngIf="isBadgeModalOpen" (click)="isBadgeModalOpen = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Badge Progression Guide</h3>
+        <button class="modal-close" (click)="isBadgeModalOpen = false" aria-label="Close modal">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Tier System Section -->
+        <section class="tier-section">
+          <h4 class="section-title">Rarity Tier System</h4>
+          <p class="section-desc">Badges upgrade their material based on your overall Level</p>
+          
+          <div class="tier-grid">
+            <div class="tier-card" *ngFor="let tier of badgeTiers" [style.--tier-color]="tier.color" [style.--tier-glow]="tier.glow">
+              <div class="tier-badge" [style.background]="tier.color" [style.box-shadow]="'0 0 12px ' + tier.glow">
+                <span class="tier-level">{{ tier.level }}</span>
+              </div>
+              <div class="tier-name">{{ tier.name }}</div>
+              <div class="tier-level-label">Level {{ tier.level }}{{ tier.level === 5 ? '+' : '' }}</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Badge Unlock Criteria Section -->
+        <section class="criteria-section">
+          <h4 class="section-title">Badge Unlock Criteria</h4>
+          <p class="section-desc">Complete these challenges to earn your badges</p>
+          
+          <div class="criteria-list">
+            <div class="criteria-item" *ngFor="let criteria of badgeUnlockCriteria">
+              <div class="criteria-icon" [style.background]="isBadgeUnlocked(criteria.badge) ? 'linear-gradient(135deg, #10B981, #06B6D4)' : 'var(--color-background)'">
+                <i class="bi" [ngClass]="criteria.icon" [style.color]="isBadgeUnlocked(criteria.badge) ? '#fff' : 'var(--color-text-muted)'"></i>
+              </div>
+              <div class="criteria-info">
+                <div class="criteria-name">{{ criteria.name }}</div>
+                <div class="criteria-requirement">{{ criteria.requirement }}</div>
+              </div>
+              <div class="criteria-xp" [class.unlocked]="isBadgeUnlocked(criteria.badge)">
+                <i class="bi bi-star-fill"></i>
+                <span>{{ criteria.xp }} XP</span>
+              </div>
+              <div class="criteria-status" *ngIf="isBadgeUnlocked(criteria.badge)">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
 </div>

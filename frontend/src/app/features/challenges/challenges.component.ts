@@ -47,6 +47,7 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
   public searchQuery: string = '';
   public activeChallenges: ActiveChallenge[] = [];
   public activeProgressPercent = 0;
+  public isBadgeModalOpen = false;
 
   public allBadges: BadgePreset[] = [
     { code: 'GREEN_HERO', name: 'Green Hero', icon: 'bi-gem', condition: 'Complete your first challenge' },
@@ -55,6 +56,23 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
     { code: 'ECO_WARRIOR', name: 'Eco Warrior', icon: 'bi-bicycle', condition: 'Log 5+ zero-emission transport activities' },
     { code: 'TREE_MASTER', name: 'Tree Master', icon: 'bi-tree', condition: 'Plant 5 trees' },
     { code: 'ZERO_WASTE', name: 'Zero Waste', icon: 'bi-recycle', condition: 'Go a full week without waste' }
+  ];
+
+  public badgeTiers = [
+    { level: 1, name: 'Iron', color: '#64748B', glow: 'rgba(100, 116, 139, 0.4)' },
+    { level: 2, name: 'Bronze', color: '#CD7F32', glow: 'rgba(205, 127, 50, 0.5)' },
+    { level: 3, name: 'Silver', color: '#C0C0C0', glow: 'rgba(192, 192, 192, 0.5)' },
+    { level: 4, name: 'Gold', color: '#FFD700', glow: 'rgba(255, 215, 0, 0.6)' },
+    { level: 5, name: 'Platinum', color: '#00FFFF', glow: 'rgba(0, 255, 255, 0.7)' }
+  ];
+
+  public badgeUnlockCriteria = [
+    { badge: 'ZERO_WASTE', name: 'Zero Waste', icon: 'bi-recycle', requirement: 'Log 10 Waste activities', xp: 300 },
+    { badge: 'ENERGY_SAVER', name: 'Energy Saver', icon: 'bi-lightning-charge', requirement: 'Reduce electricity by 20% in goals', xp: 250 },
+    { badge: 'CARBON_CRUSHER', name: 'Carbon Crusher', icon: 'bi-arrow-down-circle', requirement: 'Accumulate 1,000 total XP', xp: 500 },
+    { badge: 'TREE_MASTER', name: 'Tree Master', icon: 'bi-tree', requirement: 'Join & complete a tree plantation challenge', xp: 400 },
+    { badge: 'ECO_WARRIOR', name: 'Eco Warrior', icon: 'bi-bicycle', requirement: 'Log 5+ zero-emission transport activities', xp: 200 },
+    { badge: 'GREEN_HERO', name: 'Green Hero', icon: 'bi-gem', requirement: 'Complete your first challenge', xp: 100 }
   ];
 
   public recommendedChallenges: Challenge[] = [
