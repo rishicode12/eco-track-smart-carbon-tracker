@@ -45,7 +45,7 @@ export interface AdminChallengeCreate {
 export class AdminService {
 
   private readonly api = inject(ApiService);
-  private readonly basePath = '/api/admin';
+  private readonly basePath = '/admin';
 
   async getUsers(): Promise<AdminUser[]> {
     const response = await firstValueFrom(

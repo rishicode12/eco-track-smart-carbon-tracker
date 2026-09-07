@@ -182,4 +182,32 @@ public interface CarbonEmissionRepository
     long countWasteActivities(
             @Param("userId") Long userId
     );
+
+    @Query("""
+            SELECT COUNT(c)
+            FROM CarbonEmission c
+            WHERE c.user.id = :userId
+              AND LOWER(c.activityCategory) = LOWER(:activityCategory)
+              AND c.createdAt >= :startDate
+              AND c.createdAt < :endDate
+            """)
+    long countByActivityCategoryAndDateRange(
+            @Param("userId") Long userId,
+            @Param("activityCategory") String activityCategory,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
+
+    @Query("""
+            SELECT COUNT(c)
+            FROM CarbonEmission c
+            WHERE c.user.id = :userId
+              AND c.createdAt >= :startDate
+              AND c.createdAt < :endDate
+            """)
+    long countByUserIdAndDateRange(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
 }

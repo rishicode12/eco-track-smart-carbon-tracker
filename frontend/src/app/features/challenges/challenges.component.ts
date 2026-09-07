@@ -84,7 +84,7 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
       tags: ['ENERGY', 'GLOBAL'],
       joinedCount: '1.2k joined',
       joined: false,
-      image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=250&auto=format&fit=crop'
+      image: '/uploads/Energy-Saving-Challenge.jpg'
     },
     {
       id: 2,
@@ -94,7 +94,7 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
       tags: ['TRANSPORT', 'LOCAL'],
       joinedCount: '840 joined',
       joined: false,
-      image: 'https://images.unsplash.com/photo-1541614101331-1a5a3a194e92?q=80&w=250&auto=format&fit=crop'
+      image: '/uploads/cycle-to-work.jpg'
     },
     {
       id: 3,
@@ -104,7 +104,7 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
       tags: ['NATURE', 'TEAM'],
       joinedCount: '3.5k joined',
       joined: true,
-      image: 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?q=80&w=250&auto=format&fit=crop'
+      image: '/uploads/tree-plantation-drive.jpg'
     }
   ];
 
@@ -146,22 +146,16 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
   }
 
   private computeActiveProgressPercent(): void {
-    const target = (c: ActiveChallenge) => c.targetGoal ?? 0;
-    const progress = (c: ActiveChallenge) => c.currentProgress ?? 0;
+    const joinedChallenge = this.activeChallenges.find((c) => c.isJoined);
+    const fallback = this.activeChallenges.find((c) => (c.currentProgress ?? 0) > 0 || (c.targetGoal ?? 0) > 0);
+    const active = joinedChallenge ?? fallback;
 
-    const joinedInProgress = this.activeChallenges.find(
-      (c) => c.isJoined && target(c) > 0 && progress(c) < target(c)
-    );
-    const fallback = this.activeChallenges.find((c) => target(c) > 0);
-    const active = joinedInProgress ?? fallback;
-
-    if (!active || target(active) <= 0) {
+    if (!active) {
       this.activeProgressPercent = 0;
       return;
     }
 
-    const raw = (progress(active) / target(active)) * 100;
-    this.activeProgressPercent = Math.round(Math.min(100, Math.max(0, raw)));
+    this.activeProgressPercent = Math.round(Math.min(100, Math.max(0, active.currentProgress ?? 0)));
   }
 
   private animateEntrance(): void {
@@ -240,15 +234,47 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/carbon']);
   }
 
-  public onJoinChallenge(id: number) {
+  public errorMessage: string | null = null;
+
+  public async onJoinChallenge(id: number): Promise<void> {
     const ch = this.recommendedChallenges.find(c => c.id === id);
-    if (ch) {
-      ch.joined = !ch.joined;
-      if (ch.joined) {
-        ch.joinedCount = (parseFloat(ch.joinedCount) + 0.1).toFixed(1) + 'k joined';
+    if (!ch) return;
+
+    this.errorMessage = null;
+
+    if (ch.joined) {
+      ch.joined = false;
+      this.activeChallenges = this.activeChallenges.filter(ac => ac.id !== id);
+      this.computeActiveProgressPercent();
+      return;
+    }
+
+    try {
+      const activeChallenge = await this.challengeService.joinChallenge(id);
+      ch.joined = true;
+      ch.joinedCount = (parseFloat(ch.joinedCount) + 0.1).toFixed(1) + 'k joined';
+
+      const newActive: ActiveChallenge = activeChallenge ?? {
+        id: ch.id,
+        title: ch.title,
+        targetGoal: 100,
+        currentProgress: 0,
+        isJoined: true,
+        status: 'IN_PROGRESS'
+      };
+
+      const existingIndex = this.activeChallenges.findIndex(ac => ac.id === id);
+      if (existingIndex >= 0) {
+        this.activeChallenges[existingIndex] = newActive;
       } else {
-        ch.joinedCount = (parseFloat(ch.joinedCount) - 0.1).toFixed(1) + 'k joined';
+        this.activeChallenges.push(newActive);
       }
+      this.computeActiveProgressPercent();
+      this.cdr.detectChanges();
+    } catch (err: any) {
+      const msg = err?.error?.message || err?.message || 'A user can only have a maximum of 2 ACTIVE challenges at the same time.';
+      this.errorMessage = msg;
+      alert(msg);
     }
   }
 }

@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: 'https://ecotrack-backend-jloh.onrender.com',
+  production: true,
+  apiUrl: 'https://ecotrack-backend-jloh.onrender.com/api'
 };

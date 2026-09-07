@@ -1,4 +1,4 @@
-﻿/* Challenges & Rewards CSS */
+/* Challenges & Rewards CSS */
 
 .challenges-top-header {
   display: flex;
@@ -102,6 +102,13 @@
 }
 
 /* ===== Active Challenge Banner ===== */
+.active-challenges-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
 .active-challenge-card {
   position: relative;
   display: flex;

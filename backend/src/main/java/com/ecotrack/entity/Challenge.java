@@ -42,6 +42,9 @@ public class Challenge {
     @Column(length = 50)
     private String category;
 
+    @Column(name = "target_category", length = 50)
+    private String targetCategory;
+
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;

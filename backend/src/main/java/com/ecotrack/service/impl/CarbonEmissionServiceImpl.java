@@ -7,11 +7,13 @@ import com.ecotrack.repository.GoalRepository;
 import com.ecotrack.entity.CarbonEmission;
 import com.ecotrack.entity.Challenge;
 import com.ecotrack.entity.User;
+import com.ecotrack.entity.UserChallenge;
 import com.ecotrack.entity.UserChallengeProgress;
 import com.ecotrack.exception.ResourceNotFoundException;
 import com.ecotrack.repository.CarbonEmissionRepository;
 import com.ecotrack.repository.ChallengeRepository;
 import com.ecotrack.repository.GoalRepository;
+import com.ecotrack.repository.UserChallengeRepository;
 import com.ecotrack.repository.UserChallengeProgressRepository;
 import com.ecotrack.repository.UserRepository;
 import com.ecotrack.service.CarbonEmissionService;
@@ -36,11 +38,13 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
     private static final int LOW_CARBON_XP = 50;
     private static final int STANDARD_XP = 20;
     private static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
+    private static final String ACTIVE_STATUS = "ACTIVE";
     private static final String COMPLETED_STATUS = "COMPLETED";
 
     private final CarbonEmissionRepository carbonEmissionRepository;
     private final UserRepository userRepository;
     private final EcoScoreService ecoScoreService;
+    private final UserChallengeRepository userChallengeRepository;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
     private final ChallengeRepository challengeRepository;
     private final GoalRepository goalRepository;
@@ -284,21 +288,51 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
      * bonus reward points are granted as XP.
      */
     private void syncChallengeProgress(User user, String activityCategory, BigDecimal co2Impact) {
-        if (co2Impact == null || co2Impact.signum() == 0) {
+        if (co2Impact == null || activityCategory == null) {
             return;
         }
 
-        double increment = co2Impact.doubleValue();
+        double increment = 1.0; // Increment progress count per activity
+        if (co2Impact.compareTo(BigDecimal.ZERO) > 0) {
+            increment = co2Impact.doubleValue();
+        }
+
+        // 1. Sync UserChallenge (join table)
+        List<UserChallenge> activeUserChallenges = userChallengeRepository.findByUserIdAndStatus(user.getId(), ACTIVE_STATUS);
+        for (UserChallenge uc : activeUserChallenges) {
+            Challenge challenge = uc.getChallenge();
+            if (challenge == null) continue;
+
+            String targetCat = challenge.getTargetCategory() != null ? challenge.getTargetCategory() : challenge.getCategory();
+            if (targetCat != null && targetCat.equalsIgnoreCase(activityCategory)) {
+                double target = challenge.getTargetGoal() != null ? challenge.getTargetGoal() : 1.0;
+                double current = uc.getProgressCount() != null ? uc.getProgressCount() : 0.0;
+                double updated = Math.min(current + increment, target);
+                uc.setProgressCount(updated);
+
+                if (updated >= target) {
+                    uc.setStatus(COMPLETED_STATUS);
+                    uc.setCompletedAt(LocalDateTime.now());
+                    if (challenge.getRewardPoints() != null && challenge.getRewardPoints() > 0) {
+                        ecoScoreService.awardXp(user.getId(), challenge.getRewardPoints());
+                    }
+                }
+                userChallengeRepository.save(uc);
+            }
+        }
+
+        // 2. Sync UserChallengeProgress
         List<UserChallengeProgress> inProgress =
                 userChallengeProgressRepository.findByUserIdAndStatus(user.getId(), IN_PROGRESS_STATUS);
 
         for (UserChallengeProgress progress : inProgress) {
             Challenge challenge = progress.getChallenge();
-            if (challenge == null || challenge.getCategory() == null) {
+            if (challenge == null) {
                 continue;
             }
 
-            if (!challenge.getCategory().equalsIgnoreCase(activityCategory)) {
+            String targetCat = challenge.getTargetCategory() != null ? challenge.getTargetCategory() : challenge.getCategory();
+            if (targetCat == null || !targetCat.equalsIgnoreCase(activityCategory)) {
                 continue;
             }
 
@@ -312,7 +346,7 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
                 progress.setStatus(COMPLETED_STATUS);
                 progress.setCompletedAt(LocalDateTime.now());
 
-                if (challenge.getRewardPoints() != null) {
+                if (challenge.getRewardPoints() != null && challenge.getRewardPoints() > 0) {
                     ecoScoreService.awardXp(user.getId(), challenge.getRewardPoints());
                 }
             }

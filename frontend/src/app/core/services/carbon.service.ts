@@ -28,7 +28,7 @@ export interface CarbonLogResponse {
 export class CarbonService {
   // Yahan humne HTTPClient ki jagah ApiService inject kiya hai
   private api = inject(ApiService);
-  private basePath = 'api/carbon'; 
+  private basePath = 'carbon'; 
 
   async getLogs(): Promise<CarbonLogResponse[]> {
     // Ab manual headers or token lagane ki zaroorat nahi hai, interceptor khud lagayega

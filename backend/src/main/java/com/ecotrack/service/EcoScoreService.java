@@ -10,6 +10,8 @@ public interface EcoScoreService {
 
     EcoProfile awardXp(Long userId, int xpAmount);
 
+    EcoProfile addXp(Long userId, int xpAmount);
+
     EcoProfile evaluateAndUnlockBadges(Long userId);
 
     EcoProfileResponse getProfile(String authenticatedEmail);

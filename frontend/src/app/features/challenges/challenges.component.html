@@ -26,30 +26,32 @@
   <div class="challenges-layout-grid">
     <!-- Main Content Area: Recommended Challenges -->
     <div class="challenges-main-area">
-      <!-- Active Challenge Banner Card (Glassmorphism) -->
-      <div class="active-challenge-card glass-card">
-        <div class="card-status-badge"><span class="pulse-active"></span> ACTIVE NOW</div>
-        <div class="challenge-title-area">
-          <h2>Plastic-Free Week</h2>
-          <span class="days-left-tag">4 days left</span>
-        </div>
-        
-        <div class="progress-details">
-          <span class="progress-label">Current Progress</span>
-          <span class="progress-pct">{{ activeProgressPercent | number:'1.0-0' }}%</span>
-        </div>
-        <div class="progress-track">
-          <div #progressFill class="progress-fill" [style.width.%]="activeProgressPercent"></div>
-        </div>
-
-        <div class="avatar-group-row">
-          <div class="avatar-group">
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
-            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
-            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
-            <div class="avatar-sm-more">+42</div>
+      <!-- Active Challenge Banner Cards (Parallel Layout - Max 2) -->
+      <div class="active-challenges-container" *ngIf="activeChallenges.length > 0">
+        <div class="active-challenge-card glass-card" *ngFor="let item of activeChallenges.slice(0, 2)">
+          <div class="card-status-badge"><span class="pulse-active"></span> ACTIVE NOW</div>
+          <div class="challenge-title-area">
+            <h2>{{ item.title }}</h2>
+            <span class="days-left-tag">Active</span>
           </div>
-          <span class="friends-participating">Friends also participating</span>
+          
+          <div class="progress-details">
+            <span class="progress-label">Current Progress</span>
+            <span class="progress-pct">{{ (item.currentProgress ?? 0) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="item.currentProgress ?? 0"></div>
+          </div>
+
+          <div class="avatar-group-row">
+            <div class="avatar-group">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=60&auto=format&fit=crop" class="avatar-sm" alt="Friend" />
+              <div class="avatar-sm-more">+42</div>
+            </div>
+            <span class="friends-participating">Friends also participating</span>
+          </div>
         </div>
       </div>
 

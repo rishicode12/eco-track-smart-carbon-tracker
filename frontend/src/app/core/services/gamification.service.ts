@@ -27,13 +27,22 @@ interface EcoLeaderboardRawResponse {
   currentLevel: number;
 }
 
+export interface UserBadge {
+  id: number;
+  userId: number;
+  badgeName: string;
+  badgeType: string;
+  description: string;
+  earnedDate: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class GamificationService {
 
   private readonly api = inject(ApiService);
-  private readonly basePath = '/api/gamification';
+  private readonly basePath = '/gamification';
 
   private readonly profileSubject =
     new BehaviorSubject<EcoProfileResponse | null>(null);
@@ -51,6 +60,13 @@ export class GamificationService {
     );
     this.profileSubject.next(response.data);
     return response.data;
+  }
+
+  async getUserBadges(userId: number): Promise<UserBadge[]> {
+    const response = await firstValueFrom(
+      this.api.get<ApiResponse<UserBadge[]>>(`/badges/user/${userId}`)
+    );
+    return response.data ?? [];
   }
 
   /** Fire-and-forget refresh that pushes the latest profile into profile$. */

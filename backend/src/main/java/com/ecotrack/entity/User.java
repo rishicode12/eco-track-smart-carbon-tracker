@@ -14,32 +14,12 @@ import java.time.LocalDateTime;
 @Builder
 public class User {
 
-    // Naye fields add karein
     private String role;
     private String location;
     private String commuteMode;
     private String dietPreference;
     private String country;
     private String interests;
-
-    // Agar Lombok (@Data) use nahi kar rahe, toh inke Getters/Setters bhi add karein:
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
-    
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-    
-    public String getCommuteMode() { return commuteMode; }
-    public void setCommuteMode(String commuteMode) { this.commuteMode = commuteMode; }
-    
-    public String getDietPreference() { return dietPreference; }
-    public void setDietPreference(String dietPreference) { this.dietPreference = dietPreference; }
-    
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
-    
-    public String getInterests() { return interests; }
-    public void setInterests(String interests) { this.interests = interests; }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,7 +47,7 @@ public class User {
     private Boolean emailVerified = false;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
     @Builder.Default

@@ -129,7 +129,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.error = null;
     this.cdr.detectChanges();
 
-    this.apiService.get<any>('/api/dashboard').subscribe({
+    this.apiService.get<any>('/dashboard').subscribe({
       next: (response) => {
         this.dashboardData = response?.data ? response.data : response;
         this.isLoading = false;

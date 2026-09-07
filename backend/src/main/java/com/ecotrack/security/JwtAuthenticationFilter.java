@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = jwtUtil.extractEmail(token);
 
                 List<GrantedAuthority> authorities = new ArrayList<>();
-                userRepository.findByEmailIgnoreCaseAndIsActiveTrue(email).ifPresent(user -> {
+                userRepository.findByEmailIgnoreCaseAndIsActive(email).ifPresent(user -> {
                     if (Role.fromString(user.getRole()) == Role.ADMIN) {
                         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                     } else {

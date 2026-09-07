@@ -3,7 +3,9 @@ package com.ecotrack.service.impl;
 import com.ecotrack.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -17,13 +19,19 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.frontend-url:http://localhost:4200}")
     private String frontendUrl;
 
-    public EmailServiceImpl(JavaMailSender mailSender) {
+    @Autowired
+    public EmailServiceImpl(@Lazy @Autowired(required = false) JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     @Override
     @Async
     public void sendPasswordResetEmail(String to, String token) {
+        if (mailSender == null) {
+            System.err.println("JavaMailSender is not configured. Email to " + to + " skipped.");
+            return;
+        }
+
         String resetUrl = frontendUrl + "/auth/reset-password?token=" + token;
 
         try {

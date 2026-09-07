@@ -3,6 +3,7 @@ package com.ecotrack.service.impl;
 import com.ecotrack.dto.ChangePasswordRequest;
 import com.ecotrack.dto.LoginRequest;
 import com.ecotrack.dto.LoginResponse;
+import com.ecotrack.dto.UserProfileResponse;
 import com.ecotrack.dto.UserRegistrationRequest;
 import com.ecotrack.entity.User;
 import com.ecotrack.exception.EmailAlreadyExistsException;
@@ -12,7 +13,7 @@ import com.ecotrack.service.UserService;
 import com.ecotrack.utils.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.ecotrack.dto.UserProfileResponse;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,13 +25,13 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            JwtUtil jwtUtil) {
-
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
 
     @Override
+    @Transactional
     public LoginResponse registerUser(UserRegistrationRequest request) {
 
         if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
                 .country(request.getCountry())
                 .provider("LOCAL")
                 .emailVerified(false)
+                .isActive(true)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -63,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponse loginUser(LoginRequest request) {
 
-        User user = userRepository.findByEmailIgnoreCase(request.getEmail())
+        User user = userRepository.findByEmailIgnoreCaseAndIsActive(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (Boolean.FALSE.equals(user.getIsActive())) {
@@ -89,7 +91,7 @@ public class UserServiceImpl implements UserService {
                 user.getProvider(),
                 user.getProfilePicture()
         );
-    } // <--- YAHAN PAR YEH CLOSING BRACKET MISSING THA!
+    } 
 
     @Override
     public UserProfileResponse getUserProfile(String email) {
@@ -115,6 +117,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void changePassword(String email, ChangePasswordRequest request) {
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -132,6 +135,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deactivateUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

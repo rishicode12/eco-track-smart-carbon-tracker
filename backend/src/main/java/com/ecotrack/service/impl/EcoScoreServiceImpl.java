@@ -8,6 +8,7 @@ import com.ecotrack.entity.User;
 import com.ecotrack.exception.ResourceNotFoundException;
 import com.ecotrack.repository.EcoProfileRepository;
 import com.ecotrack.repository.UserRepository;
+import com.ecotrack.service.BadgeService;
 import com.ecotrack.service.NotificationService;
 import com.ecotrack.service.EcoScoreService;
 import com.ecotrack.repository.CarbonEmissionRepository;
@@ -36,6 +37,7 @@ public class EcoScoreServiceImpl implements EcoScoreService {
     private static final long TREE_MASTER_THRESHOLD = 2;
     private static final String COMPLETED_STATUS = "COMPLETED";
 
+    private static final int LEVEL_1_MAX_XP = 999;
     private static final int LEVEL_2_XP = 1000;
     private static final int LEVEL_3_XP = 2500;
     private static final int LEVEL_4_XP = 5000;
@@ -46,10 +48,17 @@ public class EcoScoreServiceImpl implements EcoScoreService {
     private final CarbonEmissionRepository carbonEmissionRepository;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
     private final NotificationService notificationService;
+    private final BadgeService badgeService;
 
     @Override
     @Transactional
     public EcoProfile awardXp(Long userId, int xpAmount) {
+        return addXp(userId, xpAmount);
+    }
+
+    @Override
+    @Transactional
+    public EcoProfile addXp(Long userId, int xpAmount) {
         if (xpAmount <= 0) {
             throw new IllegalArgumentException("xpAmount must be greater than zero");
         }
@@ -60,21 +69,33 @@ public class EcoScoreServiceImpl implements EcoScoreService {
         int newTotalXp = profile.getTotalXp() + xpAmount;
         profile.setTotalXp(newTotalXp);
 
+        // Dynamically compute user's level based on updated total_xp (handles multi-level jumps)
         int newLevel = computeLevel(newTotalXp);
         if (newLevel > profile.getCurrentLevel()) {
-            // Level up - send notification
             String levelUpTitle = "Level Up!";
-            String levelUpMessage = "Congratulations! You reached level " + newLevel;
+            String levelUpMessage = "Congratulations! You reached Level " + newLevel;
             notificationService.createNotification(user, levelUpTitle, levelUpMessage, "LEVEL_UP");
             profile.setCurrentLevel(newLevel);
         }
 
-        return ecoProfileRepository.save(profile);
+        EcoProfile saved = ecoProfileRepository.save(profile);
+
+        // Also sync rewardPoints on User entity for backwards compatibility
+        user.setRewardPoints(newTotalXp);
+        user.setBadgeName(getLevelName(newLevel));
+        userRepository.save(user);
+
+        // Trigger Milestone & state-based badge checks automatically
+        badgeService.checkAndAwardBadges(userId);
+
+        return saved;
     }
 
     @Override
     @Transactional
     public EcoProfile evaluateAndUnlockBadges(Long userId) {
+        badgeService.checkAndAwardBadges(userId);
+
         User user = findUserById(userId);
         EcoProfile profile = getOrCreateProfile(user);
 
@@ -89,28 +110,26 @@ public class EcoScoreServiceImpl implements EcoScoreService {
 
         if (profile.getTotalXp() >= GREEN_HERO_XP_THRESHOLD) {
             unlockBadge(profile, GREEN_HERO_BADGE);
-            // Badge unlock - send notification
-            notificationService.createNotification(user, "Badge Unlocked!", "You earned the GREEN_HERO badge", "BADGE_UNLOCK");
         }
 
         if (zeroEmissionEnergyCount >= ENERGY_SAVER_THRESHOLD) {
             unlockBadge(profile, ENERGY_SAVER_BADGE);
-            notificationService.createNotification(user, "Badge Unlocked!", "You earned the ENERGY_SAVER badge", "BADGE_UNLOCK");
+            badgeService.awardBadge(userId, ENERGY_SAVER_BADGE, "MILESTONE", "Saved electricity 3 times");
         }
 
         if (zeroEmissionTransportCount > ZERO_EMISSION_TRANSPORT_THRESHOLD) {
             unlockBadge(profile, ECO_WARRIOR_BADGE);
-            notificationService.createNotification(user, "Badge Unlocked!", "You earned the ECO_WARRIOR badge", "BADGE_UNLOCK");
+            badgeService.awardBadge(userId, ECO_WARRIOR_BADGE, "MILESTONE", "Log 5+ zero emission transport activities");
         }
 
         if (wasteActivityCount >= ZERO_WASTE_THRESHOLD) {
             unlockBadge(profile, ZERO_WASTE_BADGE);
-            notificationService.createNotification(user, "Badge Unlocked!", "You earned the ZERO_WASTE badge", "BADGE_UNLOCK");
+            badgeService.awardBadge(userId, ZERO_WASTE_BADGE, "MILESTONE", "Zero waste activities logged");
         }
 
         if (completedChallengeCount >= TREE_MASTER_THRESHOLD) {
             unlockBadge(profile, TREE_MASTER_BADGE);
-            notificationService.createNotification(user, "Badge Unlocked!", "You earned the TREE_MASTER badge", "BADGE_UNLOCK");
+            badgeService.awardBadge(userId, TREE_MASTER_BADGE, "CHALLENGE", "Completed 2 tree plantation challenges");
         }
 
         return ecoProfileRepository.save(profile);
@@ -132,12 +151,23 @@ public class EcoScoreServiceImpl implements EcoScoreService {
 
         int totalXp = profile.getTotalXp();
         int currentLevel = profile.getCurrentLevel();
-        int nextLevelThreshold = getThresholdForLevel(currentLevel + 1);
-        int currentLevelBaseXp = getThresholdForLevel(currentLevel);
+        
+        // Edge Case: If user is at max level (Level 5), set xpToNextLevel to 0
+        int xpToNextLevel;
+        if (currentLevel >= 5) {
+            xpToNextLevel = 0;
+        } else {
+            int nextLevelThreshold = getThresholdForLevel(currentLevel + 1);
+            xpToNextLevel = Math.max(0, nextLevelThreshold - totalXp);
+        }
 
-        int xpToNextLevel = Math.max(0, nextLevelThreshold - totalXp);
+        int currentLevelBaseXp = getThresholdForLevel(currentLevel);
+        int nextLevelThreshold = getThresholdForLevel(currentLevel + 1);
+
         double progressPercentage = 0.0;
-        if (nextLevelThreshold > currentLevelBaseXp) {
+        if (currentLevel >= 5) {
+            progressPercentage = 100.0;
+        } else if (nextLevelThreshold > currentLevelBaseXp) {
             int levelSpanXp = nextLevelThreshold - currentLevelBaseXp;
             progressPercentage = Math.min(100.0,
                     ((double) (totalXp - currentLevelBaseXp) / levelSpanXp) * 100);

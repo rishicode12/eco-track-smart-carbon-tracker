@@ -27,7 +27,7 @@ export class GoalService {
 
   private readonly api = inject(ApiService);
 
-  private readonly basePath = '/api/goals';
+  private readonly basePath = '/goals';
 
   private readonly goalsSubject =
     new BehaviorSubject<GoalResponse[]>([]);

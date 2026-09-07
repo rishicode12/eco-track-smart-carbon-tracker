@@ -125,7 +125,7 @@ export class ProfileComponent implements OnInit {
     const token = localStorage.getItem('ecotrack_token'); 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.put(`${environment.apiUrl}/api/users/update-profile`, updatedData, { headers })
+    this.http.put(`${environment.apiUrl}/users/update-profile`, updatedData, { headers })
       .subscribe({
         next: async (response: any) => {
           this.message = 'Profile permanently saved to database!';

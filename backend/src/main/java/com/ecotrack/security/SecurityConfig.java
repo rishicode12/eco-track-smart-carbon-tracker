@@ -34,7 +34,8 @@ public class SecurityConfig {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/swagger-resources/**",
-                "/webjars/**"
+                "/webjars/**",
+                "/uploads/**"
         );
     }
 
@@ -44,6 +45,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200", 
+                "http://localhost:3000",
                 "https://ecotrack-ai-carbon-tracker.vercel.app"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -62,6 +64,10 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                    "/",
+                    "/uploads/**",
+                    "/api/leaderboard",
+                    "/api/badges/**",
                     "/api/users/register",
                     "/api/users/login",
                     "/api/auth/google",

@@ -66,7 +66,7 @@ export class AuthService {
 
     try {
       const response: any = await firstValueFrom(
-        this.http.get(`${environment.apiUrl}/api/users/profile`, { headers })
+        this.http.get(`${environment.apiUrl}/users/profile`, { headers })
       );
 
       const data = response.data || response;
@@ -80,7 +80,7 @@ export class AuthService {
 
   public async login(email: string, password: string): Promise<LoginResponse> {
     const response = await firstValueFrom(
-      this.apiService.post<ApiResponse<LoginResponse>>('/api/users/login', {
+      this.apiService.post<ApiResponse<LoginResponse>>('/users/login', {
         email,
         password,
       })
@@ -91,7 +91,7 @@ export class AuthService {
 
   public async register(fullName: string, email: string, password: string, country?: string): Promise<LoginResponse> {
     const response = await firstValueFrom(
-      this.apiService.post<ApiResponse<LoginResponse>>('/api/users/register', {
+      this.apiService.post<ApiResponse<LoginResponse>>('/users/register', {
         fullName,
         email,
         password,
@@ -131,7 +131,7 @@ export class AuthService {
   // ==========================================
   public async forgotPassword(email: string): Promise<void> {
     await firstValueFrom(
-      this.apiService.post('/api/auth/forgot-password', { email })
+      this.apiService.post('/auth/forgot-password', { email })
     );
   }
 
@@ -172,7 +172,7 @@ export class AuthService {
     }
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     await firstValueFrom(
-      this.http.delete<ApiResponse<void>>(`${environment.apiUrl}/api/users/me`, { headers })
+      this.http.delete<ApiResponse<void>>(`${environment.apiUrl}/users/me`, { headers })
     );
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);

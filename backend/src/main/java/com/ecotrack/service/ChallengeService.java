@@ -23,6 +23,8 @@ public interface ChallengeService {
 
     ChallengeResponse joinChallenge(Long challengeId, String email);
 
+    ChallengeResponse joinChallenge(Long userId, Long challengeId);
+
     ChallengeResponse updateProgress(Long challengeId, String email, UpdateProgressRequest request);
 
     ChallengeResponse createChallenge(ChallengeCreateRequest request);
@@ -32,5 +34,7 @@ public interface ChallengeService {
     List<ChallengeResponse> getAllChallenges();
 
     List<ChallengeResponse> searchChallenges(String query, String authenticatedEmail);
+
+    int calculateProgress(Long userId, Long challengeId);
 }
 

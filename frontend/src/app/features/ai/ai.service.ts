@@ -25,6 +25,6 @@ export class AiService {
   private readonly apiService = inject(ApiService);
 
   getInsights(): Observable<ApiResponse<AIInsightResponse>> {
-    return this.apiService.get<ApiResponse<AIInsightResponse>>('/api/ai/insights');
+    return this.apiService.get<ApiResponse<AIInsightResponse>>('/ai/insights');
   }
 }

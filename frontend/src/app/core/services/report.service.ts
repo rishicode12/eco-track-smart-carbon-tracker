@@ -50,14 +50,14 @@ export class ReportService {
   }
 
   async getSummary(): Promise<ReportSummary> {
-    return this.get<ReportSummary>('/api/reports/summary');
+    return this.get<ReportSummary>('/reports/summary');
   }
 
   async getCategoryBreakdown(): Promise<CategoryBreakdown[]> {
-    return this.get<CategoryBreakdown[]>('/api/reports/categories');
+    return this.get<CategoryBreakdown[]>('/reports/categories');
   }
 
   async getMonthlyTrends(): Promise<MonthlyTrend[]> {
-    return this.get<MonthlyTrend[]>('/api/reports/trends');
+    return this.get<MonthlyTrend[]>('/reports/trends');
   }
 }

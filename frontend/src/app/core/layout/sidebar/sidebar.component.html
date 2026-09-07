@@ -79,7 +79,7 @@
     <a [routerLink]="['/profile']" class="sidebar-user-link sidebar-user-widget" (click)="layoutService.closeMobileSidebar()" title="Go to Profile">
       <div class="user-avatar-wrapper">
         <img 
-         [src]="authService.userProfile()?.profilePicture || 'assets/images/default-avatar.png'" 
+         [src]="authService.userProfile()?.profilePicture || '/logo.png'" 
           alt="User Avatar" 
           class="user-avatar" />
       </div>

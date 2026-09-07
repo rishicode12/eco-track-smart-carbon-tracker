@@ -27,13 +27,20 @@ export interface ActiveChallenge {
 export class ChallengeService {
 
   private readonly api = inject(ApiService);
-  private readonly basePath = '/api/challenges';
+  private readonly basePath = '/challenges';
 
   async getActiveChallenges(): Promise<ActiveChallenge[]> {
     const response = await firstValueFrom(
       this.api.get<ApiResponse<ActiveChallenge[]>>(this.basePath)
     );
     return response.data ?? [];
+  }
+
+  async joinChallenge(challengeId: number): Promise<ActiveChallenge> {
+    const response = await firstValueFrom(
+      this.api.post<ApiResponse<ActiveChallenge>>(`${this.basePath}/${challengeId}/join`, {})
+    );
+    return response.data;
   }
 
   async searchChallenges(query: string): Promise<ChallengeResponse[]> {

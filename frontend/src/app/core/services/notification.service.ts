@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface NotificationItem {
   id: number;
@@ -12,7 +13,7 @@ export interface NotificationItem {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private readonly basePath = '/api/notifications';
+  private readonly basePath = `${environment.apiUrl}/notifications`;
   private unreadCountSubject = new BehaviorSubject<number>(0);
   public unreadCount$ = this.unreadCountSubject.asObservable();
 
