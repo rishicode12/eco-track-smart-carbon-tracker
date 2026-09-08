@@ -1,0 +1,37 @@
+<div class="eco-globe-wrapper">
+  <!-- Interactive Canvas Container -->
+  <div 
+    #globeContainer 
+    class="globe-canvas-container"
+    (mousedown)="onMouseDown($event)"
+    (touchstart)="onTouchStart($event)">
+  </div>
+
+  <!-- Ambient Glowing Backdrop -->
+  <div class="globe-ambient-glow"></div>
+
+  <!-- Premium SaaS Floating Badge Overlay -->
+  <div class="globe-overlay-badge">
+    <div class="badge-header">
+      <span class="live-dot"></span>
+      <span class="badge-title">GLOBAL IMPACT NETWORK</span>
+    </div>
+    <div class="badge-metrics">
+      <div class="metric-item">
+        <span class="metric-val">{{ activeNodesCount }}</span>
+        <span class="metric-lbl">Active Nodes</span>
+      </div>
+      <div class="metric-divider"></div>
+      <div class="metric-item">
+        <span class="metric-val">{{ globalOffsetKg | number:'1.0-0' }} <small>kg</small></span>
+        <span class="metric-lbl">Offset CO₂e</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Hint -->
+  <div class="globe-hint">
+    <i class="bi bi-hand-index-thumb"></i>
+    <span>Drag to rotate 3D Earth</span>
+  </div>
+</div>

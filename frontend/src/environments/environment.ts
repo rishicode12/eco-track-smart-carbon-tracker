@@ -1,4 +1,5 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://ecotrack-backend-jloh.onrender.com/api'
+  production: false,
+  apiUrl: 'http://localhost:8080/api',
+  googleClientId: '763291144411-h0e3kf70riloop6ihrpa3m91d5lqhpcu.apps.googleusercontent.com'
 };

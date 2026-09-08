@@ -30,5 +30,6 @@ public class ChallengeResponse {
     private String status;
     private Boolean isJoined;
     private Double currentProgress;
+    private String imageUrl;
 }
 

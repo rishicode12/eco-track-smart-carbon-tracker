@@ -359,8 +359,9 @@
 @media (max-width: 1024px) {
   .goals-layout-grid {
     grid-template-columns: 1fr;
+  }
+}
 
-    
 /* Loading State - Dark Mode Compatible */
 .loading-state {
   display: flex;
@@ -370,7 +371,7 @@
   padding: 40px;
   gap: 12px;
   text-align: center;
-  color: var(--color-text-secondary); /* Yeh dark mode me khud white/light ho jayega */
+  color: var(--color-text-secondary);
 }
 
 .spinner {
@@ -385,7 +386,5 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
   }
 }

@@ -140,13 +140,17 @@ export class GoalService {
     return response.data;
   }
 
+  async markGoalComplete(id: number): Promise<GoalResponse> {
+    return this.completeGoal(id);
+  }
+
   async completeGoal(
     id: number
   ): Promise<GoalResponse> {
 
     const response =
       await firstValueFrom(
-        this.api.patch<ApiResponse<GoalResponse>>(
+        this.api.put<ApiResponse<GoalResponse>>(
           `${this.basePath}/${id}/complete`,
           {}
         )

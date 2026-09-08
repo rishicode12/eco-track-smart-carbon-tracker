@@ -93,7 +93,7 @@
     <!-- Quick Links (Settings / Support) -->
     <div class="sidebar-quick-links" *ngIf="!layoutService.sidebarCollapsed()">
       <a [routerLink]="['/profile']" class="quick-link-item"><i class="bi bi-gear"></i> Settings</a>
-      <a href="#" class="quick-link-item"><i class="bi bi-question-circle"></i> Support</a>
+      <a [routerLink]="['/support']" class="quick-link-item"><i class="bi bi-question-circle"></i> Support</a>
     </div>
   </div>
 </aside>

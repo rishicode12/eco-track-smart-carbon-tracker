@@ -5,20 +5,9 @@ import { Router } from '@angular/router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { GamificationService, EcoLeaderboardResponse, EcoProfileResponse } from '../../core/services/gamification.service';
-import { ChallengeService, ActiveChallenge } from '../../core/services/challenge.service';
+import { ChallengeService, ActiveChallenge, ChallengeResponse } from '../../core/services/challenge.service';
 
 gsap.registerPlugin(ScrollTrigger);
-
-interface Challenge {
-  id: number;
-  title: string;
-  desc: string;
-  xp: number;
-  tags: string[];
-  joinedCount: string;
-  joined: boolean;
-  image: string;
-}
 
 interface BadgePreset {
   code: string;
@@ -46,8 +35,10 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
   public leaderboard: EcoLeaderboardResponse[] = [];
   public searchQuery: string = '';
   public activeChallenges: ActiveChallenge[] = [];
+  public recommendedChallenges: ChallengeResponse[] = [];
   public activeProgressPercent = 0;
   public isBadgeModalOpen = false;
+  public errorMessage: string | null = null;
 
   public allBadges: BadgePreset[] = [
     { code: 'GREEN_HERO', name: 'Green Hero', icon: 'bi-gem', condition: 'Complete your first challenge' },
@@ -75,39 +66,6 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
     { badge: 'GREEN_HERO', name: 'Green Hero', icon: 'bi-gem', requirement: 'Complete your first challenge', xp: 100 }
   ];
 
-  public recommendedChallenges: Challenge[] = [
-    {
-      id: 1,
-      title: 'Energy Saving Challenge',
-      desc: 'Reduce your home electricity consumption by 20% over 30 days.',
-      xp: 500,
-      tags: ['ENERGY', 'GLOBAL'],
-      joinedCount: '1.2k joined',
-      joined: false,
-      image: '/uploads/Energy-Saving-Challenge.jpg'
-    },
-    {
-      id: 2,
-      title: 'Cycle to Work',
-      desc: 'Swap your car for a bike for at least 3 days a week. Track your miles.',
-      xp: 350,
-      tags: ['TRANSPORT', 'LOCAL'],
-      joinedCount: '840 joined',
-      joined: false,
-      image: '/uploads/cycle-to-work.jpg'
-    },
-    {
-      id: 3,
-      title: 'Tree Plantation Drive',
-      desc: 'Collaborative goal: Plant 5,000 trees this month. Every tree counts.',
-      xp: 1200,
-      tags: ['NATURE', 'TEAM'],
-      joinedCount: '3.5k joined',
-      joined: true,
-      image: '/uploads/tree-plantation-drive.jpg'
-    }
-  ];
-
   public ngOnInit(): void {
     this.loadData();
 
@@ -128,17 +86,19 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
 
   public async loadData(): Promise<void> {
     try {
-      const [profile, leaderboard, challenges] = await Promise.all([
+      const [profile, leaderboard, active, allChallenges] = await Promise.all([
         this.gamificationService.getProfile(),
         this.gamificationService.getLeaderboard(),
-        this.challengeService.getActiveChallenges()
+        this.challengeService.getActiveChallenges(),
+        this.challengeService.getAllChallenges()
       ]);
       this.ecoProfile = profile;
       this.leaderboard = leaderboard;
-      this.activeChallenges = challenges;
+      this.activeChallenges = active || [];
+      this.recommendedChallenges = allChallenges || [];
       this.computeActiveProgressPercent();
     } catch (error) {
-      console.error('Failed to load gamification data', error);
+      console.error('Failed to load challenges data', error);
     } finally {
       this.cdr.detectChanges();
       this.animateProgressBar();
@@ -200,16 +160,24 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  public get filteredChallenges(): Challenge[] {
+  public get filteredChallenges(): ChallengeResponse[] {
+    const activeIds = new Set(this.activeChallenges.map((ac) => ac.id));
+    // Filter: If a challenge is already inside activeChallenges, do NOT show it in recommendedChallenges list
+    const unjoined = this.recommendedChallenges.filter((ch) => !activeIds.has(ch.id) && !ch.isJoined);
     const query = this.searchQuery.trim().toLowerCase();
     if (!query) {
-      return this.recommendedChallenges;
+      return unjoined;
     }
-    return this.recommendedChallenges.filter(
+    return unjoined.filter(
       (ch) =>
         ch.title.toLowerCase().includes(query) ||
-        ch.tags.some((tag) => tag.toLowerCase().includes(query))
+        (ch.category && ch.category.toLowerCase().includes(query)) ||
+        (ch.description && ch.description.toLowerCase().includes(query))
     );
+  }
+
+  public get isMaxActiveLimitReached(): boolean {
+    return this.activeChallenges.length >= 2;
   }
 
   public getRankIcon(rank: number): string {
@@ -226,6 +194,22 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
     return this.ecoProfile?.unlockedBadges?.includes(badgeCode) ?? false;
   }
 
+  public getBadgeTierClass(level: number): string {
+    if (level <= 1) {
+      return 'badge-iron';
+    }
+    if (level === 2) {
+      return 'badge-bronze';
+    }
+    if (level === 3) {
+      return 'badge-silver';
+    }
+    if (level === 4) {
+      return 'badge-gold';
+    }
+    return 'badge-platinum';
+  }
+
   public navigateToCalculator(): void {
     this.router.navigate(['/carbon']);
   }
@@ -234,33 +218,30 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/carbon']);
   }
 
-  public errorMessage: string | null = null;
-
   public async onJoinChallenge(id: number): Promise<void> {
-    const ch = this.recommendedChallenges.find(c => c.id === id);
-    if (!ch) return;
-
-    this.errorMessage = null;
-
-    if (ch.joined) {
-      ch.joined = false;
-      this.activeChallenges = this.activeChallenges.filter(ac => ac.id !== id);
-      this.computeActiveProgressPercent();
+    if (this.isMaxActiveLimitReached) {
+      alert('A user can only have a maximum of 2 ACTIVE challenges at the same time.');
       return;
     }
 
+    this.errorMessage = null;
+
     try {
       const activeChallenge = await this.challengeService.joinChallenge(id);
-      ch.joined = true;
-      ch.joinedCount = (parseFloat(ch.joinedCount) + 0.1).toFixed(1) + 'k joined';
+      const ch = this.recommendedChallenges.find(c => c.id === id);
+      if (ch) {
+        ch.isJoined = true;
+      }
 
       const newActive: ActiveChallenge = activeChallenge ?? {
-        id: ch.id,
-        title: ch.title,
-        targetGoal: 100,
+        id: id,
+        title: ch ? ch.title : 'Challenge',
+        targetGoal: ch?.targetGoal ?? 100,
         currentProgress: 0,
         isJoined: true,
-        status: 'IN_PROGRESS'
+        status: 'IN_PROGRESS',
+        rewardPoints: ch?.rewardPoints,
+        imageUrl: ch?.imageUrl
       };
 
       const existingIndex = this.activeChallenges.findIndex(ac => ac.id === id);
@@ -275,6 +256,24 @@ export class ChallengesComponent implements OnInit, AfterViewInit {
       const msg = err?.error?.message || err?.message || 'A user can only have a maximum of 2 ACTIVE challenges at the same time.';
       this.errorMessage = msg;
       alert(msg);
+    }
+  }
+
+  public async onLeaveChallenge(id: number): Promise<void> {
+    try {
+      await this.challengeService.leaveChallenge(id);
+      this.activeChallenges = this.activeChallenges.filter(ac => ac.id !== id);
+      const ch = this.recommendedChallenges.find(c => c.id === id);
+      if (ch) {
+        ch.isJoined = false;
+      }
+      this.computeActiveProgressPercent();
+      this.cdr.detectChanges();
+    } catch (err: any) {
+      console.error('Failed to leave challenge', err);
+      this.activeChallenges = this.activeChallenges.filter(ac => ac.id !== id);
+      this.computeActiveProgressPercent();
+      this.cdr.detectChanges();
     }
   }
 }

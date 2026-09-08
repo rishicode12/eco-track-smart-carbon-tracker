@@ -108,8 +108,30 @@ public class GoalController {
         );
     }
 
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<ApiResponse<GoalResponse>> completeGoalPut(
+            @PathVariable Long id
+    ) {
+
+        String email = getAuthenticatedEmail();
+
+        GoalResponse response =
+                goalService.completeGoal(
+                        id,
+                        email
+                );
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Goal marked as complete",
+                        response
+                )
+        );
+    }
+
     @PatchMapping("/{id}/complete")
-    public ResponseEntity<ApiResponse<GoalResponse>> completeGoal(
+    public ResponseEntity<ApiResponse<GoalResponse>> completeGoalPatch(
             @PathVariable Long id
     ) {
 

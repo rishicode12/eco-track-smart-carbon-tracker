@@ -54,6 +54,9 @@ public class Challenge {
     @Column(length = 100)
     private String metric;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     private LocalDate startDate;
 
     private LocalDate endDate;

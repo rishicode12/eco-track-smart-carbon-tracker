@@ -44,6 +44,7 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
     private final CarbonEmissionRepository carbonEmissionRepository;
     private final UserRepository userRepository;
     private final EcoScoreService ecoScoreService;
+    private final com.ecotrack.service.BadgeEvaluationService badgeEvaluationService;
     private final UserChallengeRepository userChallengeRepository;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
     private final ChallengeRepository challengeRepository;
@@ -109,6 +110,7 @@ public class CarbonEmissionServiceImpl implements CarbonEmissionService {
 
             // 7. Re-evaluate badge unlocks now that this emission is on record.
             ecoScoreService.evaluateAndUnlockBadges(user.getId());
+            badgeEvaluationService.evaluateBadgesAfterActivity(user.getId(), normalizedCategory);
 
             // 8. Auto-sync active challenges whose category matches this activity.
             syncChallengeProgress(user, normalizedCategory, saved.getTotalEmission());

@@ -57,6 +57,22 @@ export const routes: Routes = [
         path: 'admin',
         canActivate: [AdminGuard],
         loadComponent: () => import('./features/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+      },
+      {
+        path: 'support',
+        loadComponent: () => import('./features/support/support.component').then(m => m.SupportComponent)
+      },
+      {
+        path: 'privacy',
+        loadComponent: () => import('./features/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
+      },
+      {
+        path: 'terms',
+        loadComponent: () => import('./features/terms-of-service/terms-of-service.component').then(m => m.TermsOfServiceComponent)
+      },
+      {
+        path: 'docs',
+        loadComponent: () => import('./features/docs/docs.component').then(m => m.DocsComponent)
       }
     ]
   },

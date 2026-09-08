@@ -1,0 +1,180 @@
+<div class="support-page-container">
+  <!-- Header Banner -->
+  <div class="support-header">
+    <div class="header-badge">
+      <i class="bi bi-headset"></i>
+      <span>Help Center & Support</span>
+    </div>
+    <h1>How can we help you today?</h1>
+    <p class="subtitle">
+      Find answers to common questions about carbon accounting, account security, and gamification, or reach out to our team.
+    </p>
+  </div>
+
+  <!-- Quick Contact Cards Grid -->
+  <div class="support-channels-grid">
+    <div class="eco-card channel-card">
+      <div class="channel-icon-box green-icon">
+        <i class="bi bi-envelope-check-fill"></i>
+      </div>
+      <h3>Email Support</h3>
+      <p>Direct assistance for technical queries, data requests, or reporting inquiries.</p>
+      <a href="mailto:support@ecotrack.app" class="channel-link">support&#64;ecotrack.app <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div class="eco-card channel-card">
+      <div class="channel-icon-box blue-icon">
+        <i class="bi bi-book-half"></i>
+      </div>
+      <h3>Documentation</h3>
+      <p>Explore comprehensive guides on carbon methodologies, APIs, and badge rules.</p>
+      <a routerLink="/docs" class="channel-link">Explore Docs Hub <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div class="eco-card channel-card">
+      <div class="channel-icon-box amber-icon">
+        <i class="bi bi-discord"></i>
+      </div>
+      <h3>Community Hub</h3>
+      <p>Connect with fellow eco-warriors, share tips, and discuss monthly challenges.</p>
+      <a href="https://discord.com" target="_blank" rel="noopener noreferrer" class="channel-link">Join Discord <i class="bi bi-arrow-right"></i></a>
+    </div>
+  </div>
+
+  <!-- Main Content Layout (FAQs + Contact Form) -->
+  <div class="support-main-grid">
+    <!-- Left Column: Interactive FAQ Accordion -->
+    <div class="faq-section">
+      <div class="section-title-wrap">
+        <h2>Frequently Asked Questions</h2>
+        <p>Everything you need to know about tracking, analytics, and privacy.</p>
+      </div>
+
+      <!-- FAQ Filter Buttons -->
+      <div class="faq-filters">
+        <button 
+          class="filter-pill" 
+          [class.active]="activeFilter === 'all'" 
+          (click)="activeFilter = 'all'">
+          All Topics
+        </button>
+        <button 
+          class="filter-pill" 
+          [class.active]="activeFilter === 'carbon'" 
+          (click)="activeFilter = 'carbon'">
+          Carbon Metrics
+        </button>
+        <button 
+          class="filter-pill" 
+          [class.active]="activeFilter === 'account'" 
+          (click)="activeFilter = 'account'">
+          Account & Security
+        </button>
+        <button 
+          class="filter-pill" 
+          [class.active]="activeFilter === 'general'" 
+          (click)="activeFilter = 'general'">
+          AI & Rewards
+        </button>
+      </div>
+
+      <!-- Accordion List -->
+      <div class="faq-list">
+        <div 
+          class="eco-card faq-item" 
+          *ngFor="let faq of filteredFaqs" 
+          [class.open]="faq.isOpen"
+          (click)="toggleFaq(faq)">
+          <div class="faq-question">
+            <span class="q-text">{{ faq.question }}</span>
+            <i class="bi" [ngClass]="faq.isOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </div>
+          <div class="faq-answer" *ngIf="faq.isOpen">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Contact Us Form -->
+    <div class="contact-form-section">
+      <div class="eco-card contact-card">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-chat-left-text-fill text-success"></i>
+          </div>
+          <div>
+            <h3>Send us a Message</h3>
+            <p class="text-secondary font-sm">Our support engineers typically respond in &lt; 24 hours.</p>
+          </div>
+        </div>
+
+        <!-- Success Alert -->
+        <div class="alert-success-box" *ngIf="submitSuccess">
+          <div class="alert-content">
+            <i class="bi bi-check-circle-fill"></i>
+            <div>
+              <strong>Message Received!</strong>
+              <p>Thank you for reaching out. We have received your inquiry and will follow up shortly.</p>
+            </div>
+          </div>
+          <button class="btn-close-alert" (click)="dismissSuccess()"><i class="bi bi-x"></i></button>
+        </div>
+
+        <!-- Form -->
+        <form (ngSubmit)="onSubmitContact()" #formRef="ngForm" class="contact-form" *ngIf="!submitSuccess">
+          <div class="form-group">
+            <label for="contact-name">Full Name <span class="req">*</span></label>
+            <input 
+              type="text" 
+              id="contact-name" 
+              name="name" 
+              [(ngModel)]="contactForm.name" 
+              required 
+              placeholder="e.g. Alex Taylor" />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-email">Email Address <span class="req">*</span></label>
+            <input 
+              type="email" 
+              id="contact-email" 
+              name="email" 
+              [(ngModel)]="contactForm.email" 
+              required 
+              placeholder="you@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-subject">Inquiry Type</label>
+            <select id="contact-subject" name="subject" [(ngModel)]="contactForm.subject">
+              <option value="general">General Inquiry</option>
+              <option value="technical">Technical / Bug Report</option>
+              <option value="carbon">Carbon Calculation Query</option>
+              <option value="billing">Enterprise / Partnership</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-message">Message <span class="req">*</span></label>
+            <textarea 
+              id="contact-message" 
+              name="message" 
+              rows="4" 
+              [(ngModel)]="contactForm.message" 
+              required 
+              placeholder="Describe your question or feedback in detail..."></textarea>
+          </div>
+
+          <button 
+            type="submit" 
+            class="btn btn-primary submit-btn" 
+            [disabled]="isSubmitting || !contactForm.name || !contactForm.email || !contactForm.message">
+            <i class="bi" [ngClass]="isSubmitting ? 'bi-arrow-repeat spin' : 'bi-send-fill'"></i>
+            <span>{{ isSubmitting ? 'Transmitting...' : 'Send Message' }}</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -31,6 +31,14 @@ export class ApiService {
   }
 
   private buildUrl(path: string): string {
-    return `${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const base = this.baseUrl.replace(/\/+$/, '');
+    if (base.endsWith('/api') && cleanPath.startsWith('/api/')) {
+      return `${base}${cleanPath.substring(4)}`;
+    }
+    if (!base.endsWith('/api') && !cleanPath.startsWith('/api/')) {
+      return `${base}/api${cleanPath}`;
+    }
+    return `${base}${cleanPath}`;
   }
 }

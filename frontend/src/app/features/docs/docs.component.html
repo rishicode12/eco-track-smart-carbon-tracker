@@ -1,0 +1,315 @@
+<div class="docs-page-container">
+  <!-- Header Banner -->
+  <div class="docs-header">
+    <div class="header-badge">
+      <i class="bi bi-journal-code"></i>
+      <span>Developer & User Documentation</span>
+    </div>
+    <h1>EcoTrack Documentation Hub</h1>
+    <p class="subtitle">
+      Master your carbon accounting, explore calculation standards, learn gamification rules, and accelerate your climate action journey.
+    </p>
+  </div>
+
+  <div class="docs-layout-grid">
+    <!-- Sidebar Navigation -->
+    <aside class="docs-sidebar">
+      <div class="eco-card doc-nav-card">
+        <h4 class="nav-title"><i class="bi bi-compass"></i> Guide Navigation</h4>
+        <nav class="nav-list">
+          <a *ngFor="let sec of docNavSections" (click)="scrollToSection(sec.id)" class="nav-item">
+            <i class="bi" [ngClass]="sec.icon"></i>
+            <span>{{ sec.title }}</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-action-box">
+          <h5>Need Custom Help?</h5>
+          <p>Reach out to our platform team for support or methodology inquiries.</p>
+          <a routerLink="/support" class="btn btn-primary btn-sm w-100">
+            <i class="bi bi-headset"></i> Get Support
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="docs-main-content">
+      
+      <!-- Section: Getting Started -->
+      <section id="getting-started" class="eco-card doc-card">
+        <div class="card-tag">Getting Started</div>
+        <h2><i class="bi bi-rocket-takeoff-fill text-success"></i> 1. Quick Start Overview</h2>
+        <p>
+          EcoTrack provides full-spectrum carbon lifecycle tracking. By collecting lifestyle activities, our system automatically calculates your carbon footprint in kilograms of CO₂ equivalent (<strong>kg CO₂e</strong>), benchmarks your EcoScore, and suggests personalized AI reductions.
+        </p>
+
+        <div class="workflow-steps-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <h4>Log Activity</h4>
+            <p>Input your daily commutes, electricity usage, meals, or waste output in seconds.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <h4>Compute Emissions</h4>
+            <p>Our calculation engine applies DEFRA/IPCC factors to derive accurate emission outputs.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <h4>Earn XP & Badges</h4>
+            <p>Complete challenges, hit reduction milestones, and level up from Iron to Platinum.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <h4>Optimize with AI</h4>
+            <p>Receive contextual OpenAI-powered recommendations to cut footprints effectively.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Logging Activities -->
+      <section id="logging-activities" class="eco-card doc-card">
+        <div class="card-tag">Core Module</div>
+        <h2><i class="bi bi-plus-circle-dotted text-accent"></i> 2. How to Log Daily Activities</h2>
+        <p>
+          Navigate to the <a routerLink="/carbon" class="text-link">Carbon Tracker</a> to record emission-generating events across four primary categories:
+        </p>
+
+        <div class="category-guides-grid">
+          <!-- Transport -->
+          <div class="guide-box transport-box">
+            <div class="guide-header">
+              <i class="bi bi-car-front-fill"></i>
+              <h4>Transport & Commute</h4>
+            </div>
+            <p>Tracks vehicle travel, public transit, and flight itineraries.</p>
+            <div class="guide-meta">
+              <strong>Inputs:</strong> Mode (Petrol Car, Diesel, EV, Bus, Train, Flight), Distance (km or miles).
+            </div>
+            <div class="code-pill">
+              <code>Emission = Distance (km) &times; Emission_Factor (kg CO₂e/km)</code>
+            </div>
+          </div>
+
+          <!-- Energy -->
+          <div class="guide-box energy-box">
+            <div class="guide-header">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <h4>Energy & Utilities</h4>
+            </div>
+            <p>Monitors household or facility electricity and heating fuel usage.</p>
+            <div class="guide-meta">
+              <strong>Inputs:</strong> Fuel Type (Grid Electricity, Natural Gas, Solar Offset), Quantity (kWh / therms).
+            </div>
+            <div class="code-pill">
+              <code>Emission = Consumption (kWh) &times; Grid_Intensity (kg CO₂e/kWh)</code>
+            </div>
+          </div>
+
+          <!-- Food -->
+          <div class="guide-box food-box">
+            <div class="guide-header">
+              <i class="bi bi-egg-fried"></i>
+              <h4>Food & Diet</h4>
+            </div>
+            <p>Calculates dietary lifecycle impacts based on consumption patterns.</p>
+            <div class="guide-meta">
+              <strong>Inputs:</strong> Diet Profile (High Meat, Average Omnivore, Pescatarian, Vegetarian, Vegan).
+            </div>
+            <div class="code-pill">
+              <code>Emission = Meal_Count &times; Lifecycle_Dietary_Factor</code>
+            </div>
+          </div>
+
+          <!-- Waste -->
+          <div class="guide-box waste-box">
+            <div class="guide-header">
+              <i class="bi bi-trash3-fill"></i>
+              <h4>Waste & Recycling</h4>
+            </div>
+            <p>Accounts for landfill methane generation and diverted recycling credits.</p>
+            <div class="guide-meta">
+              <strong>Inputs:</strong> Municipal Solid Waste (kg), Organic Composting, Recycled Plastics/Paper.
+            </div>
+            <div class="code-pill">
+              <code>Emission = Landfill_kg &times; 0.58 - Recycled_kg &times; 0.12</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-tip-box">
+          <i class="bi bi-lightbulb-fill text-warning"></i>
+          <div>
+            <strong>Pro Tip:</strong> Logging activities on the same day they occur earns a <strong>1.5x Daily Streak XP Multiplier</strong>!
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Gamification & Badges -->
+      <section id="gamification-system" class="eco-card doc-card">
+        <div class="card-tag">Rewards & Ranks</div>
+        <h2><i class="bi bi-trophy-fill text-warning"></i> 3. Gamification System & Badge Tiers</h2>
+        <p>
+          EcoTrack rewards consistent sustainability actions with Experience Points (XP) and prestigious rank badges. As you reduce emissions and log activities, you advance through six distinction tiers:
+        </p>
+
+        <!-- Badge Tiers Grid -->
+        <div class="badge-tiers-grid">
+          <div class="badge-tier-card" *ngFor="let badge of badgeTiers" [style.--tier-color]="badge.color">
+            <div class="tier-icon-circle">
+              <i class="bi" [ngClass]="badge.icon"></i>
+            </div>
+            <div class="tier-info">
+              <div class="tier-title-row">
+                <span class="tier-name">{{ badge.tier }} Tier</span>
+                <span class="tier-xp-badge">{{ badge.xpRequirement }}</span>
+              </div>
+              <p class="tier-desc">{{ badge.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="xp-rewards-breakdown">
+          <h3><i class="bi bi-stars text-accent"></i> How to Earn XP</h3>
+          <div class="xp-table-container">
+            <table class="xp-table">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>XP Awarded</th>
+                  <th>Frequency</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Log a daily activity (Transport, Energy, Food, Waste)</td>
+                  <td><span class="xp-gain">+50 XP</span></td>
+                  <td>Up to 4x / day</td>
+                </tr>
+                <tr>
+                  <td>Maintain a 7-day logging streak</td>
+                  <td><span class="xp-gain">+250 XP</span></td>
+                  <td>Weekly bonus</td>
+                </tr>
+                <tr>
+                  <td>Complete a Personal Carbon Goal</td>
+                  <td><span class="xp-gain">+500 XP</span></td>
+                  <td>Per goal completion</td>
+                </tr>
+                <tr>
+                  <td>Join and complete a Community Challenge</td>
+                  <td><span class="xp-gain">+1,000 XP</span></td>
+                  <td>Per challenge milestone</td>
+                </tr>
+                <tr>
+                  <td>Reduce monthly footprint below personal baseline by &gt;10%</td>
+                  <td><span class="xp-gain">+750 XP</span></td>
+                  <td>Monthly audit</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Community Challenges -->
+      <section id="community-challenges" class="eco-card doc-card">
+        <div class="card-tag">Social Climate Action</div>
+        <h2><i class="bi bi-people-fill text-info"></i> 4. How to Join & Track Community Challenges</h2>
+        <p>
+          Community challenges bring users together to achieve collective sustainability milestones, such as saving 10,000 kg of CO₂ in a month or adopting public transit for 30 consecutive days.
+        </p>
+
+        <div class="challenge-steps-grid">
+          <div class="challenge-step">
+            <div class="cs-number">1</div>
+            <h4>Explore Challenges</h4>
+            <p>Visit the <a routerLink="/challenges" class="text-link">Challenges Hub</a> to view active global and regional eco-initiatives.</p>
+          </div>
+          <div class="challenge-step">
+            <div class="cs-number">2</div>
+            <h4>Join with One Click</h4>
+            <p>Click "Join Challenge" on any active card to link your relevant daily activity logs to the collective goal pool.</p>
+          </div>
+          <div class="challenge-step">
+            <div class="cs-number">3</div>
+            <h4>Auto-Sync Progress</h4>
+            <p>When you log qualifying activities (e.g. bike trips), your reduction delta is automatically attributed to your team's score.</p>
+          </div>
+          <div class="challenge-step">
+            <div class="cs-number">4</div>
+            <h4>Claim Rewards</h4>
+            <p>Once the community target is reached, all active participants receive bonus XP and exclusive seasonal badge unlocks.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Formulas & Factors -->
+      <section id="emission-factors" class="eco-card doc-card">
+        <div class="card-tag">Scientific Methodology</div>
+        <h2><i class="bi bi-calculator-fill text-success"></i> 5. Standard Emission Factors Reference</h2>
+        <p>
+          EcoTrack utilizes validated reference factors based on UK Government GHG Conversion Factors (DEFRA 2024) and IPCC Fourth Assessment Report (AR4):
+        </p>
+
+        <div class="factors-table-wrap">
+          <table class="factors-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Activity Mode</th>
+                <th>Standard Emission Factor</th>
+                <th>Units</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><i class="bi bi-car-front"></i> Transport</td>
+                <td>Petrol Passenger Car</td>
+                <td><code>0.170 kg CO₂e</code></td>
+                <td>per passenger-km</td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-car-front"></i> Transport</td>
+                <td>Diesel Passenger Car</td>
+                <td><code>0.165 kg CO₂e</code></td>
+                <td>per passenger-km</td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-plug"></i> Transport</td>
+                <td>Battery Electric Vehicle (BEV)</td>
+                <td><code>0.045 kg CO₂e</code></td>
+                <td>per passenger-km (grid avg)</td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-lightning"></i> Energy</td>
+                <td>National Grid Electricity</td>
+                <td><code>0.207 kg CO₂e</code></td>
+                <td>per kWh consumed</td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-fire"></i> Energy</td>
+                <td>Natural Gas Heating</td>
+                <td><code>0.183 kg CO₂e</code></td>
+                <td>per kWh consumed</td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-cup-hot"></i> Food</td>
+                <td>High Meat Diet (>100g/day)</td>
+                <td><code>7.19 kg CO₂e</code></td>
+                <td>per day</td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-tree"></i> Food</td>
+                <td>Plant-Based / Vegan Diet</td>
+                <td><code>2.89 kg CO₂e</code></td>
+                <td>per day</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

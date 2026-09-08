@@ -9,7 +9,16 @@ export interface ChallengeResponse {
   description: string;
   category: string;
   rewardPoints: number;
-  xpReward: number;
+  badgeName?: string;
+  targetGoal?: number;
+  metric?: string;
+  isJoined?: boolean;
+  currentProgress?: number;
+  imageUrl?: string;
+  image?: string;
+  tags?: string[];
+  joinedCount?: string;
+  joined?: boolean;
 }
 
 export interface ActiveChallenge {
@@ -19,6 +28,8 @@ export interface ActiveChallenge {
   currentProgress: number;
   isJoined: boolean;
   status: string;
+  rewardPoints?: number;
+  imageUrl?: string;
 }
 
 @Injectable({
@@ -29,9 +40,16 @@ export class ChallengeService {
   private readonly api = inject(ApiService);
   private readonly basePath = '/challenges';
 
+  async getAllChallenges(): Promise<ChallengeResponse[]> {
+    const response = await firstValueFrom(
+      this.api.get<ApiResponse<ChallengeResponse[]>>(this.basePath)
+    );
+    return response.data ?? [];
+  }
+
   async getActiveChallenges(): Promise<ActiveChallenge[]> {
     const response = await firstValueFrom(
-      this.api.get<ApiResponse<ActiveChallenge[]>>(this.basePath)
+      this.api.get<ApiResponse<ActiveChallenge[]>>(`${this.basePath}/active`)
     );
     return response.data ?? [];
   }
@@ -41,6 +59,12 @@ export class ChallengeService {
       this.api.post<ApiResponse<ActiveChallenge>>(`${this.basePath}/${challengeId}/join`, {})
     );
     return response.data;
+  }
+
+  async leaveChallenge(challengeId: number): Promise<void> {
+    await firstValueFrom(
+      this.api.delete<ApiResponse<void>>(`${this.basePath}/${challengeId}/leave`)
+    );
   }
 
   async searchChallenges(query: string): Promise<ChallengeResponse[]> {

@@ -115,9 +115,11 @@ public class GoalServiceImpl implements GoalService {
 
         goal.setIsCompleted(true);
 
-        goal.setCurrentProgress(
-                goal.getTargetCarbonReduction()
-        );
+        double target = goal.getTargetCarbonReduction() != null && goal.getTargetCarbonReduction() > 0
+                ? goal.getTargetCarbonReduction()
+                : 1.0;
+
+        goal.setCurrentProgress(target);
 
         Goal savedGoal = goalRepository.save(goal);
 

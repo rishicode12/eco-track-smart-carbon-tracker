@@ -25,6 +25,12 @@ public interface ChallengeService {
 
     ChallengeResponse joinChallenge(Long userId, Long challengeId);
 
+    void leaveChallenge(Long challengeId, String email);
+
+    void leaveChallenge(Long userId, Long challengeId);
+
+    List<ChallengeResponse> getActiveChallengesForUser(String email);
+
     ChallengeResponse updateProgress(Long challengeId, String email, UpdateProgressRequest request);
 
     ChallengeResponse createChallenge(ChallengeCreateRequest request);

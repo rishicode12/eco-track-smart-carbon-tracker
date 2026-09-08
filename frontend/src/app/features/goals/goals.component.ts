@@ -157,11 +157,25 @@ export class GoalsComponent implements OnInit, OnDestroy {
   }
 
   async onCompleteGoal(goalId: number): Promise<void> {
+    this.errorMessage = null;
     try {
-      await this.goalService.completeGoal(goalId);
+      const updatedGoal = await this.goalService.completeGoal(goalId);
+
+      // Instant local state update for zero-latency UI reflection
+      const index = this.goals.findIndex(g => g.id === goalId);
+      if (index !== -1) {
+        this.goals[index] = updatedGoal ? { ...updatedGoal } : {
+          ...this.goals[index],
+          isCompleted: true,
+          currentProgress: this.goals[index].targetCarbonReduction,
+          progressPercent: 100
+        };
+      }
+      this.cdr.detectChanges();
     } catch (error) {
-      console.error('Failed to complete goal', error);
+      console.error('Failed to complete goal:', error);
       this.errorMessage = 'Could not complete the goal. Please try again.';
+      this.cdr.detectChanges();
     }
   }
 

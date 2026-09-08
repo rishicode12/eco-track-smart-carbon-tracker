@@ -1,0 +1,171 @@
+<div class="legal-page-container">
+  <!-- Header Hero Banner -->
+  <div class="legal-header">
+    <div class="header-badge">
+      <i class="bi bi-file-earmark-ruled-fill"></i>
+      <span>Terms of Agreement</span>
+    </div>
+    <h1>Terms of Service</h1>
+    <p class="subtitle">
+      Please review these Terms of Service carefully before utilizing the EcoTrack platform, analytics engine, and gamification network.
+    </p>
+    <div class="meta-bar">
+      <span class="meta-item"><i class="bi bi-clock-history"></i> Effective: {{ lastUpdated }}</span>
+      <span class="meta-item"><i class="bi bi-shield-check"></i> Standard End-User Service Agreement</span>
+    </div>
+  </div>
+
+  <div class="legal-layout-grid">
+    <!-- Sticky Table of Contents -->
+    <aside class="legal-toc-wrapper">
+      <div class="eco-card toc-card">
+        <h4 class="toc-title"><i class="bi bi-list-nested"></i> Table of Contents</h4>
+        <nav class="toc-nav">
+          <a (click)="scrollToSection('sec-acceptance')" class="toc-link">1. Acceptance of Terms</a>
+          <a (click)="scrollToSection('sec-accounts')" class="toc-link">2. Account Responsibilities</a>
+          <a (click)="scrollToSection('sec-acceptable-use')" class="toc-link">3. Acceptable Use & Fair Play</a>
+          <a (click)="scrollToSection('sec-leaderboard')" class="toc-link">4. Leaderboard & Anti-Spam</a>
+          <a (click)="scrollToSection('sec-ip')" class="toc-link">5. Intellectual Property</a>
+          <a (click)="scrollToSection('sec-disclaimer')" class="toc-link">6. Estimation Disclaimers</a>
+          <a (click)="scrollToSection('sec-termination')" class="toc-link">7. Suspension & Termination</a>
+          <a (click)="scrollToSection('sec-contact')" class="toc-link">8. Inquiries & Disputes</a>
+        </nav>
+        <div class="toc-help-box">
+          <i class="bi bi-question-circle"></i>
+          <span>Questions about compliance?</span>
+          <a routerLink="/support" class="btn-help-link">Contact Support</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Legal Content -->
+    <main class="legal-content eco-card">
+
+      <!-- Section 1 -->
+      <section id="sec-acceptance" class="legal-section">
+        <div class="section-badge">Section 01</div>
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+          By creating an account, browsing the website, or utilizing any services provided by EcoTrack ("we", "us", or "our"), you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree to all terms, you must discontinue platform use immediately.
+        </p>
+      </section>
+
+      <!-- Section 2 -->
+      <section id="sec-accounts" class="legal-section">
+        <div class="section-badge">Section 02</div>
+        <h2>2. Account Creation & Security Responsibilities</h2>
+        <p>
+          To access the carbon tracking dashboard, community challenges, and personalized AI recommendations, you must register for an EcoTrack account.
+        </p>
+        <ul class="tos-list">
+          <li><strong>Accuracy:</strong> You agree to provide accurate, current, and verifiable registration details (name, email).</li>
+          <li><strong>Credential Protection:</strong> You are solely responsible for maintaining the confidentiality of your credentials and JSON Web Token (JWT) session integrity. You must immediately notify our security team of any unauthorized account access.</li>
+          <li><strong>Age Requirement:</strong> You must be at least 13 years old (or 16 where required by local jurisdiction) to register an independent account.</li>
+        </ul>
+      </section>
+
+      <!-- Section 3 -->
+      <section id="sec-acceptable-use" class="legal-section">
+        <div class="section-badge">Section 03</div>
+        <h2>3. Acceptable Use Policy</h2>
+        <p>
+          EcoTrack is designed as a collaborative, scientific, and community-driven sustainability platform. You agree NOT to:
+        </p>
+        <div class="restriction-grid">
+          <div class="restriction-card">
+            <i class="bi bi-robot text-danger"></i>
+            <h4>Automated Bots & Scraping</h4>
+            <p>Deploy unauthorized automated crawlers, bot scripts, or scrapers to extract community data, user profiles, or proprietary carbon emission calculation algorithms.</p>
+          </div>
+          <div class="restriction-card">
+            <i class="bi bi-bug-fill text-warning"></i>
+            <h4>Security Tampering</h4>
+            <p>Attempt to bypass JWT authentication, probe endpoint vulnerabilities, reverse engineer the backend API, or cause denial-of-service disruptions.</p>
+          </div>
+          <div class="restriction-card">
+            <i class="bi bi-shield-slash-fill text-danger"></i>
+            <h4>Abusive Content</h4>
+            <p>Upload offensive, defamatory, or unlawful materials in community challenge boards, team chats, or user profiles.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4 -->
+      <section id="sec-leaderboard" class="legal-section">
+        <div class="section-badge">Section 04</div>
+        <h2>4. Gamification, Leaderboards & Anti-Spam Rules</h2>
+        <p>
+          Our gamification system—including Experience Points (XP), Badges (Iron through Platinum/Diamond), and competitive Leaderboards—relies on user integrity and genuine environmental action.
+        </p>
+
+        <div class="callout callout-warning">
+          <i class="bi bi-shield-fill-exclamation"></i>
+          <div>
+            <strong>Strict Zero-Tolerance for Carbon Manipulation:</strong> Users must not spam fabricated, inflated, or unrealistic carbon logs, or abuse challenge check-ins to artificially inflate their XP, climb leaderboard standings, or unlock tier badges dishonestly.
+          </div>
+        </div>
+
+        <p>
+          EcoTrack reserves the right to apply automated statistical outlier detection to audit suspicious carbon activities. If manipulation is detected, EcoTrack may:
+        </p>
+        <ul class="audit-consequences">
+          <li><i class="bi bi-x-circle-fill text-danger"></i> Invalidate fraudulent activity entries and deduct accumulated XP.</li>
+          <li><i class="bi bi-slash-circle-fill text-warning"></i> Temporarily or permanently disqualify the user or team from leaderboard rankings.</li>
+          <li><i class="bi bi-person-x-fill text-danger"></i> Revoke earned badges and reset competitive standings.</li>
+        </ul>
+      </section>
+
+      <!-- Section 5 -->
+      <section id="sec-ip" class="legal-section">
+        <div class="section-badge">Section 05</div>
+        <h2>5. Intellectual Property Rights</h2>
+        <p>
+          All software code, 3D WebGL visualizations, UI designs, logos, custom carbon factor matrices, and algorithm implementations are the proprietary property of EcoTrack.
+        </p>
+        <p>
+          You retain full ownership of the raw personal data and logs you submit. You grant EcoTrack a non-exclusive, worldwide license to process, compute, and present your data back to you in analytics dashboards.
+        </p>
+      </section>
+
+      <!-- Section 6 -->
+      <section id="sec-disclaimer" class="legal-section">
+        <div class="section-badge">Section 06</div>
+        <h2>6. Scientific Estimation Disclaimers & Limitation of Liability</h2>
+        <p>
+          While EcoTrack employs validated mathematical coefficients from IPCC, DEFRA, and recognized climate research bodies, carbon calculations are estimations based on representative averages.
+        </p>
+        <div class="callout callout-info">
+          <i class="bi bi-info-circle-fill"></i>
+          <div>
+            <strong>Informational Purposes:</strong> EcoTrack's carbon metrics and OpenAI-powered recommendations are provided for informational, motivational, and educational purposes. We do not provide statutory corporate ESG tax certifications unless explicitly arranged under an Enterprise Audit contract.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 7 -->
+      <section id="sec-termination" class="legal-section">
+        <div class="section-badge">Section 07</div>
+        <h2>7. Suspension & Account Termination</h2>
+        <p>
+          We may immediately suspend or terminate your account and access to the platform without prior notice if you breach these Terms of Service, engage in fraudulent activity, or manipulate platform integrity.
+        </p>
+        <p>
+          You may terminate your account at any time via Profile Settings. Upon termination, your right to use the platform ceases immediately, and your personal data will be processed per our Privacy Policy.
+        </p>
+      </section>
+
+      <!-- Section 8 -->
+      <section id="sec-contact" class="legal-section">
+        <div class="section-badge">Section 08</div>
+        <h2>8. Contact & Dispute Resolution</h2>
+        <p>
+          For legal inquiries, terms clarification, or reporting violations, please contact our legal counsel team:
+        </p>
+        <div class="contact-box">
+          <p><i class="bi bi-envelope-check-fill"></i> <strong>Legal Team:</strong> legal&#64;ecotrack.app</p>
+          <p><i class="bi bi-headset"></i> <strong>Support:</strong> <a routerLink="/support">Support Center</a></p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

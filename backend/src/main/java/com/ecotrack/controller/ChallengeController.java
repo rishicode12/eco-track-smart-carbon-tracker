@@ -54,9 +54,18 @@ public class ChallengeController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getAllActiveChallenges() {
+    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getAllChallenges() {
         String authenticatedEmail = getAuthenticatedEmail();
-        List<ChallengeResponse> challenges = challengeService.getAllActiveChallenges(authenticatedEmail);
+        List<ChallengeResponse> challenges = (authenticatedEmail != null && !authenticatedEmail.isEmpty() && !"anonymousUser".equals(authenticatedEmail))
+                ? challengeService.getAllActiveChallenges(authenticatedEmail)
+                : challengeService.getAllChallenges();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Challenges fetched successfully", challenges));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getActiveChallenges() {
+        String authenticatedEmail = getAuthenticatedEmail();
+        List<ChallengeResponse> challenges = challengeService.getActiveChallengesForUser(authenticatedEmail);
         return ResponseEntity.ok(new ApiResponse<>(true, "Active challenges fetched successfully", challenges));
     }
 
@@ -65,6 +74,20 @@ public class ChallengeController {
         String authenticatedEmail = getAuthenticatedEmail();
         ChallengeResponse response = challengeService.joinChallenge(id, authenticatedEmail);
         return new ResponseEntity<>(new ApiResponse<>(true, "Challenge joined successfully", response), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{id}/leave")
+    public ResponseEntity<ApiResponse<Void>> leaveChallenge(@PathVariable Long id) {
+        String authenticatedEmail = getAuthenticatedEmail();
+        challengeService.leaveChallenge(id, authenticatedEmail);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Left challenge successfully", null));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteOrLeaveChallenge(@PathVariable Long id) {
+        String authenticatedEmail = getAuthenticatedEmail();
+        challengeService.leaveChallenge(id, authenticatedEmail);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Left challenge successfully", null));
     }
 
     @PutMapping("/{id}/progress")

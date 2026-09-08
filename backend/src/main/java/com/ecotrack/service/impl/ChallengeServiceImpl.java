@@ -198,6 +198,45 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     @Transactional
+    public void leaveChallenge(Long challengeId, String email) {
+        User user = findUserByEmail(email);
+        leaveChallenge(user.getId(), challengeId);
+    }
+
+    @Override
+    @Transactional
+    public void leaveChallenge(Long userId, Long challengeId) {
+        userChallengeRepository.findByUserIdAndChallengeId(userId, challengeId)
+                .ifPresent(userChallengeRepository::delete);
+        userChallengeProgressRepository.findByUserIdAndChallengeId(userId, challengeId)
+                .ifPresent(userChallengeProgressRepository::delete);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChallengeResponse> getActiveChallengesForUser(String email) {
+        User user = findUserByEmail(email);
+        List<UserChallenge> activeUc = userChallengeRepository.findByUserIdAndStatus(user.getId(), "ACTIVE");
+        if (!activeUc.isEmpty()) {
+            return activeUc.stream()
+                    .map(uc -> {
+                        UserChallengeProgress ucp = userChallengeProgressRepository
+                                .findByUserIdAndChallengeId(user.getId(), uc.getChallenge().getId())
+                                .orElse(null);
+                        return mapToResponse(uc.getChallenge(), Optional.ofNullable(ucp), user.getId());
+                    })
+                    .toList();
+        }
+
+        List<UserChallengeProgress> inProgressUcp = userChallengeProgressRepository
+                .findByUserIdAndStatus(user.getId(), "IN_PROGRESS");
+        return inProgressUcp.stream()
+                .map(ucp -> mapToResponse(ucp.getChallenge(), Optional.of(ucp), user.getId()))
+                .toList();
+    }
+
+    @Override
+    @Transactional
     public ChallengeResponse updateProgress(Long challengeId, String email, UpdateProgressRequest request) {
         if (request == null || request.getProgressAdded() == null || request.getProgressAdded() <= 0) {
             throw new IllegalArgumentException("progressAdded must be greater than zero");
@@ -366,6 +405,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .status(challenge.getStatus())
                 .isJoined(joined)
                 .currentProgress((double) calculatedProgress)
+                .imageUrl(challenge.getImageUrl())
                 .build();
     }
 
