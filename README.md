@@ -9,8 +9,8 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-%23412991.svg?style=for-the-badge&logo=openai&logoColor=white)
 
 ### 🌐 Live Deployment
-**Frontend:** `[Insert Vercel/Render Link Here]`  
-**Backend API:** `[Insert AWS/Render Link Here]`  
+**Frontend:** `https://ecotrack-ai-carbon-tracker.vercel.app/`  
+**Backend API:** `https://ecotrack-backend-jloh.onrender.com`  
 
 ---
 
@@ -133,10 +133,30 @@ eco-track/
    ```bash
    ./mvnw clean spring-boot:run
 
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+Install dependencies (resolves Angular 18 animation peer-dependency conflicts):
+
+Bash
+npm install --legacy-peer-deps
+Start the Angular development server:
+
+Bash
+npm start
+Open your browser to http://localhost:4200
+
 ---
 
 ## 📄 License
 
 MIT License — free to use for academic and research purposes.
+
+
+## 👨‍💻 Author
+* **Rishijeet Sinha**
+* [GitHub](https://github.com/rishicode12)
+* [LinkedIn](https://www.linkedin.com/in/rishijeet-sinha/)
 
 ---
