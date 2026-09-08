@@ -9,8 +9,8 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-%23412991.svg?style=for-the-badge&logo=openai&logoColor=white)
 
 ### 🌐 Live Deployment
-**Frontend:** `https://ecotrack-ai-carbon-tracker.vercel.app/`  
-**Backend API:** `https://ecotrack-backend-jloh.onrender.com`  
+| 🖥️ **Frontend (Web App)** | [ecotrack-ai-carbon-tracker.vercel.app](https://ecotrack-ai-carbon-tracker.vercel.app) | Vercel |
+| ⚙️ **Backend (API)** | [ecotrack-backend-jloh.onrender.com](https://ecotrack-backend-jloh.onrender.com) | Render |
 
 ---
 
