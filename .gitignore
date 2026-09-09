@@ -6,7 +6,7 @@ backend/.mvn/wrapper/maven-wrapper.jar
 frontend/node_modules/
 frontend/dist/
 frontend/build/
-frontend/src/environments/environment.prod.ts
+
 
 # Environment Files & Local Secrets
 .env
