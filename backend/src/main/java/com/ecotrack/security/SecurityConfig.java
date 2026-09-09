@@ -67,17 +67,18 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/",
+                    "/health",
+                    "/api/auth/**",
+                    "/api/auth/health",
                     "/uploads/**",
                     "/api/leaderboard",
                     "/api/badges/**",
                     "/api/users/register",
                     "/api/users/login",
-                    "/api/auth/google",
-                    "/api/auth/forgot-password",
-                    "/api/auth/reset-password",
                     "/oauth2/authorization/**",
                     "/login/oauth2/code/**",
                     "/error",
+                    "/actuator/**",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html"
@@ -88,14 +89,7 @@ public class SecurityConfig {
                 .successHandler(oAuth2AuthenticationSuccessHandler)
                 .permitAll()
             )
-
-            .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**", "/actuator/**").permitAll()
-            .anyRequest().authenticated()
-            )
-
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            
 
         return http.build();
     }
