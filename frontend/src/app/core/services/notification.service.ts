@@ -13,7 +13,7 @@ export interface NotificationItem {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private readonly basePath = `${environment.apiUrl}/notifications`;
+  private readonly basePath = `${environment.apiUrl}/api/notifications`;
   private unreadCountSubject = new BehaviorSubject<number>(0);
   public unreadCount$ = this.unreadCountSubject.asObservable();
 

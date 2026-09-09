@@ -125,7 +125,7 @@ export class ProfileComponent implements OnInit {
     const token = localStorage.getItem('ecotrack_token'); 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.put(`${environment.apiUrl}/users/update-profile`, updatedData, { headers })
+    this.http.put(`${environment.apiUrl}/api/users/update-profile`, updatedData, { headers })
       .subscribe({
         next: async (response: any) => {
           this.message = 'Profile permanently saved to database!';
@@ -153,7 +153,7 @@ export class ProfileComponent implements OnInit {
       const token = localStorage.getItem('ecotrack_token'); 
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-      this.http.post('http://localhost:8080/api/users/profile-picture', formData, { headers })
+      this.http.post(`${environment.apiUrl}/api/users/profile-picture`, formData, { headers })
         .subscribe({
           next: (response: any) => {
             alert('Profile picture uploaded to Cloudinary successfully!');
@@ -202,7 +202,7 @@ export class ProfileComponent implements OnInit {
       newPassword: this.newPassword
     };
 
-    this.http.put('http://localhost:8080/api/users/change-password', body, { headers })
+    this.http.put(`${environment.apiUrl}/api/users/change-password`, body, { headers })
       .subscribe({
         next: async (response: any) => {
           this.changePasswordMessage = 'Password changed successfully!';

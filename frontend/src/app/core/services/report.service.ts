@@ -34,7 +34,7 @@ interface ApiResponse<T> {
 })
 export class ReportService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly baseUrl = `${environment.apiUrl}/api`;
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('ecotrack_token');
