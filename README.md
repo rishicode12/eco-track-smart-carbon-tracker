@@ -1,16 +1,16 @@
 # 🌿 EcoTrack: AI-Powered Carbon Footprint & Sustainability Platform
 
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/springboot-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
-![Angular](https://img.shields.io/badge/angular-%23DD0031.svg?style=for-the-badge&logo=angular&logoColor=white)
+![Java](https://img.shields.io/badge/java_21-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/springboot_3-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
+![Angular](https://img.shields.io/badge/angular_18-%23DD0031.svg?style=for-the-badge&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![WebGL](https://img.shields.io/badge/WebGL-%23990000.svg?style=for-the-badge&logo=webgl&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![OpenAI](https://img.shields.io/badge/OpenAI-%23412991.svg?style=for-the-badge&logo=openai&logoColor=white)
 
 ### 🌐 Live Deployment
-**Frontend:** `[Insert Vercel/Render Link Here]`  
-**Backend API:** `[Insert AWS/Render Link Here]`  
+| 🖥️ **Frontend (Web App)** | [ecotrack-ai-carbon-tracker.vercel.app](https://ecotrack-ai-carbon-tracker.vercel.app) | Vercel |
+| ⚙️ **Backend (API)** | [ecotrack-backend-jloh.onrender.com](https://ecotrack-backend-jloh.onrender.com) | Render |
 
 ---
 
@@ -18,11 +18,11 @@
 EcoTrack is a comprehensive, full-stack sustainability management platform designed to help individuals track, analyze, and reduce their carbon footprint. By leveraging generative AI, the platform provides highly personalized lifestyle recommendations, tracks daily emissions across multiple categories, and encourages environmental action through community challenges and gamification.
 
 ### 🌍 Core Sustainability Modules
-1. **Carbon Tracking:** Log daily emissions across Transportation, Energy, Food, and Waste.
-2. **Goal Management:** Set, monitor, and achieve real-time CO₂ reduction targets.
-3. **AI Recommendation System:** Receive predictive insights and personalized action plans.
-4. **Community Challenges:** Join global sustainability challenges and track progress.
-5. **Analytics & Reports:** Visualize Month-over-Month (MoM) trends with downloadable CSV reports.
+1. **Interactive 3D Dashboard:** A WebGL-powered responsive dashboard featuring a rotatable Earth and real-time Carbon KPIs.
+2. **Carbon Tracking:** Log daily emissions across Transportation, Energy, Food, and Waste.
+3. **Gamification & Rewards:** Earn XP, level up, and unlock dynamic rarity badges (Iron to Platinum) based on your eco-friendly actions.
+4. **AI Recommendation System:** Receive predictive insights and personalized action plans via OpenAI.
+5. **Community Challenges:** Join global sustainability challenges and track live progress side-by-side.
 
 ---
 
@@ -118,10 +118,45 @@ eco-track/
 
 ---
 
+## 🚀 Getting Started (Local Setup)
+
+### Prerequisites
+* JDK 21
+* Node.js (v20+)
+* PostgreSQL running locally or via cloud
+* OpenAI API Key
+
+### Backend Setup
+1. Navigate to the backend directory: `cd backend`
+2. Configure your `application.yml` with your database credentials and OpenAI key.
+3. Run the Spring Boot application: 
+   ```bash
+   ./mvnw clean spring-boot:run
+
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+Install dependencies (resolves Angular 18 animation peer-dependency conflicts):
+
+Bash
+npm install --legacy-peer-deps
+Start the Angular development server:
+
+Bash
+npm start
+Open your browser to http://localhost:4200
+
 ---
 
 ## 📄 License
 
 MIT License — free to use for academic and research purposes.
+
+
+## 👨‍💻 Author
+* **Rishijeet Sinha**
+* [GitHub](https://github.com/rishicode12)
+* [LinkedIn](https://www.linkedin.com/in/rishijeet-sinha/)
 
 ---
