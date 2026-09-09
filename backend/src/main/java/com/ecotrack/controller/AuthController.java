@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,24 +40,33 @@ public class AuthController {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     public AuthController(GoogleAuthService googleAuthService,
                           UserRepository userRepository,
                           PasswordResetTokenRepository passwordResetTokenRepository,
                           EmailService emailService,
-                          BCryptPasswordEncoder passwordEncoder) {
+                          BCryptPasswordEncoder passwordEncoder,
+                          JdbcTemplate jdbcTemplate) {
         this.googleAuthService = googleAuthService;
         this.userRepository = userRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @GetMapping("/health")
-    @Operation(summary = "Health check endpoint", description = "Returns 200 OK to keep the server alive.")
+    @Operation(summary = "Health check endpoint", description = "Pings database and returns status to keep server and database awake.")
     @SecurityRequirements
     public ResponseEntity<String> health() {
-        return ResponseEntity.ok("Backend is UP!");
+        try {
+            jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            return ResponseEntity.ok("Backend and Database are UP!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Database connection failed: " + e.getMessage());
+        }
     }
 
     @PostMapping("/google")
