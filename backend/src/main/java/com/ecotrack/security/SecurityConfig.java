@@ -27,6 +27,8 @@ public class SecurityConfig {
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
     }
 
+    
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
@@ -86,7 +88,14 @@ public class SecurityConfig {
                 .successHandler(oAuth2AuthenticationSuccessHandler)
                 .permitAll()
             )
+
+            .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**", "/actuator/**").permitAll()
+            .anyRequest().authenticated()
+            )
+
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            
 
         return http.build();
     }
