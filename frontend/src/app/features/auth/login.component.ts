@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from './auth.service';
+import { AuthService, UserNotFoundError } from './auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -34,6 +34,7 @@ export class LoginComponent {
   public isSuccess = false;
   public errorMessage = '';
   public fieldErrors: Record<string, string> = {};
+  public showUserNotFoundModal = false;
 
   public togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -68,8 +69,29 @@ export class LoginComponent {
       })
       .catch((error: unknown) => {
         this.isLoading = false;
+        if (
+          error instanceof UserNotFoundError ||
+          (error as any)?.code === 'USER_NOT_FOUND' ||
+          (error as any)?.message === 'USER_NOT_FOUND' ||
+          ((error as any)?.error?.message === 'USER_NOT_FOUND')
+        ) {
+          this.showUserNotFoundModal = true;
+          return;
+        }
         this.applyAuthError(error, 'Authentication failed. Please check your credentials.');
       });
+  }
+
+  public closeUserNotFoundModal(): void {
+    this.showUserNotFoundModal = false;
+  }
+
+  public navigateToSignup(): void {
+    this.showUserNotFoundModal = false;
+    const email = this.loginForm.value.email;
+    this.router.navigate(['/auth/signup'], {
+      queryParams: email ? { email } : {}
+    });
   }
 
   public getFieldError(fieldName: string): string | null {

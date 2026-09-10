@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { Component, ElementRef, HostListener, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, ElementRef, HostListener, OnInit, inject } from '@angular/core';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from './auth.service';
 import { COUNTRIES } from './countries';
 
@@ -24,9 +24,10 @@ const passwordsMatchValidator: ValidatorFn = (control: AbstractControl): Validat
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css'],
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private hostElement = inject(ElementRef<HTMLElement>);
 
@@ -66,6 +67,13 @@ export class SignupComponent {
   get company() { return this.signupForm.get('company'); }
   get country() { return this.signupForm.get('country'); }
   get acceptTerms() { return this.signupForm.get('acceptTerms'); }
+
+  ngOnInit(): void {
+    const emailParam = this.route.snapshot.queryParamMap.get('email');
+    if (emailParam) {
+      this.signupForm.patchValue({ email: emailParam });
+    }
+  }
 
   @HostListener('document:click', ['$event'])
   public onDocumentClick(event: MouseEvent): void {

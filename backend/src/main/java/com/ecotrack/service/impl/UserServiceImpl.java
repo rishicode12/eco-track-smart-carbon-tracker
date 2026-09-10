@@ -65,8 +65,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponse loginUser(LoginRequest request) {
 
+        if (!userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+            throw new ResourceNotFoundException("USER_NOT_FOUND");
+        }
+
         User user = userRepository.findByEmailIgnoreCaseAndIsActive(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
 
         if (Boolean.FALSE.equals(user.getIsActive())) {
             throw new RuntimeException("This account has been deactivated. Please contact support.");

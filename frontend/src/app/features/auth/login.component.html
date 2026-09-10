@@ -203,3 +203,69 @@
     </p>
   </div>
 </div>
+
+<!-- Unregistered User Modal -->
+@if (showUserNotFoundModal) {
+  <div class="unregistered-modal-backdrop" (click)="closeUserNotFoundModal()">
+    <div
+      class="unregistered-modal-card"
+      (click)="$event.stopPropagation()"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="unregistered-modal-title"
+    >
+      <!-- Close icon button -->
+      <button
+        type="button"
+        class="modal-close-icon"
+        (click)="closeUserNotFoundModal()"
+        aria-label="Close dialog"
+      >
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+      <!-- Visual Icon Header -->
+      <div class="modal-icon-wrapper">
+        <div class="modal-icon-halo"></div>
+        <div class="modal-icon-circle">
+          <span class="material-symbols-outlined">person_search</span>
+        </div>
+      </div>
+
+      <!-- Title and Message -->
+      <div class="modal-body-content">
+        <h3 id="unregistered-modal-title" class="modal-title">Account Not Found</h3>
+        <p class="modal-message">
+          We couldn't find an account associated with this email. Would you like to create a new account?
+        </p>
+
+        @if (email?.value) {
+          <div class="modal-email-chip">
+            <span class="material-symbols-outlined email-chip-icon">mail</span>
+            <span class="email-chip-text">{{ email?.value }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-action-row">
+        <button
+          type="button"
+          class="btn-modal-cancel"
+          (click)="closeUserNotFoundModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-modal-create"
+          (click)="navigateToSignup()"
+        >
+          <span class="material-symbols-outlined">person_add</span>
+          <span>Create Account</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

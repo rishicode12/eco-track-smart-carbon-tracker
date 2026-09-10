@@ -10,6 +10,9 @@ import com.ecotrack.entity.User;
 import com.ecotrack.exception.ResourceNotFoundException;
 import com.ecotrack.repository.PasswordResetTokenRepository;
 import com.ecotrack.repository.UserRepository;
+import com.ecotrack.dto.LoginRequest;
+import com.ecotrack.dto.LoginResponse;
+import com.ecotrack.service.UserService;
 import com.ecotrack.service.EmailService;
 import com.ecotrack.service.GoogleAuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,19 +44,34 @@ public class AuthController {
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
+    private final UserService userService;
 
     public AuthController(GoogleAuthService googleAuthService,
                           UserRepository userRepository,
                           PasswordResetTokenRepository passwordResetTokenRepository,
                           EmailService emailService,
                           BCryptPasswordEncoder passwordEncoder,
-                          JdbcTemplate jdbcTemplate) {
+                          JdbcTemplate jdbcTemplate,
+                          UserService userService) {
         this.googleAuthService = googleAuthService;
         this.userRepository = userRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.jdbcTemplate = jdbcTemplate;
+        this.userService = userService;
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "User login", description = "Authenticates user with email and password.")
+    @SecurityRequirements
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+        if (!userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+            throw new ResourceNotFoundException("USER_NOT_FOUND");
+        }
+        LoginResponse loginData = userService.loginUser(request);
+        ApiResponse<LoginResponse> response = new ApiResponse<>(true, "Login successful", loginData);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/health")

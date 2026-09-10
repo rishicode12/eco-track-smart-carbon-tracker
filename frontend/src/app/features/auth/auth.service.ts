@@ -1,9 +1,19 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 import { environment } from '../../../environments/environment';
+
+export class UserNotFoundError extends Error {
+  readonly code = 'USER_NOT_FOUND';
+
+  constructor(message = 'USER_NOT_FOUND') {
+    super(message);
+    this.name = 'UserNotFoundError';
+    Object.setPrototypeOf(this, UserNotFoundError.prototype);
+  }
+}
 
 interface ApiResponse<T> {
   success: boolean;
@@ -79,14 +89,28 @@ export class AuthService {
   }
 
   public async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await firstValueFrom(
-      this.http.post<ApiResponse<LoginResponse>>(`${environment.apiUrl}/api/users/login`, {
-        email,
-        password,
-      })
-    );
+    try {
+      const response = await firstValueFrom(
+        this.http.post<ApiResponse<LoginResponse>>(`${environment.apiUrl}/api/users/login`, {
+          email,
+          password,
+        })
+      );
 
-    return this.processAuthResponse(response, 'Login failed.');
+      return this.processAuthResponse(response, 'Login failed.');
+    } catch (error: any) {
+      if (error instanceof UserNotFoundError) {
+        throw error;
+      }
+      const backendMessage = error?.error?.message || error?.message;
+      if (
+        backendMessage === 'USER_NOT_FOUND' ||
+        (error?.status === 404 && backendMessage === 'USER_NOT_FOUND')
+      ) {
+        throw new UserNotFoundError();
+      }
+      throw error;
+    }
   }
 
   public async register(fullName: string, email: string, password: string, country?: string): Promise<LoginResponse> {
@@ -195,6 +219,9 @@ export class AuthService {
     const authData = response.data;
 
     if (!response.success || !authData?.token) {
+      if (response.message === 'USER_NOT_FOUND') {
+        throw new UserNotFoundError();
+      }
       throw new Error(response.message || fallbackMessage);
     }
 
