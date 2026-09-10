@@ -15,12 +15,20 @@ import com.ecotrack.dto.UserProfileUpdateRequest;
 
 import jakarta.validation.Valid;
 
+import com.ecotrack.service.RateLimitingService;
+import com.ecotrack.utils.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,29 +37,82 @@ public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final FileUploadService fileUploadService;
+    private final RateLimitingService rateLimitingService;
+    private final JwtUtil jwtUtil;
 
-    // Yahan humne fileUploadService aur userRepository ko constructor mein add kar diya hai
-    public UserController(UserService userService, UserRepository userRepository, FileUploadService fileUploadService) {
+    public UserController(UserService userService,
+                          UserRepository userRepository,
+                          FileUploadService fileUploadService,
+                          RateLimitingService rateLimitingService,
+                          JwtUtil jwtUtil) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.fileUploadService = fileUploadService;
+        this.rateLimitingService = rateLimitingService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<LoginResponse>> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> registerUser(
+            @Valid @RequestBody UserRegistrationRequest request,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) {
+
+        String clientIp = rateLimitingService.getClientIp(httpRequest);
+        if (!rateLimitingService.tryConsume(clientIp)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(new ApiResponse<>(false, "Too many registration attempts. Please try again after 1 minute.", null));
+        }
+
         LoginResponse registrationData = userService.registerUser(request);
-        
+        String accessToken = jwtUtil.generateAccessToken(registrationData.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(registrationData.getEmail());
+        registrationData.setToken(accessToken);
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Lax")
+                .build();
+        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
         ApiResponse<LoginResponse> response = new ApiResponse<>(true, "User registered successfully", registrationData);
-        
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) {
+
+        String clientIp = rateLimitingService.getClientIp(httpRequest);
+        if (!rateLimitingService.tryConsume(clientIp)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(new ApiResponse<>(false, "Too many login attempts. Please try again after 1 minute.", null));
+        }
+
+        if (!userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+            throw new ResourceNotFoundException("USER_NOT_FOUND");
+        }
+
         LoginResponse loginData = userService.loginUser(request);
-        
+        String accessToken = jwtUtil.generateAccessToken(loginData.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(loginData.getEmail());
+        loginData.setToken(accessToken);
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Lax")
+                .build();
+        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
         ApiResponse<LoginResponse> response = new ApiResponse<>(true, "Login successful", loginData);
-        
         return ResponseEntity.ok(response);
     }
 

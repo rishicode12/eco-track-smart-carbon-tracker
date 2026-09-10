@@ -69,13 +69,20 @@ export class LoginComponent {
       })
       .catch((error: unknown) => {
         this.isLoading = false;
+        const status = (error as any)?.status || (error as any)?.statusCode;
+        const message = (error as any)?.error?.message || (error as any)?.message;
+
         if (
           error instanceof UserNotFoundError ||
           (error as any)?.code === 'USER_NOT_FOUND' ||
-          (error as any)?.message === 'USER_NOT_FOUND' ||
-          ((error as any)?.error?.message === 'USER_NOT_FOUND')
+          status === 404 ||
+          message === 'USER_NOT_FOUND' ||
+          (typeof message === 'string' &&
+            (message.toLowerCase().includes('user_not_found') ||
+             message.toLowerCase().includes('user not found')))
         ) {
           this.showUserNotFoundModal = true;
+          this.errorMessage = '';
           return;
         }
         this.applyAuthError(error, 'Authentication failed. Please check your credentials.');

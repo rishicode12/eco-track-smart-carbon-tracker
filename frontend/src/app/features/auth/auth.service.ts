@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable, map } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 import { environment } from '../../../environments/environment';
 
@@ -91,10 +91,11 @@ export class AuthService {
   public async login(email: string, password: string): Promise<LoginResponse> {
     try {
       const response = await firstValueFrom(
-        this.http.post<ApiResponse<LoginResponse>>(`${environment.apiUrl}/api/users/login`, {
-          email,
-          password,
-        })
+        this.http.post<ApiResponse<LoginResponse>>(
+          `${environment.apiUrl}/api/auth/login`,
+          { email, password },
+          { withCredentials: true }
+        )
       );
 
       return this.processAuthResponse(response, 'Login failed.');
@@ -102,28 +103,66 @@ export class AuthService {
       if (error instanceof UserNotFoundError) {
         throw error;
       }
+
+      const status = error?.status || error?.statusCode;
       const backendMessage = error?.error?.message || error?.message;
+
+      // Strictly check for 404 Not Found OR "USER_NOT_FOUND" error message
       if (
+        status === 404 ||
         backendMessage === 'USER_NOT_FOUND' ||
-        (error?.status === 404 && backendMessage === 'USER_NOT_FOUND')
+        (typeof backendMessage === 'string' &&
+          (backendMessage.toLowerCase().includes('user_not_found') ||
+           backendMessage.toLowerCase().includes('user not found')))
       ) {
         throw new UserNotFoundError();
       }
+
       throw error;
     }
   }
 
   public async register(fullName: string, email: string, password: string, country?: string): Promise<LoginResponse> {
     const response = await firstValueFrom(
-      this.http.post<ApiResponse<LoginResponse>>(`${environment.apiUrl}/api/users/register`, {
-        fullName,
-        email,
-        password,
-        country,
-      })
+      this.http.post<ApiResponse<LoginResponse>>(
+        `${environment.apiUrl}/api/auth/register`,
+        { fullName, email, password, country },
+        { withCredentials: true }
+      )
     );
 
     return this.processAuthResponse(response, 'Registration failed.');
+  }
+
+  public refreshToken(): Observable<string> {
+    return this.http
+      .post<ApiResponse<{ token: string; email: string }>>(
+        `${environment.apiUrl}/api/auth/refresh`,
+        {},
+        { withCredentials: true }
+      )
+      .pipe(
+        map((response) => {
+          if (!response.success || !response.data?.token) {
+            throw new Error(response.message || 'Token refresh failed');
+          }
+          const newToken = response.data.token;
+          this.setAccessToken(newToken, response.data.email);
+          return newToken;
+        })
+      );
+  }
+
+  public setAccessToken(token: string, email?: string): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.tokenKey, token);
+      if (email) {
+        const session: UserSession = { email };
+        localStorage.setItem(this.userKey, JSON.stringify(session));
+        this.currentUser.set(session);
+      }
+      this.isAuthenticated.set(true);
+    }
   }
 
   // ==========================================
@@ -182,10 +221,17 @@ export class AuthService {
   }
 
   public logout() {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
+    this.http
+      .post(`${environment.apiUrl}/api/auth/logout`, {}, { withCredentials: true })
+      .subscribe({ error: () => {} });
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.tokenKey);
+      localStorage.removeItem(this.userKey);
+    }
     this.isAuthenticated.set(false);
     this.currentUser.set(null);
+    this.userProfile.set(null);
     this.router.navigate(['/auth/login']);
   }
 

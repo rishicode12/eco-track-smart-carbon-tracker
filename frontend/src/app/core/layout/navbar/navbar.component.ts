@@ -48,27 +48,31 @@ export class NavbarComponent implements OnInit {
   public isNotificationsOpen = false;
 
   async ngOnInit() {
-    try {
-      this.currentUser = await this.authService.getUserProfile();
-    } catch (error) {
-      console.error('Navbar error:', error);
+    const isAuth = this.authService.isAuthenticated() || !!this.authService.getToken();
+
+    if (isAuth) {
+      try {
+        this.currentUser = await this.authService.getUserProfile();
+      } catch (error) {
+        console.error('Navbar error:', error);
+      }
+
+      this.gamificationService.profile$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((profile) => {
+          this.ecoProfile = profile;
+          this.applyLevelMath(profile);
+          this.cdr.detectChanges();
+        });
+
+      this.gamificationService.profileUpdated$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.gamificationService.refreshProfile());
+
+      this.gamificationService.refreshProfile();
+
+      this.loadNotifications();
     }
-
-    this.gamificationService.profile$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((profile) => {
-        this.ecoProfile = profile;
-        this.applyLevelMath(profile);
-        this.cdr.detectChanges();
-      });
-
-    this.gamificationService.profileUpdated$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.gamificationService.refreshProfile());
-
-    this.gamificationService.refreshProfile();
-
-    this.loadNotifications();
 
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
@@ -85,6 +89,9 @@ export class NavbarComponent implements OnInit {
   }
 
   private async loadNotifications(): Promise<void> {
+    if (!this.authService.isAuthenticated() && !this.authService.getToken()) {
+      return;
+    }
     const result = await this.notificationService.getNotifications();
     this.notifications = result.notifications;
     this.unreadCount = result.unreadCount;
