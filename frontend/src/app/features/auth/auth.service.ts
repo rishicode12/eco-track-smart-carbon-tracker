@@ -104,12 +104,13 @@ export class AuthService {
         throw error;
       }
 
-      const status = error?.status || error?.statusCode;
+      const status = error?.status ?? error?.statusCode;
       const backendMessage = error?.error?.message || error?.message;
 
-      // Strictly check for 404 Not Found OR "USER_NOT_FOUND" error message
+      // Aggressively check HTTP status code directly: 404
       if (
         status === 404 ||
+        error?.error?.status === 404 ||
         backendMessage === 'USER_NOT_FOUND' ||
         (typeof backendMessage === 'string' &&
           (backendMessage.toLowerCase().includes('user_not_found') ||
