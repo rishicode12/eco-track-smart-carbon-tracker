@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -17,6 +17,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Simple state variables using standard JS structures
   public loginForm = this.fb.group({
@@ -53,6 +54,7 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
     this.fieldErrors = {};
+    this.cdr.detectChanges();
 
     const email = this.loginForm.value.email as string;
     const password = this.loginForm.value.password as string;
@@ -61,6 +63,7 @@ export class LoginComponent {
       .then(() => {
         this.isLoading = false;
         this.isSuccess = true;
+        this.cdr.detectChanges();
         
         // Hold success checkmark briefly before redirecting
         setTimeout(() => {
@@ -72,6 +75,7 @@ export class LoginComponent {
         const status = (error as any)?.status ?? (error as any)?.statusCode;
         const message = (error as any)?.error?.message || (error as any)?.message;
 
+        // Directly catch 404 or UserNotFoundError regardless of error body structure
         if (
           error instanceof UserNotFoundError ||
           (error as any)?.code === 'USER_NOT_FOUND' ||
@@ -84,18 +88,22 @@ export class LoginComponent {
         ) {
           this.showUserNotFoundModal = true;
           this.errorMessage = '';
+          this.cdr.detectChanges();
           return;
         }
         this.applyAuthError(error, 'Authentication failed. Please check your credentials.');
+        this.cdr.detectChanges();
       });
   }
 
   public closeUserNotFoundModal(): void {
     this.showUserNotFoundModal = false;
+    this.cdr.detectChanges();
   }
 
   public navigateToSignup(): void {
     this.showUserNotFoundModal = false;
+    this.cdr.detectChanges();
     const email = this.loginForm.value.email;
     this.router.navigate(['/auth/signup'], {
       queryParams: email ? { email } : {}

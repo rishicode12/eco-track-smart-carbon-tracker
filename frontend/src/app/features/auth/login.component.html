@@ -183,26 +183,27 @@
 </div>
 
 <!-- Loading / Success Overlay -->
+@if (isLoading || isSuccess) {
+  <div id="login-feedback" class="login-overlay show">
+    <div class="overlay-card active">
+      <div class="overlay-icon">
+        @if (isSuccess) {
+          <span class="material-symbols-outlined"> check </span>
+        } @else {
+          <i class="bi bi-arrow-repeat spinner"></i>
+        }
+      </div>
 
-<div id="login-feedback" class="login-overlay" [class.show]="isLoading || isSuccess">
-  <div class="overlay-card" [class.active]="isLoading || isSuccess">
-    <div class="overlay-icon">
-      @if (isSuccess) {
-        <span class="material-symbols-outlined"> check </span>
-      } @else {
-        <i class="bi bi-arrow-repeat spinner"></i>
-      }
+      <h3>
+        {{ isSuccess ? 'Authenticated' : 'Authenticating' }}
+      </h3>
+
+      <p>
+        {{ isSuccess ? 'Redirecting to Dashboard...' : 'Preparing your sustainability workspace...' }}
+      </p>
     </div>
-
-    <h3>
-      {{ isSuccess ? 'Authenticated' : 'Authenticating' }}
-    </h3>
-
-    <p>
-      {{ isSuccess ? 'Redirecting to Dashboard...' : 'Preparing your sustainability workspace...' }}
-    </p>
   </div>
-</div>
+}
 
 <!-- Unregistered User Modal -->
 @if (showUserNotFoundModal) {

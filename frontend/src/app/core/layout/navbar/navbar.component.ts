@@ -98,8 +98,14 @@ export class NavbarComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  public toggleNotifications(): void {
+  public toggleNotifications(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.isNotificationsOpen = !this.isNotificationsOpen;
+    if (this.isNotificationsOpen) {
+      this.isDropdownOpen = false;
+    }
     this.cdr.detectChanges();
   }
 
@@ -123,7 +129,7 @@ export class NavbarComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   public onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    if (!target.closest('.notification-wrapper') && !target.closest('.search-box-wrapper')) {
+    if (!target.closest('.notification-wrapper') && !target.closest('.user-menu-wrap') && !target.closest('.search-box-wrapper')) {
       this.isDropdownOpen = false;
       this.isNotificationsOpen = false;
       this.cdr.detectChanges();
@@ -133,6 +139,10 @@ export class NavbarComponent implements OnInit {
   public toggleDropdown(event: Event): void {
     event.stopPropagation();
     this.isDropdownOpen = !this.isDropdownOpen;
+    if (this.isDropdownOpen) {
+      this.isNotificationsOpen = false;
+    }
+    this.cdr.detectChanges();
   }
 
   public logout(): void {
