@@ -8,9 +8,13 @@
 ![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![OpenAI](https://img.shields.io/badge/OpenAI-%23412991.svg?style=for-the-badge&logo=openai&logoColor=white)
 
-### 🌐 Live Deployment
+
+## 🌐 Live Deployment
+
+| Service | URL | Platform |
+|--------|-----|----------|
 | 🖥️ **Frontend (Web App)** | [ecotrack-ai-carbon-tracker.vercel.app](https://ecotrack-ai-carbon-tracker.vercel.app) | Vercel |
-| ⚙️ **Backend (API)** | [ecotrack-backend-jloh.onrender.com](https://ecotrack-backend-jloh.onrender.com) | Render |
+| ⚙️ **Backend (API)** | [ecotrack-backend-jloh.onrender.com](https://ecotrack-backend-jloh.onrender.com) | Render 
 
 ---
 
